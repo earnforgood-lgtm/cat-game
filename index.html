@@ -98,7 +98,7 @@
 <body class="w-screen flex flex-col items-center justify-center text-gray-800">
 
     <!-- 音效資源庫 -->
-    <audio id="bgm" loop preload="auto"></audio>
+    <audio id="bgm" preload="auto"></audio>
     <audio id="sfx-correct" preload="auto" src="https://assets.mixkit.co/sfx/download/mixkit-extra-bonus-in-a-video-game-2045.wav"></audio>
     <audio id="sfx-wrong" preload="auto" src="https://assets.mixkit.co/sfx/download/mixkit-game-show-wrong-answer-buzz-950.wav"></audio>
     <audio id="sfx-meow" preload="auto" src="sound/meow1.mp3"></audio>
@@ -452,7 +452,7 @@
             try {
                 const el = document.getElementById(id);
                 if(el) {
-                    if (id === 'bgm' && !el.src) setRandomBgm(false);
+                    if (id === 'bgm' && !el.src) setRandomBgm(true);
                     el.muted = true;
                     el.load();
                     const playPromise = el.play();
