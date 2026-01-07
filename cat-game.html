@@ -101,9 +101,9 @@
     <audio id="bgm" loop preload="auto"></audio>
     <audio id="sfx-correct" preload="auto" src="https://assets.mixkit.co/sfx/download/mixkit-extra-bonus-in-a-video-game-2045.wav"></audio>
     <audio id="sfx-wrong" preload="auto" src="https://assets.mixkit.co/sfx/download/mixkit-game-show-wrong-answer-buzz-950.wav"></audio>
-    <audio id="sfx-meow" preload="auto" src="https://drive.google.com/uc?export=download&id=1v2yBh__0lJceSJdbiae_IBHc_2xQeePa"></audio>
-    <audio id="sfx-real-meow" preload="auto" src="https://drive.google.com/uc?export=download&id=1NsVkcKuRk0lZ1m-7W3-D2XoV9KnYrVcI"></audio>
-    <audio id="sfx-angry" preload="auto" src="https://drive.google.com/uc?export=download&id=1I13Ui4tGmBloTx6zzrPIfZma3Oe2vPgB"></audio>
+    <audio id="sfx-meow" preload="auto" src="sound/meow1.mp3"></audio>
+    <audio id="sfx-real-meow" preload="auto" src="sound/meow2.mp3"></audio>
+    <audio id="sfx-angry" preload="auto" src="sound/an1.mp3"></audio>
     <audio id="sfx-levelup" preload="auto" src="https://assets.mixkit.co/sfx/download/mixkit-quick-win-video-game-notification-269.wav"></audio>
     <audio id="sfx-flip" preload="auto" src="https://assets.mixkit.co/sfx/download/mixkit-paper-slide-1530.wav"></audio>
     <audio id="sfx-win" preload="auto" src="https://assets.mixkit.co/sfx/download/mixkit-winning-chimes-2015.wav"></audio>
@@ -302,21 +302,21 @@
     
     const EXP_PER_LEVEL = 10;
     const HAPPY_MEOW_LIST = [
-        "https://drive.google.com/uc?export=download&id=1v2yBh__0lJceSJdbiae_IBHc_2xQeePa",
-        "https://drive.google.com/uc?export=download&id=1NsVkcKuRk0lZ1m-7W3-D2XoV9KnYrVcI",
-        "https://drive.google.com/uc?export=download&id=11bR3LWnPCVa77K0NmCXlOhyBr-0r25Uy",
-        "https://drive.google.com/uc?export=download&id=19G0UwCQcKvjsXy2cEPCULjgQgDcC4pAa"
+        "sound/meow1.mp3",
+        "sound/meow2.mp3",
+        "sound/meow3.mp3",
+        "sound/meow4.mp3"
     ];
     const ANGRY_MEOW_LIST = [
-        "https://drive.google.com/uc?export=download&id=1I13Ui4tGmBloTx6zzrPIfZma3Oe2vPgB",
-        "https://drive.google.com/uc?export=download&id=1yQX7PpoUBMMfSAu-zJXjFHrc7SglBlJz"
+        "sound/an1.mp3",
+        "sound/an2.mp3"
     ];
     const BGM_LIST = [
-        "https://drive.google.com/uc?export=download&id=1YTeFDiiEePl4tWw6pgrASsgUkSZbbgPa",
-        "https://drive.google.com/uc?export=download&id=1CoIclvB9PgyHWGvNaBfmy9fJTslyoIGA",
-        "https://drive.google.com/uc?export=download&id=1Z-w9psqcLOzuWY4CjSEsQW-lXMWxW9qf",
-        "https://drive.google.com/uc?export=download&id=15GiXgEMC0MnUp60NhNBNVYRnJDgxqo4G",
-        "https://drive.google.com/uc?export=download&id=1TmF_ih03kbwo78wnPQ0fhRfxQnAKNrO8"
+        "music/兔兒跳不停.mp3",
+        "music/洗洗碗.mp3",
+        "music/洗碗.mp3",
+        "music/洗碗洗碗洗碗碗.mp3",
+        "music/蝦拉拉 .mp3"
     ];
 
     const catSprites = [
@@ -372,10 +372,15 @@
         return list[idx];
     }
 
+    function normalizeAudioSrc(path) {
+        if (!path) return "";
+        return path.startsWith("http") ? path : encodeURI(path);
+    }
+
     function setRandomBgm(shouldPlay) {
         const bgm = document.getElementById('bgm');
         if (!bgm) return;
-        const nextUrl = pickRandomBgmUrl();
+        const nextUrl = normalizeAudioSrc(pickRandomBgmUrl());
         if (!nextUrl) return;
         if (bgm.src !== nextUrl) {
             bgm.src = nextUrl;
@@ -505,7 +510,7 @@
         
         if (isHappy) {
             try {
-                const happyUrl = pickRandom(HAPPY_MEOW_LIST);
+                const happyUrl = normalizeAudioSrc(pickRandom(HAPPY_MEOW_LIST));
                 const realMeow = document.getElementById('sfx-real-meow');
                 if (realMeow && happyUrl) {
                     realMeow.src = happyUrl;
@@ -524,7 +529,7 @@
             catContainer.classList.remove('cat-angry');
         } else {
             try {
-                const angryUrl = pickRandom(ANGRY_MEOW_LIST);
+                const angryUrl = normalizeAudioSrc(pickRandom(ANGRY_MEOW_LIST));
                 const angryMeow = document.getElementById('sfx-angry');
                 if (angryMeow && angryUrl) {
                     angryMeow.src = angryUrl;
