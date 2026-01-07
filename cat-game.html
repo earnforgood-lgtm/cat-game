@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>🐱 貓咪小學堂：生字大冒險 (除錯版)</title>
+    <!-- 引入字型與圖示庫 -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&family=Zen+Maru+Gothic:wght@500;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* 遊戲專屬樣式 */
+        :root {
+            --primary: #FF9F1C;
+            --secondary: #FFBF69;
+            --bg-color: #CBF3F0;
+            --text: #2EC4B6;
+        }
+
+        body {
+            font-family: 'Zen Maru Gothic', 'Noto Sans TC', sans-serif;
+            background-color: var(--bg-color);
+            background-image: radial-gradient(#ffffff 20%, transparent 20%), radial-gradient(#ffffff 20%, transparent 20%);
+            background-position: 0 0, 50px 50px;
+            background-size: 100px 100px;
+            overflow: hidden; /* 防止捲動 */
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            height: 100dvh;
+        }
+
+        /* 3D 按鈕效果 */
+        .btn-3d {
+            transition: all 0.1s;
+            box-shadow: 0px 5px 0px 0px rgba(0,0,0,0.2);
+            transform: translateY(0);
+            cursor: pointer;
+        }
+        .btn-3d:active {
+            transform: translateY(5px);
+            box-shadow: 0px 0px 0px 0px rgba(0,0,0,0.2);
+        }
+
+        /* 卡片翻轉核心 */
+        .perspective-1000 { perspective: 1000px; }
+        .transform-style-3d { transform-style: preserve-3d; }
+        .backface-hidden { backface-visibility: hidden; }
+        .rotate-y-180 { transform: rotateY(180deg); }
+        
+        .card-inner { transition: transform 0.6s cubic-bezier(0.4, 0.0, 0.2, 1); }
+        .card-inner.card-flipped { transform: rotateY(180deg); }
+
+        /* 貓咪浮動動畫 */
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+            100% { transform: translateY(0px); }
+        }
+        .cat-anim { animation: float 3s ease-in-out infinite; }
+
+        /* 貓咪生氣抖動動畫 */
+        @keyframes shake {
+            0% { transform: translate(1px, 1px) rotate(0deg); }
+            10% { transform: translate(-1px, -2px) rotate(-1deg); }
+            20% { transform: translate(-3px, 0px) rotate(1deg); }
+            30% { transform: translate(3px, 2px) rotate(0deg); }
+            40% { transform: translate(1px, -1px) rotate(1deg); }
+            50% { transform: translate(-1px, 2px) rotate(-1deg); }
+            60% { transform: translate(-3px, 1px) rotate(0deg); }
+            70% { transform: translate(3px, 1px) rotate(-1deg); }
+            80% { transform: translate(-1px, -1px) rotate(1deg); }
+            90% { transform: translate(1px, 2px) rotate(0deg); }
+            100% { transform: translate(1px, -2px) rotate(-1deg); }
+        }
+        .cat-angry { animation: shake 0.5s; }
+
+        /* 表情符號動畫 */
+        @keyframes icon-float {
+            0% { transform: translateY(0) scale(1); opacity: 1; }
+            100% { transform: translateY(-100px) scale(1.5); opacity: 0; }
+        }
+        .float-icon {
+            position: absolute;
+            font-size: 3rem;
+            animation: icon-float 0.8s ease-out forwards;
+            pointer-events: none;
+            z-index: 50;
+        }
+
+        .exp-fill { transition: width 0.5s ease-out; }
+        
+        #start-screen, #scene-reward {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+        }
+    </style>
+</head>
+<body class="w-screen flex flex-col items-center justify-center text-gray-800">
+
+    <!-- 音效資源庫 -->
+    <audio id="bgm" loop preload="auto"></audio>
+    <audio id="sfx-correct" preload="auto" src="https://assets.mixkit.co/sfx/download/mixkit-extra-bonus-in-a-video-game-2045.wav"></audio>
+    <audio id="sfx-wrong" preload="auto" src="https://assets.mixkit.co/sfx/download/mixkit-game-show-wrong-answer-buzz-950.wav"></audio>
+    <audio id="sfx-meow" preload="auto" src="https://drive.google.com/uc?export=download&id=1v2yBh__0lJceSJdbiae_IBHc_2xQeePa"></audio>
+    <audio id="sfx-real-meow" preload="auto" src="https://drive.google.com/uc?export=download&id=1NsVkcKuRk0lZ1m-7W3-D2XoV9KnYrVcI"></audio>
+    <audio id="sfx-angry" preload="auto" src="https://drive.google.com/uc?export=download&id=1I13Ui4tGmBloTx6zzrPIfZma3Oe2vPgB"></audio>
+    <audio id="sfx-levelup" preload="auto" src="https://assets.mixkit.co/sfx/download/mixkit-quick-win-video-game-notification-269.wav"></audio>
+    <audio id="sfx-flip" preload="auto" src="https://assets.mixkit.co/sfx/download/mixkit-paper-slide-1530.wav"></audio>
+    <audio id="sfx-win" preload="auto" src="https://assets.mixkit.co/sfx/download/mixkit-winning-chimes-2015.wav"></audio>
+
+    <!-- 0. 啟動畫面 -->
+    <div id="start-screen" class="fixed inset-0 z-[100] flex flex-col items-center justify-center p-4">
+        <div class="bg-white p-8 rounded-3xl shadow-2xl text-center max-w-sm w-full border-4 border-orange-300">
+            <div class="text-6xl mb-4 animate-bounce">🐱</div>
+            <h1 class="text-3xl font-black text-gray-800 mb-2">貓咪小學堂</h1>
+            <p class="text-gray-500 mb-8">準備好幫貓咪賺罐頭了嗎？</p>
+            <button onclick="unlockAudioAndStart()" class="w-full btn-3d bg-orange-500 text-white text-xl font-bold py-4 rounded-xl border-b-4 border-orange-700 active:border-orange-500">
+                ▶️ 點我開始遊戲
+            </button>
+            <p class="mt-4 text-xs text-gray-400">請確認平板聲音已開啟</p>
+        </div>
+    </div>
+
+    <!-- 1. 主畫面 (房間) -->
+    <div id="scene-room" class="w-full max-w-md h-full flex flex-col p-4 relative hidden opacity-0 transition-opacity duration-500">
+        
+        <!-- 頂部資訊列 -->
+        <div class="flex justify-between items-center bg-white/90 backdrop-blur-sm p-3 rounded-2xl shadow-lg mb-2 border-2 border-white">
+            <div class="flex items-center gap-2 min-w-fit">
+                <span class="text-2xl">🏆</span>
+                <span class="font-bold text-lg">Lv.<span id="ui-level">1</span></span>
+            </div>
+            
+            <div class="flex-1 mx-3 flex flex-col justify-center">
+                <!-- 這裡補回了顯示經驗值的文字區塊 -->
+                <div class="flex justify-between text-xs text-gray-500 mb-1 px-1">
+                    <span>EXP</span>
+                    <span id="ui-exp-text">0/10</span>
+                </div>
+                <!-- 進度條 -->
+                <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden border border-gray-300">
+                    <div id="ui-exp-bar" class="exp-fill bg-green-400 h-full shadow-[0_0_10px_rgba(74,222,128,0.5)]" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <button id="btn-music" onclick="toggleMusic()" class="mr-2 p-2 bg-gray-100 rounded-full text-sm hover:bg-gray-200 transition">
+                🔊
+            </button>
+
+            <div class="flex items-center gap-1 bg-yellow-100 px-3 py-1 rounded-xl border border-yellow-200 shadow-sm min-w-fit">
+                <span class="text-xl">🥫</span>
+                <span id="ui-food" class="font-bold text-orange-600">0</span>
+            </div>
+        </div>
+
+        <!-- 貓咪互動區 -->
+        <div class="flex-1 flex flex-col items-center justify-center relative min-h-0">
+            <div id="cat-container" class="relative cursor-pointer cat-anim active:scale-95 transition-transform duration-100" onclick="petCat(event)">
+                <img id="cat-image" src="https://robohash.org/egg?set=set4&size=250x250" class="w-64 h-64 max-h-[40vh] object-contain drop-shadow-2xl" alt="Cat">
+                <div id="cat-speech" class="absolute -top-10 right-0 bg-white p-3 rounded-2xl rounded-bl-none shadow-md text-sm hidden font-bold text-gray-600 animate-bounce">
+                    喵呜～
+                </div>
+            </div>
+            <p class="mt-4 text-gray-500 text-sm bg-white/60 px-6 py-2 rounded-full backdrop-blur-sm shadow-sm animate-pulse">👆 點擊貓咪互動</p>
+        </div>
+
+        <!-- 控制按鈕區 -->
+        <div class="grid grid-cols-2 gap-4 mt-2 mb-4 shrink-0">
+            <button onclick="feedCat()" class="btn-3d bg-orange-400 hover:bg-orange-500 text-white py-4 rounded-2xl text-xl font-bold flex items-center justify-center gap-2 border-b-4 border-orange-600">
+                <span>🐟</span> 餵食 <span class="text-sm opacity-80">(1exp)</span>
+            </button>
+            <button onclick="openMenu()" class="btn-3d bg-blue-400 hover:bg-blue-500 text-white py-4 rounded-2xl text-xl font-bold flex items-center justify-center gap-2 border-b-4 border-blue-600">
+                <span>✏️</span> 去打工
+            </button>
+        </div>
+    </div>
+
+    <!-- 2. 選課選單 -->
+    <div id="scene-menu" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl animate-[fadeIn_0.3s_ease-out] border-4 border-blue-200 flex flex-col max-h-[90dvh]">
+            <h2 class="text-2xl font-black text-center mb-4 text-gray-700 flex items-center justify-center gap-2 shrink-0">
+                <span>📚</span> 選擇課程
+            </h2>
+            <div class="grid grid-cols-2 gap-3 overflow-y-auto p-1 flex-1" id="lesson-list">
+                <!-- JS 生成按鈕 -->
+            </div>
+            <button onclick="closeMenu()" class="mt-4 w-full py-3 bg-gray-400 hover:bg-gray-500 text-white rounded-xl font-bold btn-3d border-b-4 border-gray-600 shrink-0">返回房間</button>
+        </div>
+    </div>
+
+    <!-- 3. 戰鬥畫面 -->
+    <div id="scene-study" class="hidden fixed inset-0 bg-[#FFF3E0] z-40 flex flex-col items-center justify-center p-4">
+        <div class="w-full max-w-md flex justify-between items-center mb-4 px-2">
+            <div class="text-gray-500 font-bold">第 <span id="q-idx">1</span> 題</div>
+            <button onclick="quitStudy()" class="text-gray-400 hover:text-red-500 font-bold px-3 py-1 rounded-lg hover:bg-red-50 transition">逃跑 🏳️</button>
+        </div>
+        <div class="w-full max-w-md h-3 bg-gray-200 rounded-full mb-8 shadow-inner overflow-hidden">
+            <div id="study-progress" class="h-full bg-blue-500 rounded-full transition-all duration-300" style="width: 0%"></div>
+        </div>
+        <div class="perspective-1000 w-full max-w-xs h-96 cursor-pointer mb-8 relative group" onclick="flipCard()">
+            <div id="tap-hint" class="absolute -right-4 top-1/2 z-10 animate-bounce bg-white/80 p-2 rounded-full shadow-lg pointer-events-none">👆</div>
+            <div id="study-card" class="card-inner relative w-full h-full transform-style-3d shadow-xl rounded-3xl transition-all duration-500">
+                <div class="absolute w-full h-full backface-hidden bg-white rounded-3xl flex flex-col items-center justify-center border-4 border-blue-200 shadow-lg p-4">
+                    <span class="text-4xl mb-2 opacity-50">🔊</span>
+                    <h2 id="q-zhuyin" class="text-8xl font-black text-gray-800 tracking-widest my-2 select-none"></h2>
+                    <div class="mt-4 bg-blue-50 px-6 py-3 rounded-2xl border border-blue-100 flex items-center justify-center gap-2 w-full">
+                        <span class="text-gray-400 text-sm absolute top-2 left-4">提示：</span>
+                        <p id="q-hint" class="text-3xl font-bold text-blue-600 tracking-widest"></p>
+                    </div>
+                    <p class="text-gray-400 mt-4 text-xs">寫完後點我翻牌</p>
+                </div>
+                <div class="absolute w-full h-full backface-hidden rotate-y-180 bg-blue-50 rounded-3xl flex flex-col items-center justify-center border-4 border-blue-400 shadow-lg p-4">
+                    <h2 id="q-char" class="text-9xl font-black text-red-500 mb-2 font-[KaiTi] select-none"></h2>
+                    <div class="flex flex-col items-center gap-2 w-full">
+                         <p id="q-radical" class="text-lg bg-blue-200 text-blue-900 px-3 py-1 rounded-lg font-bold shadow-sm"></p>
+                         <div class="w-full bg-white/50 rounded-xl py-2 mt-2">
+                            <p id="a-word" class="text-2xl font-bold text-gray-700"></p>
+                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="study-controls" class="hidden flex gap-4 w-full max-w-md animate-[fadeIn_0.5s_ease-out]">
+            <button onclick="answer(false)" class="flex-1 py-4 bg-red-400 hover:bg-red-500 text-white rounded-2xl font-bold shadow-md transform transition active:scale-95 border-b-4 border-red-600 text-lg">❌ 再練一次</button>
+            <button onclick="answer(true)" class="flex-1 py-4 bg-green-400 hover:bg-green-500 text-white rounded-2xl font-bold shadow-md transform transition active:scale-95 border-b-4 border-green-600 text-lg">✅ 我寫對了</button>
+        </div>
+    </div>
+
+    <!-- 4. 結算獎勵畫面 -->
+    <div id="scene-reward" class="hidden fixed inset-0 z-[9999] flex flex-col items-center justify-center p-4">
+        <div class="bg-white p-8 rounded-3xl shadow-2xl text-center max-w-sm w-full border-4 border-yellow-300 relative">
+            <h2 class="text-4xl font-black text-yellow-500 mb-4 animate-bounce">🎉 恭喜過關！</h2>
+            <div class="text-8xl mb-4">🥫</div>
+            <p class="text-2xl text-gray-700 mb-6 font-bold">獲得了 <span id="reward-count" class="text-red-500 text-4xl">0</span> 個罐頭</p>
+            <button onclick="collectReward()" class="w-full btn-3d bg-green-500 text-white text-xl font-bold py-4 rounded-xl border-b-4 border-green-700 active:border-green-500" style="pointer-events: auto;">
+                💰 收下罐頭回家
+            </button>
+        </div>
+    </div>
+
+    <!-- 升級特效 -->
+    <div id="levelup-overlay" class="hidden fixed inset-0 bg-black/80 z-[80] flex flex-col items-center justify-center text-white text-center pointer-events-none">
+        <h1 class="text-7xl font-bold text-yellow-300 mb-4 animate-bounce drop-shadow-[0_5px_5px_rgba(0,0,0,0.5)]">LEVEL UP!</h1>
+        <p class="text-3xl font-bold text-white mb-8">貓咪進化了！✨</p>
+        <div class="text-6xl animate-pulse">😻</div>
+    </div>
+
+<script>
+    // --- 0. 資料庫 ---
+    const lessons = {
+        "7": { title: "第七課", words: [
+            {c:"樣",z:"ㄧㄤˋ",r:"木部",w:"樣子"}, {c:"食",z:"ㄕˊ",r:"食部",w:"食品"}, {c:"郊",z:"ㄐㄧㄠ",r:"邑部",w:"郊外"}, {c:"活",z:"ㄏㄨㄛˊ",r:"水部",w:"生活"},
+            {c:"奇",z:"ㄑㄧˊ",r:"大部",w:"奇怪"}, {c:"筒",z:"ㄊㄨㄥˇ",r:"竹部",w:"竹筒"}, {c:"香",z:"ㄒㄧㄤ",r:"香部",w:"香水"}, {c:"味",z:"ㄨㄟˋ",r:"口部",w:"味道"},
+            {c:"便",z:"ㄅㄧㄢˋ",r:"人部",w:"方便"}, {c:"當",z:"ㄉㄤ",r:"田部",w:"便當"}, {c:"盒",z:"ㄏㄜˊ",r:"皿部",w:"盒子"}, {c:"客",z:"ㄎㄜˋ",r:"宀部",w:"客人"},
+            {c:"清",z:"ㄑㄧㄥ",r:"水部",w:"清水"}, {c:"節",z:"ㄐㄧㄝˊ",r:"竹部",w:"節日"}, {c:"保",z:"ㄅㄠˇ",r:"人部",w:"保護"}, {c:"平",z:"ㄆㄧㄥˊ",r:"干部",w:"平安"},
+            {c:"安",z:"ㄢ",r:"宀部",w:"安全"}, {c:"南",z:"ㄋㄢˊ",r:"十部",w:"南方"}
+        ]},
+        "8": { title: "第八課", words: [
+            {c:"介",z:"ㄐㄧㄝˋ",r:"人部",w:"介紹"}, {c:"園",z:"ㄩㄢˊ",r:"囗部",w:"公園"}, {c:"形",z:"ㄒㄧㄥˊ",r:"彡部",w:"形狀"}, {c:"白",z:"ㄅㄞˊ",r:"白部",w:"白色"},
+            {c:"紙",z:"ㄓˇ",r:"糸部",w:"白紙"}, {c:"米",z:"ㄇㄧˇ",r:"米部",w:"白米"}, {c:"變",z:"ㄅㄧㄢˋ",r:"言部",w:"改變"}, {c:"軟",z:"ㄖㄨㄢˇ",r:"車部",w:"柔軟"},
+            {c:"搶",z:"ㄑㄧㄤˇ",r:"手部",w:"搶走"}, {c:"材",z:"ㄘㄞˊ",r:"木部",w:"材料"}, {c:"蝦",z:"ㄒㄧㄚ",r:"虫部",w:"蝦子"}, {c:"線",z:"ㄒㄧㄢˋ",r:"糸部",w:"毛線"},
+            {c:"各",z:"ㄍㄜˋ",r:"口部",w:"各種"}, {c:"種",z:"ㄓㄨㄥˇ",r:"禾部",w:"種子"}, {c:"菜",z:"ㄘㄞˋ",r:"艸部",w:"青菜"}, {c:"聽",z:"ㄊㄧㄥ",r:"耳部",w:"聽見"},
+            {c:"更",z:"ㄍㄥˋ",r:"曰部",w:"更加"}, {c:"接",z:"ㄐㄧㄝ",r:"手部",w:"接受"}
+        ]},
+        "9": { title: "第九課", words: [
+            {c:"黃",z:"ㄏㄨㄤˊ",r:"黃部",w:"黃色"}, {c:"沖",z:"ㄔㄨㄥ",r:"水部",w:"沖洗"}, {c:"澡",z:"ㄗㄠˇ",r:"水部",w:"洗澡"}, {c:"蘿",z:"ㄌㄨㄛˊ",r:"艸部",w:"蘿蔔"},
+            {c:"蔔",z:"ㄅㄛ˙",r:"艸部",w:"蘿蔔"}, {c:"哪",z:"ㄋㄚˇ",r:"口部",w:"哪裡"}, {c:"粒",z:"ㄌㄧˋ",r:"米部",w:"米粒"}, {c:"熱",z:"ㄖㄜˋ",r:"火部",w:"熱鬧"},
+            {c:"浴",z:"ㄩˋ",r:"水部",w:"浴室"}, {c:"蒸",z:"ㄓㄥ",r:"火部",w:"蒸氣"}, {c:"胖",z:"ㄆㄤˋ",r:"肉部",w:"肥胖"}, {c:"名",z:"ㄇㄧㄥˊ",r:"口部",w:"名字"},
+            {c:"苔",z:"ㄊㄞˊ",r:"艸部",w:"青苔"}, {c:"蛋",z:"ㄉㄢˋ",r:"虫部",w:"雞蛋"}, {c:"蔬",z:"ㄕㄨ",r:"艸部",w:"蔬菜"}, {c:"通",z:"ㄊㄨㄥ",r:"辵部",w:"通過"},
+            {c:"細",z:"ㄒㄧˋ",r:"糸部",w:"細小"}
+        ]},
+        "10": { title: "第十課", words: [
+            {c:"減",z:"ㄐㄧㄢˇ",r:"水部",w:"減少"}, {c:"表",z:"ㄅㄧㄠˇ",r:"衣部",w:"課表"}, {c:"讀",z:"ㄉㄨˊ",r:"言部",w:"讀書"}, {c:"認",z:"ㄖㄣˋ",r:"言部",w:"認識"},
+            {c:"識",z:"ㄕˋ",r:"言部",w:"知識"}, {c:"謎",z:"ㄇㄧˊ",r:"言部",w:"謎題"}, {c:"答",z:"ㄉㄚˊ",r:"竹部",w:"回答"}, {c:"搖",z:"ㄧㄠˊ",r:"手部",w:"搖頭"},
+            {c:"百",z:"ㄅㄞˇ",r:"白部",w:"一百"}, {c:"嘴",z:"ㄗㄨㄟˇ",r:"口部",w:"嘴巴"}, {c:"哥",z:"ㄍㄜ",r:"口部",w:"哥哥"}, {c:"數",z:"ㄕㄨˇ",r:"攵部",w:"數學"},
+            {c:"題",z:"ㄊㄧˊ",r:"頁部",w:"題目"}, {c:"趕",z:"ㄍㄢˇ",r:"走部",w:"趕快"}, {c:"突",z:"ㄊㄨˊ",r:"穴部",w:"突然"}, {c:"異",z:"ㄧˋ",r:"田部",w:"奇異"},
+            {c:"口",z:"ㄎㄡˇ",r:"口部",w:"口袋"}, {c:"對",z:"ㄉㄨㄟˋ",r:"寸部",w:"對錯"}
+        ]},
+        "11": { title: "第十一課", words: [
+            {c:"怪",z:"ㄍㄨㄞˋ",r:"心部",w:"奇怪"}, {c:"門",z:"ㄇㄣˊ",r:"門部",w:"大門"}, {c:"扇",z:"ㄕㄢˋ",r:"戶部",w:"電扇"}, {c:"立",z:"ㄌㄧˋ",r:"立部",w:"起立"},
+            {c:"刻",z:"ㄎㄜˋ",r:"刀部",w:"立刻"}, {c:"閒",z:"ㄒㄧㄢˊ",r:"門部",w:"空閒"}, {c:"馬",z:"ㄇㄚˇ",r:"馬部",w:"馬路"}, {c:"闖",z:"ㄔㄨㄤˇ",r:"門部",w:"闖關"},
+            {c:"耳",z:"ㄦˇ",r:"耳部",w:"耳朵"}, {c:"主",z:"ㄓㄨˇ",r:"丶部",w:"主人"}, {c:"播",z:"ㄅㄛ",r:"手部",w:"廣播"}, {c:"報",z:"ㄅㄠˋ",r:"土部",w:"報告"},
+            {c:"力",z:"ㄌㄧˋ",r:"力部",w:"力氣"}, {c:"竟",z:"ㄐㄧㄥˋ",r:"立部",w:"竟然"}, {c:"巴",z:"ㄅㄚ",r:"巳部",w:"尾巴"}, {c:"東",z:"ㄉㄨㄥ",r:"木部",w:"東西"},
+            {c:"西",z:"ㄒㄧ",r:"襾部",w:"西瓜"}, {c:"底",z:"ㄉㄧˇ",r:"廣部",w:"底下"}
+        ]},
+        "12": { title: "第十二課", words: [
+            {c:"念",z:"ㄋㄧㄢˋ",r:"心部",w:"思念"}, {c:"曲",z:"ㄑㄩˇ",r:"曰部",w:"歌曲"}, {c:"項",z:"ㄒㄧㄤˋ",r:"頁部",w:"項目"}, {c:"浮",z:"ㄈㄨˊ",r:"水部",w:"浮力"},
+            {c:"掌",z:"ㄓㄤˇ",r:"手部",w:"手掌"}, {c:"撥",z:"ㄅㄛ",r:"手部",w:"撥開"}, {c:"波",z:"ㄅㄛ",r:"水部",w:"波浪"}, {c:"詩",z:"ㄕ",r:"言部",w:"詩人"},
+            {c:"作",z:"ㄗㄨㄛˋ",r:"人部",w:"作業"}, {c:"首",z:"ㄕㄡˇ",r:"首部",w:"首先"}, {c:"指",z:"ㄓˇ",r:"手部",w:"手指"}, {c:"伸",z:"ㄕㄣ",r:"人部",w:"伸手"},
+            {c:"脖",z:"ㄅㄛˊ",r:"肉部",w:"脖子"}, {c:"身",z:"ㄕㄣ",r:"身部",w:"身體"}, {c:"體",z:"ㄊㄧˇ",r:"骨部",w:"體育"}, {c:"隻",z:"ㄓ",r:"隹部",w:"一隻"},
+            {c:"倒",z:"ㄉㄠˇ",r:"人部",w:"跌倒"}, {c:"肚",z:"ㄉㄨˋ",r:"肉部",w:"肚子"}
+        ]}
+    };
+
+    // --- 1. 遊戲狀態管理 ---
+    let gameState = {
+        level: 1,
+        exp: 0,
+        food: 0,
+        musicOn: true 
+    };
+    
+    const EXP_PER_LEVEL = 10;
+    const HAPPY_MEOW_LIST = [
+        "https://drive.google.com/uc?export=download&id=1v2yBh__0lJceSJdbiae_IBHc_2xQeePa",
+        "https://drive.google.com/uc?export=download&id=1NsVkcKuRk0lZ1m-7W3-D2XoV9KnYrVcI",
+        "https://drive.google.com/uc?export=download&id=11bR3LWnPCVa77K0NmCXlOhyBr-0r25Uy",
+        "https://drive.google.com/uc?export=download&id=19G0UwCQcKvjsXy2cEPCULjgQgDcC4pAa"
+    ];
+    const ANGRY_MEOW_LIST = [
+        "https://drive.google.com/uc?export=download&id=1I13Ui4tGmBloTx6zzrPIfZma3Oe2vPgB",
+        "https://drive.google.com/uc?export=download&id=1yQX7PpoUBMMfSAu-zJXjFHrc7SglBlJz"
+    ];
+    const BGM_LIST = [
+        "https://drive.google.com/uc?export=download&id=1YTeFDiiEePl4tWw6pgrASsgUkSZbbgPa",
+        "https://drive.google.com/uc?export=download&id=1CoIclvB9PgyHWGvNaBfmy9fJTslyoIGA",
+        "https://drive.google.com/uc?export=download&id=1Z-w9psqcLOzuWY4CjSEsQW-lXMWxW9qf",
+        "https://drive.google.com/uc?export=download&id=15GiXgEMC0MnUp60NhNBNVYRnJDgxqo4G",
+        "https://drive.google.com/uc?export=download&id=1TmF_ih03kbwo78wnPQ0fhRfxQnAKNrO8"
+    ];
+
+    const catSprites = [
+        "https://robohash.org/egg?set=set4&size=250x250", 
+        "https://robohash.org/baby_kitten?set=set4&size=250x250", 
+        "https://robohash.org/playful_cat?set=set4&size=250x250", 
+        "https://robohash.org/smart_cat?set=set4&size=250x250", 
+        "https://robohash.org/ninja_cat?set=set4&size=250x250", 
+        "https://robohash.org/wizard_cat?set=set4&size=250x250",
+        "https://robohash.org/king_cat?set=set4&size=250x250",
+        "https://robohash.org/queen_cat?set=set4&size=250x250",
+        "https://robohash.org/angel_cat?set=set4&size=250x250",
+        "https://robohash.org/demon_cat?set=set4&size=250x250",
+        "https://robohash.org/space_cat?set=set4&size=250x250",
+        "https://robohash.org/robot_cat?set=set4&size=250x250",
+        "https://robohash.org/ghost_cat?set=set4&size=250x250",
+        "https://robohash.org/super_cat?set=set4&size=250x250",
+        "https://robohash.org/mega_cat?set=set4&size=250x250",
+        "https://robohash.org/ultra_cat?set=set4&size=250x250",
+        "https://robohash.org/rainbow_cat?set=set4&size=250x250",
+        "https://robohash.org/golden_cat?set=set4&size=250x250",
+        "https://robohash.org/crystal_cat?set=set4&size=250x250",
+        "https://robohash.org/shadow_cat?set=set4&size=250x250",
+        "https://robohash.org/fire_cat?set=set4&size=250x250",
+        "https://robohash.org/water_cat?set=set4&size=250x250",
+        "https://robohash.org/earth_cat?set=set4&size=250x250",
+        "https://robohash.org/wind_cat?set=set4&size=250x250",
+        "https://robohash.org/god_cat?set=set4&size=250x250"
+    ];
+
+    function loadGame() {
+        const saved = localStorage.getItem('catGameSave');
+        if (saved) {
+            try {
+                const parsed = JSON.parse(saved);
+                gameState = { ...gameState, ...parsed };
+            } catch(e) {}
+        }
+        if (gameState.musicOn === undefined) gameState.musicOn = true;
+        gameState.level = Math.max(1, Math.floor(gameState.exp / EXP_PER_LEVEL) + 1);
+        updateRoomUI();
+    }
+
+    function pickRandomBgmUrl() {
+        if (!BGM_LIST.length) return "";
+        const idx = Math.floor(Math.random() * BGM_LIST.length);
+        return BGM_LIST[idx];
+    }
+
+    function pickRandom(list) {
+        if (!list.length) return "";
+        const idx = Math.floor(Math.random() * list.length);
+        return list[idx];
+    }
+
+    function setRandomBgm(shouldPlay) {
+        const bgm = document.getElementById('bgm');
+        if (!bgm) return;
+        const nextUrl = pickRandomBgmUrl();
+        if (!nextUrl) return;
+        if (bgm.src !== nextUrl) {
+            bgm.src = nextUrl;
+        }
+        bgm.load();
+        if (shouldPlay && gameState.musicOn) {
+            bgm.volume = 0.2;
+            bgm.play().catch(() => {});
+        }
+    }
+
+    function saveGame() {
+        localStorage.setItem('catGameSave', JSON.stringify(gameState));
+        updateRoomUI();
+    }
+
+    function updateRoomUI() {
+        // 安全檢查，防止元素不存在報錯
+        const uiLevel = document.getElementById('ui-level');
+        const uiFood = document.getElementById('ui-food');
+        const uiExpText = document.getElementById('ui-exp-text');
+        const uiExpBar = document.getElementById('ui-exp-bar');
+        const catImg = document.getElementById('cat-image');
+
+        if (uiLevel) uiLevel.innerText = gameState.level;
+        if (uiFood) uiFood.innerText = gameState.food;
+        
+        const currentExp = gameState.exp % EXP_PER_LEVEL;
+        const pct = (currentExp / EXP_PER_LEVEL) * 100;
+
+        if (gameState.level > catSprites.length) {
+            if (uiExpText) uiExpText.innerText = "MAX";
+            if (uiExpBar) uiExpBar.style.width = "100%";
+        } else {
+            if (uiExpText) uiExpText.innerText = `${currentExp}/${EXP_PER_LEVEL}`;
+            if (uiExpBar) uiExpBar.style.width = `${pct}%`;
+        }
+
+        let spriteIndex = Math.min(gameState.level, catSprites.length - 1);
+        if (gameState.level === 1 && gameState.exp === 0) spriteIndex = 0;
+
+        if (catImg) catImg.src = catSprites[spriteIndex];
+    }
+
+    // --- 音效播放 (含安全機制) ---
+    function playSound(id) {
+        try {
+            const audio = document.getElementById(id);
+            if (audio) {
+                audio.muted = false;
+                audio.currentTime = 0;
+                audio.volume = 0.5;
+                const promise = audio.play();
+                if (promise !== undefined) {
+                    promise.catch(error => {
+                        console.log("Sound play error (safe):", id);
+                    });
+                }
+            }
+        } catch(e) {
+            console.log("Audio Element missing or error");
+        }
+    }
+
+    function unlockAudioAndStart() {
+        // 嘗試解鎖所有音效
+        const audios = ['bgm', 'sfx-correct', 'sfx-wrong', 'sfx-meow', 'sfx-levelup', 'sfx-flip', 'sfx-angry', 'sfx-win', 'sfx-real-meow'];
+        audios.forEach(id => {
+            try {
+                const el = document.getElementById(id);
+                if(el) {
+                    if (id === 'bgm' && !el.src) setRandomBgm(false);
+                    el.muted = true;
+                    el.load();
+                    const playPromise = el.play();
+                    if (playPromise !== undefined) {
+                        playPromise.then(_ => {
+                            el.pause();
+                            el.currentTime = 0;
+                            el.muted = false;
+                            if(id === 'bgm' && gameState.musicOn) {
+                                el.volume = 0.2;
+                                el.play().catch(() => {});
+                            }
+                        }).catch(() => {
+                            el.muted = false;
+                        });
+                    } else {
+                        el.muted = false;
+                        if(id === 'bgm' && gameState.musicOn) {
+                            el.volume = 0.2;
+                            el.play().catch(() => {});
+                        }
+                    }
+                }
+            } catch(e) {}
+        });
+
+        // 解鎖語音
+        try {
+            const synth = window.speechSynthesis;
+            const utter = new SpeechSynthesisUtterance('');
+            synth.speak(utter);
+        } catch(e) {}
+
+        document.getElementById('start-screen').style.display = 'none';
+        const room = document.getElementById('scene-room');
+        room.classList.remove('hidden');
+        setTimeout(() => room.classList.remove('opacity-0'), 50);
+    }
+
+    // --- 2. 貓咪互動 ---
+    function petCat(e) {
+        e.stopPropagation();
+        
+        const isHappy = Math.random() > 0.3;
+        const rect = e.target.getBoundingClientRect();
+        const x = e.clientX || (rect.left + rect.width/2);
+        const y = e.clientY || (rect.top + rect.height/2);
+        
+        const icon = document.createElement('div');
+        icon.className = 'float-icon';
+        icon.style.left = (x - rect.left) + 'px';
+        icon.style.top = (y - rect.top) + 'px';
+
+        const catContainer = document.getElementById('cat-container');
+        
+        if (isHappy) {
+            try {
+                const happyUrl = pickRandom(HAPPY_MEOW_LIST);
+                const realMeow = document.getElementById('sfx-real-meow');
+                if (realMeow && happyUrl) {
+                    realMeow.src = happyUrl;
+                    realMeow.load();
+                    realMeow.currentTime = 0;
+                    realMeow.play().catch(() => playSound('sfx-meow'));
+                } else {
+                    playSound('sfx-meow');
+                }
+            } catch(e) {
+                playSound('sfx-meow');
+            }
+
+            icon.innerText = "❤️";
+            icon.style.color = "#ff4757";
+            catContainer.classList.remove('cat-angry');
+        } else {
+            try {
+                const angryUrl = pickRandom(ANGRY_MEOW_LIST);
+                const angryMeow = document.getElementById('sfx-angry');
+                if (angryMeow && angryUrl) {
+                    angryMeow.src = angryUrl;
+                    angryMeow.load();
+                    angryMeow.currentTime = 0;
+                    angryMeow.play().catch(() => playSound('sfx-angry'));
+                } else {
+                    playSound('sfx-angry');
+                }
+            } catch(e) {
+                playSound('sfx-angry');
+            }
+            icon.innerText = "💢";
+            icon.style.color = "#2f3542";
+            catContainer.classList.remove('cat-angry'); 
+            void catContainer.offsetWidth; 
+            catContainer.classList.add('cat-angry');
+        }
+
+        catContainer.appendChild(icon);
+        setTimeout(() => icon.remove(), 1000);
+    }
+
+    function feedCat() {
+        if (gameState.food <= 0) {
+            alert("罐頭不夠了！快去「去打工」賺罐頭吧！");
+            return;
+        }
+
+        gameState.food--;
+        gameState.exp += 1;
+        playSound('sfx-correct'); 
+        
+        const calculatedLevel = Math.floor(gameState.exp / EXP_PER_LEVEL) + 1;
+        
+        if (calculatedLevel > gameState.level) {
+            gameState.level = calculatedLevel;
+            showLevelUp();
+        }
+
+        saveGame();
+    }
+
+    function showLevelUp() {
+        playSound('sfx-levelup');
+        const overlay = document.getElementById('levelup-overlay');
+        overlay.classList.remove('hidden');
+        setTimeout(() => {
+            overlay.classList.add('hidden');
+        }, 3000);
+    }
+
+    // --- 3. 學習系統 ---
+    let studyQueue = [];
+    let currentCardIndex = 0;
+    
+    function openMenu() {
+        document.getElementById('scene-menu').classList.remove('hidden');
+        const list = document.getElementById('lesson-list');
+        list.innerHTML = '';
+        
+        for (let k in lessons) {
+            const btn = document.createElement('button');
+            btn.className = "btn-3d p-4 bg-yellow-100 rounded-xl font-bold hover:bg-yellow-200 border-b-4 border-yellow-300 text-lg flex items-center justify-between";
+            btn.innerHTML = `<span>📚 ${lessons[k].title}</span> <span class="text-sm bg-yellow-300 px-2 py-1 rounded-full text-yellow-800">${lessons[k].words.length}字</span>`;
+            btn.onclick = () => startLevel(k);
+            list.appendChild(btn);
+        }
+    }
+
+    function closeMenu() {
+        document.getElementById('scene-menu').classList.add('hidden');
+    }
+
+    function startLevel(key) {
+        closeMenu();
+        studyQueue = [...lessons[key].words].sort(() => Math.random() - 0.5);
+        currentCardIndex = 0;
+        document.getElementById('scene-study').classList.remove('hidden');
+        loadCard();
+    }
+
+    function quitStudy() {
+        document.getElementById('scene-study').classList.add('hidden');
+        window.speechSynthesis.cancel();
+    }
+
+    // 顯示結算畫面
+    function finishLevel() {
+        const reward = studyQueue.length;
+        document.getElementById('reward-count').innerText = reward;
+        document.getElementById('scene-reward').classList.remove('hidden');
+        // 強制移除 hidden，並加上 flex 確保顯示
+        const rewardScene = document.getElementById('scene-reward');
+        rewardScene.style.display = 'flex';
+        playSound('sfx-win');
+    }
+
+    // 領取獎勵並回首頁
+    function collectReward() {
+        try {
+            const reward = studyQueue.length;
+            gameState.food += reward;
+            saveGame();
+        } catch(e) { console.error("Save error"); }
+
+        const rewardScene = document.getElementById('scene-reward');
+        rewardScene.classList.add('hidden');
+        rewardScene.style.display = 'none'; 
+        
+        document.getElementById('scene-study').classList.add('hidden');
+        document.getElementById('scene-room').classList.remove('hidden');
+        
+        window.speechSynthesis.cancel();
+    }
+
+    function loadCard() {
+        if (currentCardIndex >= studyQueue.length) {
+            finishLevel();
+            return;
+        }
+
+        const word = studyQueue[currentCardIndex];
+        const cardInner = document.getElementById('study-card');
+        
+        cardInner.classList.remove('card-flipped');
+        document.getElementById('study-controls').classList.add('hidden');
+        document.getElementById('tap-hint').classList.remove('hidden'); 
+
+        document.getElementById('q-idx').innerText = currentCardIndex + 1;
+
+        document.getElementById('q-zhuyin').innerText = word.z;
+        const maskedWord = word.w.split(word.c).join("＿");
+        document.getElementById('q-hint').innerText = maskedWord;
+
+        document.getElementById('q-char').innerText = word.c;
+        document.getElementById('q-radical').innerText = word.r;
+        document.getElementById('a-word').innerText = word.w;
+
+        const pct = (currentCardIndex / studyQueue.length) * 100;
+        document.getElementById('study-progress').style.width = `${pct}%`;
+
+        speak(word.w);
+    }
+
+    function flipCard() {
+        const cardInner = document.getElementById('study-card');
+        
+        if (!cardInner.classList.contains('card-flipped')) {
+            cardInner.classList.add('card-flipped');
+            document.getElementById('study-controls').classList.remove('hidden');
+            document.getElementById('tap-hint').classList.add('hidden'); 
+            
+            playSound('sfx-flip');
+            
+            const word = studyQueue[currentCardIndex];
+            speak(word.c + "。" + word.w);
+        }
+    }
+
+    function answer(isCorrect) {
+        const controls = document.getElementById('study-controls');
+        controls.style.pointerEvents = 'none';
+
+        if (isCorrect) {
+            playSound('sfx-correct');
+            currentCardIndex++;
+            setTimeout(() => {
+                loadCard();
+                controls.style.pointerEvents = 'auto';
+            }, 600);
+        } else {
+            playSound('sfx-wrong');
+            const word = studyQueue[currentCardIndex];
+            studyQueue.push(word);
+            
+            setTimeout(() => {
+                document.getElementById('study-card').classList.remove('card-flipped');
+                document.getElementById('study-controls').classList.add('hidden');
+                document.getElementById('tap-hint').classList.remove('hidden');
+                
+                speak("再試一次: " + word.z);
+                controls.style.pointerEvents = 'auto';
+            }, 1000);
+        }
+    }
+
+    // --- 4. 語音 ---
+    const synth = window.speechSynthesis;
+    function speak(text) {
+        if (synth.speaking) synth.cancel();
+        
+        const utter = new SpeechSynthesisUtterance(text);
+        utter.lang = 'zh-TW';
+        utter.rate = 0.8;
+        synth.speak(utter);
+    }
+
+    function toggleMusic() {
+        try {
+            const bgm = document.getElementById('bgm');
+            const btn = document.getElementById('btn-music');
+            if (bgm.paused) {
+                if (!bgm.src) setRandomBgm(false);
+                bgm.volume = 0.2;
+                bgm.play().catch(() => {});
+                btn.innerText = "🔊";
+                gameState.musicOn = true;
+            } else {
+                bgm.pause();
+                btn.innerText = "🔇";
+                gameState.musicOn = false;
+            }
+        } catch(e) {}
+    }
+
+    // 確保 DOM 載入後才執行，避免找不到元素錯誤
+    document.addEventListener('DOMContentLoaded', () => {
+        loadGame();
+        setRandomBgm(false);
+        const bgm = document.getElementById('bgm');
+        if (bgm) {
+            bgm.addEventListener('ended', () => setRandomBgm(true));
+        }
+    });
+
+</script>
+</body>
+</html>
