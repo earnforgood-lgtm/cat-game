@@ -318,6 +318,7 @@
         "music/洗碗洗碗洗碗碗.mp3",
         "music/蝦拉拉 .mp3"
     ];
+    let currentBgmUrl = "";
 
     const catSprites = [
         "https://robohash.org/egg?set=set4&size=250x250", 
@@ -380,11 +381,19 @@
     function setRandomBgm(shouldPlay) {
         const bgm = document.getElementById('bgm');
         if (!bgm) return;
-        const nextUrl = normalizeAudioSrc(pickRandomBgmUrl());
+        let nextUrl = normalizeAudioSrc(pickRandomBgmUrl());
+        if (BGM_LIST.length > 1) {
+            let safety = 6;
+            while (nextUrl && nextUrl === currentBgmUrl && safety > 0) {
+                nextUrl = normalizeAudioSrc(pickRandomBgmUrl());
+                safety -= 1;
+            }
+        }
         if (!nextUrl) return;
         if (bgm.src !== nextUrl) {
             bgm.src = nextUrl;
         }
+        currentBgmUrl = nextUrl;
         bgm.load();
         if (shouldPlay && gameState.musicOn) {
             bgm.volume = 0.2;
