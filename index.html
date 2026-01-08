@@ -88,6 +88,43 @@
         }
 
         .exp-fill { transition: width 0.5s ease-out; }
+
+        #q-hint {
+            white-space: normal;
+            word-break: break-word;
+            text-align: center;
+            line-height: 1.5;
+        }
+
+        .story-hint {
+            font-size: clamp(0.85rem, 2.3vw, 1.05rem);
+        }
+
+        #q-hint-box {
+            min-height: 4.5rem;
+        }
+
+        .story-mode #q-zhuyin {
+            font-size: clamp(1.2rem, 3.4vw, 1.7rem);
+        }
+
+        .story-mode #q-hint {
+            font-size: clamp(0.78rem, 2.2vw, 0.98rem);
+            line-height: 1.6;
+        }
+
+        .story-mode #q-hint-box {
+            margin-top: 0.5rem !important;
+            padding: 0.6rem 0.8rem !important;
+            max-height: clamp(9rem, 38vh, 16rem);
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: thin;
+        }
+
+        .story-mode #q-hint-box span {
+            display: none;
+        }
         
         #start-screen, #scene-reward {
             background: rgba(255, 255, 255, 0.95);
@@ -105,8 +142,9 @@
     <audio id="sfx-real-meow" preload="auto" src="sound/meow2.mp3"></audio>
     <audio id="sfx-angry" preload="auto" src="sound/an1.mp3"></audio>
     <audio id="sfx-levelup" preload="auto" src="https://assets.mixkit.co/sfx/download/mixkit-quick-win-video-game-notification-269.wav"></audio>
+    <audio id="sfx-chew" preload="auto" src="sound/chew.mp3"></audio>
     <audio id="sfx-flip" preload="auto" src="https://assets.mixkit.co/sfx/download/mixkit-paper-slide-1530.wav"></audio>
-    <audio id="sfx-win" preload="auto" src="https://assets.mixkit.co/sfx/download/mixkit-winning-chimes-2015.wav"></audio>
+    <audio id="sfx-win" preload="auto" src="sound/winner-game.mp3"></audio>
 
     <!-- 0. 啟動畫面 -->
     <div id="start-screen" class="fixed inset-0 z-[100] flex flex-col items-center justify-center p-4">
@@ -203,7 +241,7 @@
                 <div class="absolute w-full h-full backface-hidden bg-white rounded-3xl flex flex-col items-center justify-center border-4 border-blue-200 shadow-lg p-4">
                     <span class="text-4xl mb-2 opacity-50">🔊</span>
                     <h2 id="q-zhuyin" class="text-8xl font-black text-gray-800 tracking-widest my-2 select-none"></h2>
-                    <div class="mt-4 bg-blue-50 px-6 py-3 rounded-2xl border border-blue-100 flex items-center justify-center gap-2 w-full">
+                    <div id="q-hint-box" class="mt-4 bg-blue-50 px-6 py-3 rounded-2xl border border-blue-100 flex items-center justify-center gap-2 w-full">
                         <span class="text-gray-400 text-sm absolute top-2 left-4">提示：</span>
                         <p id="q-hint" class="text-3xl font-bold text-blue-600 tracking-widest"></p>
                     </div>
@@ -272,7 +310,7 @@
         "10": { title: "第十課", words: [
             {c:"減",z:"ㄐㄧㄢˇ",r:"水部",w:"減少"}, {c:"表",z:"ㄅㄧㄠˇ",r:"衣部",w:"課表"}, {c:"讀",z:"ㄉㄨˊ",r:"言部",w:"讀書"}, {c:"認",z:"ㄖㄣˋ",r:"言部",w:"認識"},
             {c:"識",z:"ㄕˋ",r:"言部",w:"知識"}, {c:"謎",z:"ㄇㄧˊ",r:"言部",w:"謎題"}, {c:"答",z:"ㄉㄚˊ",r:"竹部",w:"回答"}, {c:"搖",z:"ㄧㄠˊ",r:"手部",w:"搖頭"},
-            {c:"百",z:"ㄅㄞˇ",r:"白部",w:"一百"}, {c:"嘴",z:"ㄗㄨㄟˇ",r:"口部",w:"嘴巴"}, {c:"哥",z:"ㄍㄜ",r:"口部",w:"哥哥"}, {c:"數",z:"ㄕㄨˇ",r:"攵部",w:"數學"},
+            {c:"百",z:"ㄅㄞˇ",r:"白部",w:"一百"}, {c:"嘴",z:"ㄗㄨㄟˇ",r:"口部",w:"嘴巴"}, {c:"哥",z:"ㄍㄜ",r:"口部",w:"哥哥"}, {c:"數",z:"ㄕㄨˋ",r:"攵部",w:"數學"},
             {c:"題",z:"ㄊㄧˊ",r:"頁部",w:"題目"}, {c:"趕",z:"ㄍㄢˇ",r:"走部",w:"趕快"}, {c:"突",z:"ㄊㄨˊ",r:"穴部",w:"突然"}, {c:"異",z:"ㄧˋ",r:"田部",w:"奇異"},
             {c:"口",z:"ㄎㄡˇ",r:"口部",w:"口袋"}, {c:"對",z:"ㄉㄨㄟˋ",r:"寸部",w:"對錯"}
         ]},
@@ -289,7 +327,9 @@
             {c:"作",z:"ㄗㄨㄛˋ",r:"人部",w:"作業"}, {c:"首",z:"ㄕㄡˇ",r:"首部",w:"首先"}, {c:"指",z:"ㄓˇ",r:"手部",w:"手指"}, {c:"伸",z:"ㄕㄣ",r:"人部",w:"伸手"},
             {c:"脖",z:"ㄅㄛˊ",r:"肉部",w:"脖子"}, {c:"身",z:"ㄕㄣ",r:"身部",w:"身體"}, {c:"體",z:"ㄊㄧˇ",r:"骨部",w:"體育"}, {c:"隻",z:"ㄓ",r:"隹部",w:"一隻"},
             {c:"倒",z:"ㄉㄠˇ",r:"人部",w:"跌倒"}, {c:"肚",z:"ㄉㄨˋ",r:"肉部",w:"肚子"}
-        ]}
+        ]},
+        "R": { title: "全範圍隨機 (10題)", mode: "random10", words: Array(10).fill(null) },
+        "M": { title: "數學題 (10題)", mode: "math10", words: Array(10).fill(null) }
     };
 
     // --- 1. 遊戲狀態管理 ---
@@ -384,6 +424,109 @@
         return copy;
     }
 
+    function getAllWords() {
+        return Object.values(lessons)
+            .filter((lesson) => !lesson.mode)
+            .flatMap((lesson) => lesson.words);
+    }
+
+    function buildRandomWords(count) {
+        const pool = shuffle(getAllWords());
+        return pool.slice(0, count).map((word) => ({ ...word }));
+    }
+
+    function randInt(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function buildStoryQuestions(count) {
+        const templates = shuffle([
+            () => {
+                const price = randInt(6, 15);
+                const qty = randInt(2, 9);
+                return {
+                    story: `媽媽買菜，每顆蘋果 ${price} 元，買了 ${qty} 顆，一共多少元？`,
+                    answer: String(price * qty)
+                };
+            },
+            () => {
+                const kids = randInt(2, 8);
+                const per = randInt(2, Math.min(8, Math.floor(50 / kids)));
+                const candies = kids * per;
+                return {
+                    story: `有 ${candies} 顆糖果，平均分給 ${kids} 個小朋友，每人幾顆？`,
+                    answer: String(per)
+                };
+            },
+            () => {
+                const total = randInt(20, 50);
+                const used = randInt(6, total - 6);
+                return {
+                    story: `小明有 ${total} 元，買文具花了 ${used} 元，還剩多少元？`,
+                    answer: String(total - used)
+                };
+            },
+            () => {
+                const a = randInt(6, 25);
+                const b = randInt(6, 25);
+                return {
+                    story: `籃子裡有 ${a} 顆橘子，又放進 ${b} 顆，一共有幾顆？`,
+                    answer: String(a + b)
+                };
+            },
+            () => {
+                const per = randInt(2, 9);
+                const days = randInt(2, 7);
+                return {
+                    story: `每天讀 ${per} 頁，連續讀 ${days} 天，一共讀了幾頁？`,
+                    answer: String(per * days)
+                };
+            }
+        ]);
+        const questions = [];
+        for (let i = 0; i < count; i += 1) {
+            const pick = templates[i % templates.length]();
+            questions.push({
+                type: "story",
+                q: "情境題",
+                a: pick.answer,
+                r: "數學題",
+                w: pick.story
+            });
+        }
+        return questions;
+    }
+
+    function buildMathQuestions(count) {
+        const storyCount = Math.min(5, count);
+        const questions = buildStoryQuestions(storyCount);
+        for (let i = storyCount; i < count; i += 1) {
+            const useMultiply = Math.random() < 0.5;
+            if (useMultiply) {
+                const a = randInt(2, 9);
+                const b = randInt(2, 9);
+                questions.push({
+                    type: "math",
+                    q: `${a} × ${b}`,
+                    a: String(a * b),
+                    r: "數學題",
+                    w: `${a} × ${b} = ${a * b}`
+                });
+            } else {
+                const a = randInt(6, 44);
+                const b = randInt(6, 50 - a);
+                questions.push({
+                    type: "math",
+                    q: `${a} + ${b}`,
+                    a: String(a + b),
+                    r: "數學題",
+                    w: `${a} + ${b} = ${a + b}`
+                });
+            }
+        }
+        return shuffle(questions);
+    }
+
     function nextBgmUrl() {
         if (!BGM_LIST.length) return "";
         if (bgmQueue.length === 0) {
@@ -471,7 +614,7 @@
 
     function unlockAudioAndStart() {
         // 嘗試解鎖所有音效
-        const audios = ['bgm', 'sfx-correct', 'sfx-wrong', 'sfx-meow', 'sfx-levelup', 'sfx-flip', 'sfx-angry', 'sfx-win', 'sfx-real-meow'];
+        const audios = ['bgm', 'sfx-correct', 'sfx-wrong', 'sfx-meow', 'sfx-levelup', 'sfx-chew', 'sfx-flip', 'sfx-angry', 'sfx-win', 'sfx-real-meow'];
         audios.forEach(id => {
             try {
                 const el = document.getElementById(id);
@@ -585,7 +728,7 @@
 
         gameState.food--;
         gameState.exp += 1;
-        playSound('sfx-correct'); 
+        playSound('sfx-chew');
         
         const calculatedLevel = Math.floor(gameState.exp / EXP_PER_LEVEL) + 1;
         
@@ -630,7 +773,14 @@
 
     function startLevel(key) {
         closeMenu();
-        studyQueue = [...lessons[key].words].sort(() => Math.random() - 0.5);
+        const lesson = lessons[key];
+        if (lesson && lesson.mode === "random10") {
+            studyQueue = buildRandomWords(10);
+        } else if (lesson && lesson.mode === "math10") {
+            studyQueue = buildMathQuestions(10);
+        } else {
+            studyQueue = [...lesson.words].sort(() => Math.random() - 0.5);
+        }
         currentCardIndex = 0;
         document.getElementById('scene-study').classList.remove('hidden');
         loadCard();
@@ -685,18 +835,28 @@
 
         document.getElementById('q-idx').innerText = currentCardIndex + 1;
 
-        document.getElementById('q-zhuyin').innerText = word.z;
-        const maskedWord = word.w.split(word.c).join("＿");
-        document.getElementById('q-hint').innerText = maskedWord;
+        const isMath = word.type === "math";
+        const isStory = word.type === "story";
+        const studyScene = document.getElementById('scene-study');
+        if (studyScene) studyScene.classList.toggle('story-mode', isStory);
+        const questionText = isMath ? word.q : isStory ? "情境題" : word.z;
+        const answerText = isMath || isStory ? word.a : word.c;
+        const radicalText = isMath || isStory ? "數學題" : word.r;
+        const maskedWord = isStory ? word.w : isMath ? "" : word.w.split(word.c).join("＿");
 
-        document.getElementById('q-char').innerText = word.c;
-        document.getElementById('q-radical').innerText = word.r;
+        document.getElementById('q-zhuyin').innerText = questionText;
+        const hintEl = document.getElementById('q-hint');
+        hintEl.innerText = maskedWord;
+        hintEl.classList.toggle('story-hint', isStory);
+
+        document.getElementById('q-char').innerText = answerText;
+        document.getElementById('q-radical').innerText = radicalText;
         document.getElementById('a-word').innerText = word.w;
 
         const pct = (currentCardIndex / studyQueue.length) * 100;
         document.getElementById('study-progress').style.width = `${pct}%`;
 
-        speak(word.w);
+        speak(isStory ? word.w : isMath ? word.q : word.w);
     }
 
     function flipCard() {
@@ -710,7 +870,10 @@
             playSound('sfx-flip');
             
             const word = studyQueue[currentCardIndex];
-            speak(word.c + "。" + word.w);
+            const isMath = word.type === "math";
+            const isStory = word.type === "story";
+            const answerText = isMath || isStory ? word.a : word.c;
+            speak(answerText + "。" + word.w);
         }
     }
 
@@ -735,7 +898,8 @@
                 document.getElementById('study-controls').classList.add('hidden');
                 document.getElementById('tap-hint').classList.remove('hidden');
                 
-                speak("再試一次: " + word.z);
+                const retryText = word.type === "math" ? word.q : word.type === "story" ? word.w : word.z;
+                speak("再試一次: " + retryText);
                 controls.style.pointerEvents = 'auto';
             }, 1000);
         }
