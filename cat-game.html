@@ -319,6 +319,8 @@
         "music/蝦拉拉 .mp3"
     ];
     let currentBgmUrl = "";
+    let bgmQueue = [];
+    let bgmWasPlaying = false;
 
     const catSprites = [
         "https://robohash.org/egg?set=set4&size=250x250", 
@@ -373,6 +375,26 @@
         return list[idx];
     }
 
+    function shuffle(list) {
+        const copy = [...list];
+        for (let i = copy.length - 1; i > 0; i -= 1) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [copy[i], copy[j]] = [copy[j], copy[i]];
+        }
+        return copy;
+    }
+
+    function nextBgmUrl() {
+        if (!BGM_LIST.length) return "";
+        if (bgmQueue.length === 0) {
+            bgmQueue = shuffle(BGM_LIST);
+            if (bgmQueue.length > 1 && bgmQueue[0] === currentBgmUrl) {
+                bgmQueue.push(bgmQueue.shift());
+            }
+        }
+        return bgmQueue.shift();
+    }
+
     function normalizeAudioSrc(path) {
         if (!path) return "";
         return path.startsWith("http") ? path : encodeURI(path);
@@ -381,14 +403,7 @@
     function setRandomBgm(shouldPlay) {
         const bgm = document.getElementById('bgm');
         if (!bgm) return;
-        let nextUrl = normalizeAudioSrc(pickRandomBgmUrl());
-        if (BGM_LIST.length > 1) {
-            let safety = 6;
-            while (nextUrl && nextUrl === currentBgmUrl && safety > 0) {
-                nextUrl = normalizeAudioSrc(pickRandomBgmUrl());
-                safety -= 1;
-            }
-        }
+        let nextUrl = normalizeAudioSrc(nextBgmUrl());
         if (!nextUrl) return;
         if (bgm.src !== nextUrl) {
             bgm.src = nextUrl;
@@ -428,8 +443,8 @@
             if (uiExpBar) uiExpBar.style.width = `${pct}%`;
         }
 
-        let spriteIndex = Math.min(gameState.level, catSprites.length - 1);
-        if (gameState.level === 1 && gameState.exp === 0) spriteIndex = 0;
+        let spriteIndex = Math.min(gameState.level - 1, catSprites.length - 1);
+        if (spriteIndex < 0) spriteIndex = 0;
 
         if (catImg) catImg.src = catSprites[spriteIndex];
     }
@@ -755,6 +770,17 @@
         } catch(e) {}
     }
 
+    function handleVisibilityChange() {
+        const bgm = document.getElementById('bgm');
+        if (!bgm) return;
+        if (document.hidden) {
+            bgmWasPlaying = !bgm.paused;
+            bgm.pause();
+        } else if (bgmWasPlaying && gameState.musicOn) {
+            bgm.play().catch(() => {});
+        }
+    }
+
     // 確保 DOM 載入後才執行，避免找不到元素錯誤
     document.addEventListener('DOMContentLoaded', () => {
         loadGame();
@@ -762,7 +788,13 @@
         const bgm = document.getElementById('bgm');
         if (bgm) {
             bgm.addEventListener('ended', () => setRandomBgm(true));
+            bgm.addEventListener('error', () => setRandomBgm(true));
         }
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+        window.addEventListener('pagehide', () => {
+            const bgmEl = document.getElementById('bgm');
+            if (bgmEl) bgmEl.pause();
+        });
     });
 
 </script>
