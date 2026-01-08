@@ -3,7 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>🐱 貓咪小學堂：生字大冒險 (除錯版)</title>
+    <title>🐱 貓咪小學堂 </title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#FF9F1C">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="貓咪小學堂">
+    <link rel="apple-touch-icon" href="icons/icon-180.png">
+    <link rel="icon" href="icons/icon-192.png" sizes="192x192">
     <!-- 引入字型與圖示庫 -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&family=Zen+Maru+Gothic:wght@500;900&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -959,6 +966,9 @@
             const bgmEl = document.getElementById('bgm');
             if (bgmEl) bgmEl.pause();
         });
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('service-worker.js').catch(() => {});
+        }
     });
 
 </script>
