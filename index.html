@@ -226,6 +226,26 @@
             height: min(92vw, 396px);
             max-width: 100%;
         }
+        #scene-treasure {
+            padding-bottom: 9rem;
+            touch-action: pan-y;
+            -webkit-overflow-scrolling: touch;
+        }
+        .treasure-controls {
+            position: fixed;
+            bottom: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            width: min(92vw, 396px);
+            z-index: 45;
+        }
+        .treasure-controls .treasure-control-panel {
+            background: rgba(255, 255, 255, 0.92);
+            border: 1px solid #e2e8f0;
+            border-radius: 18px;
+            padding: 0.6rem;
+            box-shadow: 0 16px 30px rgba(15, 23, 42, 0.25);
+        }
         .treasure-dpad-btn {
             background: #f8fafc;
             border: 2px solid #cbd5e1;
@@ -763,6 +783,21 @@
             scrollbar-width: thin;
         }
         
+        #scene-study {
+            overscroll-behavior: contain;
+            -webkit-overflow-scrolling: touch;
+        }
+        #scene-study.writing-mode .study-card-wrap {
+            height: 20rem;
+            margin-bottom: 1.25rem;
+        }
+        #scene-study.writing-mode #writing-area {
+            margin-top: 0.5rem;
+        }
+        #scene-study.writing-mode #study-controls {
+            margin-bottom: 1.5rem;
+        }
+
         #start-screen, #scene-reward, #scene-shop, #scene-synthesis {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
@@ -1203,7 +1238,6 @@
                 <div class="px-3 py-1 rounded-lg bg-white text-xs font-bold text-slate-800 border border-slate-200">
                     🎟️ <span id="treasure-ticket-count">0</span>
                 </div>
-                <button onclick="treasureUndoMove()" class="px-3 py-1 rounded-lg bg-white text-xs font-bold text-slate-800 hover:bg-slate-100 border border-slate-200">↩️ 復原</button>
                 <button onclick="treasureGenerateLevel()" class="px-3 py-1 rounded-lg bg-white text-xs font-bold text-slate-800 hover:bg-slate-100 border border-slate-200">🔄 跳過</button>
                 <button onclick="closeTreasureGame()" class="px-3 py-1 rounded-lg bg-white text-xs font-bold text-slate-800 hover:bg-slate-100 border border-slate-200">返回房間</button>
             </div>
@@ -1258,25 +1292,20 @@
             <div id="treasure-progress" class="h-full bg-yellow-400 transition-all duration-300" style="width: 0%"></div>
         </div>
 
-        <div class="w-full max-w-[396px] mt-3 flex gap-2">
-            <button onclick="treasureUndoMove()" class="flex-1 py-2 rounded-xl bg-white border border-slate-200 text-sm font-bold text-slate-800 hover:bg-slate-100">
-                ↩️ 復原
-            </button>
-            <button onclick="treasureGenerateLevel()" class="flex-1 py-2 rounded-xl bg-white border border-slate-200 text-sm font-bold text-slate-800 hover:bg-slate-100">
-                🔄 跳過
-            </button>
-        </div>
-
-        <div class="grid grid-cols-3 gap-3 mt-6 w-64 h-40">
-            <div></div>
-            <button class="treasure-dpad-btn" onpointerdown="treasureHandleInput(0, -1)">⬆️</button>
-            <button class="treasure-dpad-btn text-sm" onclick="treasureGenerateLevel()">🔄<br>跳過</button>
-            <button class="treasure-dpad-btn" onpointerdown="treasureHandleInput(-1, 0)">⬅️</button>
-            <button class="treasure-dpad-btn text-sm" onclick="treasureUndoMove()">↩️<br>復原</button>
-            <button class="treasure-dpad-btn" onpointerdown="treasureHandleInput(1, 0)">➡️</button>
-            <div></div>
-            <button class="treasure-dpad-btn" onpointerdown="treasureHandleInput(0, 1)">⬇️</button>
-            <div></div>
+        <div class="treasure-controls">
+            <div class="treasure-control-panel">
+                <div class="grid grid-cols-3 gap-2 w-full h-28">
+                    <div></div>
+                    <button class="treasure-dpad-btn" onpointerdown="treasureHandleInput(0, -1)">⬆️</button>
+                    <div></div>
+                    <button class="treasure-dpad-btn" onpointerdown="treasureHandleInput(-1, 0)">⬅️</button>
+                    <button class="treasure-dpad-btn text-sm" onclick="treasureUndoMove()">↩️<br>復原</button>
+                    <button class="treasure-dpad-btn" onpointerdown="treasureHandleInput(1, 0)">➡️</button>
+                    <div></div>
+                    <button class="treasure-dpad-btn" onpointerdown="treasureHandleInput(0, 1)">⬇️</button>
+                    <div></div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -1304,7 +1333,7 @@
     </div>
 
     <!-- 3. 戰鬥畫面 -->
-    <div id="scene-study" class="hidden fixed inset-0 bg-[#FFF3E0] z-40 flex flex-col items-center justify-center p-4">
+    <div id="scene-study" class="hidden fixed inset-0 bg-[#FFF3E0] z-40 flex flex-col items-center justify-start p-4 pt-5 pb-8 overflow-y-auto">
         <div class="w-full max-w-md flex justify-between items-center mb-4 px-2">
             <div class="text-gray-500 font-bold">第 <span id="q-idx">1</span> 題</div>
             <button onclick="quitStudy()" class="text-gray-400 hover:text-red-500 font-bold px-3 py-1 rounded-lg hover:bg-red-50 transition">逃跑 🏳️</button>
@@ -1318,7 +1347,7 @@
             </div>
             <div id="study-speech-text" class="flex-1 bg-white/80 text-gray-700 text-sm font-bold px-4 py-2 rounded-full shadow-sm border border-blue-100 text-center"></div>
         </div>
-        <div class="perspective-1000 w-full max-w-xs h-96 cursor-pointer mb-8 relative group" onclick="flipCard()">
+        <div class="study-card-wrap perspective-1000 w-full max-w-xs h-96 cursor-pointer mb-8 relative group" onclick="flipCard()">
             <div id="tap-hint" class="absolute -right-4 top-1/2 z-10 animate-bounce bg-white/80 p-2 rounded-full shadow-lg pointer-events-none">👆</div>
             <div id="study-card" class="card-inner relative w-full h-full transform-style-3d shadow-xl rounded-3xl transition-all duration-500">
                 <div class="absolute w-full h-full backface-hidden bg-white rounded-3xl flex flex-col items-center justify-center border-4 border-blue-200 shadow-lg p-4">
@@ -5655,15 +5684,16 @@ Return JSON only:
         const isStory = word.type === "story";
         const isArea = word.type === "area";
         const isClock = isMath && word.visual === "clock";
+        const shouldShowWriting = !isMath && !isStory && !isArea;
         const studyScene = document.getElementById('scene-study');
         if (studyScene) {
             studyScene.classList.toggle('story-mode', isStory);
             studyScene.classList.toggle('area-mode', isArea);
             studyScene.classList.toggle('clock-mode', isClock);
             studyScene.classList.toggle('math-mode', isMath && !isStory && !isArea);
+            studyScene.classList.toggle('writing-mode', shouldShowWriting);
         }
         const writingArea = document.getElementById('writing-area');
-        const shouldShowWriting = !isMath && !isStory && !isArea;
         if (writingArea) {
             writingArea.classList.toggle('hidden', !shouldShowWriting);
             if (shouldShowWriting) {
