@@ -663,6 +663,20 @@
         </div>
     </div>
 
+    <div id="scene-chat-input" class="hidden fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl border-4 border-teal-200">
+            <h2 class="text-xl font-bold text-teal-600 mb-2">跟貓咪聊天</h2>
+            <p class="text-xs text-gray-400 mb-4">打一句話給它（20 字內更可愛）</p>
+
+            <textarea id="input-chat-text" maxlength="60" rows="3" placeholder="例如：今天好開心！" class="w-full p-3 border-2 border-gray-200 rounded-2xl text-sm focus:border-teal-400 focus:outline-none resize-none"></textarea>
+
+            <div class="flex gap-2 mt-4">
+                <button onclick="submitChatInput()" class="flex-1 py-3 bg-teal-500 text-white rounded-xl font-bold btn-3d border-b-4 border-teal-700">送出</button>
+                <button onclick="closeChatInput()" class="flex-1 py-3 bg-gray-400 text-white rounded-xl font-bold btn-3d border-b-4 border-gray-600">取消</button>
+            </div>
+        </div>
+    </div>
+
     <!-- 1. 主畫面 (房間) -->
     <div id="scene-room" class="w-full max-w-md h-full flex flex-col p-4 relative hidden opacity-0 transition-opacity duration-500">
         <div id="room-atmosphere" class="absolute inset-0 w-full h-full pointer-events-none z-0"></div>
@@ -800,9 +814,9 @@
                     <span>✏️ 去打工</span>
                     <span class="text-xs opacity-80">賺罐頭</span>
                 </button>
-                <button id="btn-voice-chat" onclick="toggleVoiceChat()" class="btn-3d bg-teal-500 hover:bg-teal-600 text-white py-4 rounded-2xl text-base font-black flex flex-col items-center justify-center gap-1 border-b-4 border-teal-700">
+                <button id="btn-voice-chat" onclick="handleChatButton()" class="btn-3d bg-teal-500 hover:bg-teal-600 text-white py-4 rounded-2xl text-base font-black flex flex-col items-center justify-center gap-1 border-b-4 border-teal-700">
                     <span>🎤 說話</span>
-                    <span class="text-xs opacity-80">讓貓咪回應</span>
+                    <span class="text-xs opacity-80">長按切換文字</span>
                 </button>
             </div>
 
@@ -1285,6 +1299,7 @@
     const CLEAN_POOP_MAX = 80;
     const BATH_CLEAN_COUNT = 10;
     const CAT_SPEECH_COOLDOWN_MS = 12000;
+    const VOICE_LONG_PRESS_MS = 550;
     const NEEDS_SPEECH_THRESHOLD = 10;
     const CAT_PERSONALITIES = [
         '傲嬌、愛命令主人、嘴硬心軟',
@@ -1416,6 +1431,10 @@
     let bathRemaining = BATH_CLEAN_COUNT;
     let speechRecognizer = null;
     let isListening = false;
+    let voiceChatMode = 'voice';
+    let voiceLongPressTimer = null;
+    let voiceLongPressTriggered = false;
+    let voiceUnsupportedNotice = false;
     let catVoice = null;
 
     function spawnParticles(x, y, emojis) {
@@ -3676,11 +3695,111 @@ ${userText ? '- 請針對主人說的話回應。' : ''}
     function updateVoiceButton(isActive) {
         const btn = document.getElementById('btn-voice-chat');
         if (!btn) return;
-        btn.classList.toggle('bg-teal-500', isActive);
-        btn.classList.toggle('bg-teal-400', !isActive);
-        btn.innerHTML = isActive
-            ? '<span>🎤 我在聽...</span><span class="text-xs opacity-80">說完會回應</span>'
-            : '<span>🎤 說話</span><span class="text-xs opacity-80">讓貓咪回應</span>';
+        const isVoiceMode = voiceChatMode === 'voice';
+        const showListening = isActive && isVoiceMode;
+        btn.classList.toggle('bg-teal-400', showListening);
+        btn.classList.toggle('bg-teal-500', !showListening);
+        if (showListening) {
+            btn.innerHTML = '<span>🎤 我在聽...</span><span class="text-xs opacity-80">說完會回應</span>';
+            return;
+        }
+        if (isVoiceMode) {
+            btn.innerHTML = '<span>🎤 說話</span><span class="text-xs opacity-80">長按切換文字</span>';
+        } else {
+            btn.innerHTML = '<span>⌨️ 打字</span><span class="text-xs opacity-80">長按切換語音</span>';
+        }
+    }
+
+    function setVoiceChatMode(mode) {
+        voiceChatMode = mode === 'text' ? 'text' : 'voice';
+        if (voiceChatMode === 'text' && isListening && speechRecognizer) {
+            speechRecognizer.stop();
+        }
+        updateVoiceButton(isListening);
+    }
+
+    function toggleVoiceMode() {
+        setVoiceChatMode(voiceChatMode === 'voice' ? 'text' : 'voice');
+    }
+
+    function handleChatButton() {
+        if (voiceLongPressTriggered) {
+            voiceLongPressTriggered = false;
+            return;
+        }
+        if (voiceChatMode === 'text') {
+            openChatInput();
+            return;
+        }
+        toggleVoiceChat();
+    }
+
+    function setupVoiceChatButton() {
+        const btn = document.getElementById('btn-voice-chat');
+        if (!btn) return;
+        const startPress = () => {
+            voiceLongPressTriggered = false;
+            if (voiceLongPressTimer) clearTimeout(voiceLongPressTimer);
+            voiceLongPressTimer = setTimeout(() => {
+                voiceLongPressTriggered = true;
+                toggleVoiceMode();
+                if (navigator.vibrate) navigator.vibrate(20);
+            }, VOICE_LONG_PRESS_MS);
+        };
+        const endPress = () => {
+            if (voiceLongPressTimer) {
+                clearTimeout(voiceLongPressTimer);
+                voiceLongPressTimer = null;
+            }
+            if (voiceLongPressTriggered) {
+                setTimeout(() => {
+                    voiceLongPressTriggered = false;
+                }, 300);
+            }
+        };
+
+        if (window.PointerEvent) {
+            btn.addEventListener('pointerdown', startPress);
+            btn.addEventListener('pointerup', endPress);
+            btn.addEventListener('pointerleave', endPress);
+            btn.addEventListener('pointercancel', endPress);
+        } else {
+            btn.addEventListener('touchstart', startPress);
+            btn.addEventListener('touchend', endPress);
+            btn.addEventListener('touchcancel', endPress);
+            btn.addEventListener('mousedown', startPress);
+            btn.addEventListener('mouseup', endPress);
+            btn.addEventListener('mouseleave', endPress);
+        }
+        btn.addEventListener('contextmenu', (e) => e.preventDefault());
+        updateVoiceButton(isListening);
+    }
+
+    function openChatInput() {
+        const modal = document.getElementById('scene-chat-input');
+        const input = document.getElementById('input-chat-text');
+        if (!modal || !input) return;
+        input.value = '';
+        modal.classList.remove('hidden');
+        setTimeout(() => input.focus(), 50);
+    }
+
+    function closeChatInput() {
+        const modal = document.getElementById('scene-chat-input');
+        if (!modal) return;
+        modal.classList.add('hidden');
+    }
+
+    function submitChatInput() {
+        const input = document.getElementById('input-chat-text');
+        if (!input) return;
+        const text = input.value.trim();
+        if (!text) {
+            input.focus();
+            return;
+        }
+        closeChatInput();
+        requestCatChat(text, { speak: false });
     }
 
     function initSpeechRecognizer() {
@@ -3706,7 +3825,7 @@ ${userText ? '- 請針對主人說的話回應。' : ''}
         recognition.onresult = (event) => {
             const transcript = event.results?.[0]?.[0]?.transcript?.trim();
             if (transcript) {
-                requestCatChat(transcript);
+                requestCatChat(transcript, { speak: true });
             }
         };
         speechRecognizer = recognition;
@@ -3714,9 +3833,17 @@ ${userText ? '- 請針對主人說的話回應。' : ''}
     }
 
     function toggleVoiceChat() {
+        if (voiceChatMode !== 'voice') {
+            openChatInput();
+            return;
+        }
         if (!speechRecognizer) {
             if (!initSpeechRecognizer()) {
-                alert("你的瀏覽器不支援語音辨識功能。");
+                if (!voiceUnsupportedNotice) {
+                    alert("你的瀏覽器不支援語音辨識功能，可長按切換為文字輸入。");
+                    voiceUnsupportedNotice = true;
+                }
+                setVoiceChatMode('text');
                 return;
             }
         }
@@ -3748,14 +3875,15 @@ ${userText ? '- 請針對主人說的話回應。' : ''}
         catSpeechInFlight = false;
     }
 
-    async function requestCatChat(userText) {
+    async function requestCatChat(userText, options = {}) {
         if (catSpeechInFlight) return;
         catSpeechInFlight = true;
+        const shouldSpeak = options.speak !== false;
         const trimmed = userText.slice(0, 60);
         let text = await askGeminiCat('user-chat', { userText: trimmed });
         if (!text) text = pickRandom(CAT_SPEECH_LIST);
         displayCatSpeech(text, 3600);
-        speakCat(text);
+        if (shouldSpeak) speakCat(text);
         catSpeechInFlight = false;
     }
 
@@ -4108,6 +4236,7 @@ ${userText ? '- 請針對主人說的話回應。' : ''}
         loadGame();
         setRandomBgm(false);
         spawnRoomAtmosphere();
+        setupVoiceChatButton();
         const savedKey = localStorage.getItem('user_gemini_key');
         if (savedKey) {
             setAiStatus('AI：驗證中...', null);
