@@ -80,6 +80,22 @@
             100% { transform: translate(1px, -2px) rotate(-1deg); }
         }
         .cat-angry { animation: shake 0.5s; }
+        .cat-walk {
+            position: relative;
+            left: 0;
+            transition: left 2.4s ease-in-out;
+            will-change: left;
+        }
+        .cat-float {
+            position: relative;
+        }
+        .cat-body {
+            position: relative;
+            transition: transform 0.3s ease;
+        }
+        .cat-body.facing-left {
+            transform: scaleX(-1);
+        }
 
         /* Boss 受傷動畫 */
         @keyframes damage-shake {
@@ -117,15 +133,18 @@
         /* Majic 小裝飾 */
         .gene-overlay {
             position: absolute;
-            width: 96px;
-            height: 96px;
+            width: 120px;
+            height: 120px;
             right: -12px;
             bottom: -6px;
             pointer-events: none;
             border-radius: 999px;
-            border: 2px solid #c7d2fe;
-            background: rgba(255, 255, 255, 0.92);
-            box-shadow: 0 6px 14px rgba(79, 70, 229, 0.18);
+            border: none;
+            background: transparent;
+            box-shadow: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         .organ-container {
             position: absolute;
@@ -144,6 +163,11 @@
             user-select: none;
         }
         .gene-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            aspect-ratio: 1 / 1;
+            min-height: 2.4rem;
             background: #f8fafc;
             border: 1px solid #c7d2fe;
             border-radius: 0.75rem;
@@ -166,6 +190,100 @@
             filter: grayscale(1);
             cursor: not-allowed;
         }
+        .bath-zone {
+            position: relative;
+            width: 100%;
+            height: 260px;
+            border-radius: 24px;
+            background: linear-gradient(180deg, rgba(56, 189, 248, 0.25), rgba(125, 211, 252, 0.15));
+            border: 2px solid rgba(56, 189, 248, 0.35);
+            overflow: hidden;
+        }
+        .bath-germ {
+            position: absolute;
+            width: 42px;
+            height: 42px;
+            border-radius: 999px;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            background: rgba(255, 255, 255, 0.85);
+            box-shadow: 0 6px 12px rgba(59, 130, 246, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            cursor: pointer;
+            transition: transform 0.15s ease;
+        }
+        .bath-germ:active {
+            transform: scale(0.9);
+        }
+        .gene-tab {
+            padding: 0.5rem 0.9rem;
+            border-radius: 999px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            background: rgba(15, 23, 42, 0.06);
+            color: #475569;
+            transition: all 0.2s ease;
+        }
+        .gene-tab:hover {
+            background: rgba(15, 23, 42, 0.12);
+        }
+        .gene-tab.active {
+            background: linear-gradient(135deg, #38bdf8, #818cf8);
+            color: #0f172a;
+            box-shadow: 0 10px 20px rgba(56, 189, 248, 0.25);
+        }
+        .gene-fusion-stage {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.45);
+        }
+        .gene-overlay .gene-fusion-stage {
+            width: 120px;
+            height: 120px;
+            background: transparent;
+            border: none;
+            box-shadow: none;
+        }
+        .gene-fusion-emoji {
+            position: absolute;
+            font-size: 64px;
+            line-height: 1;
+            filter: drop-shadow(0 6px 12px rgba(0,0,0,0.35));
+        }
+        .gene-fusion-emoji.left {
+            transform: rotate(-14deg) translateX(-30px);
+        }
+        .gene-fusion-emoji.right {
+            transform: rotate(14deg) translateX(30px);
+        }
+        .gene-fusion-tape {
+            position: absolute;
+            width: 130px;
+            height: 28px;
+            background: rgba(255, 255, 255, 0.25);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-10deg);
+            z-index: 2;
+            border-left: 2px dashed rgba(255,255,255,0.3);
+            border-right: 2px dashed rgba(255,255,255,0.3);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+        .gene-fusion-tape::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(45deg, transparent 40%, rgba(255,255,255,0.4) 50%, transparent 60%);
+        }
 
         @keyframes drift {
             0%, 100% { transform: translateY(0) translateX(0) rotate(0deg); opacity: 0.2; }
@@ -175,6 +293,19 @@
             position: absolute;
             pointer-events: none;
             animation: drift 6s ease-in-out infinite;
+        }
+
+        .poop {
+            position: absolute;
+            font-size: 1.7rem;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.15));
+            cursor: pointer;
+            pointer-events: auto;
+            animation: poop-pop 0.25s ease-out;
+        }
+        @keyframes poop-pop {
+            from { transform: scale(0.6); opacity: 0.4; }
+            to { transform: scale(1); opacity: 1; }
         }
 
         /* 合成系統：Emoji 疊加 */
@@ -235,6 +366,60 @@
         #decor-lamp { top: 12%; right: 10%; font-size: 3rem; opacity: 0.9; }
         #decor-balloon { top: 8%; left: 10%; font-size: 3rem; animation: float 5s ease-in-out infinite reverse; }
 
+        /* 裝飾快選 */
+        .decor-quick {
+            display: flex;
+            gap: 0.35rem;
+            align-items: center;
+        }
+        .decor-slot {
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            border: 2px dashed #cbd5f5;
+            background: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #94a3b8;
+            font-size: 1.05rem;
+            transition: all 0.2s ease;
+        }
+        .decor-slot.filled {
+            border-style: solid;
+            border-color: #a5b4fc;
+            color: #1f2937;
+            box-shadow: 0 4px 10px rgba(79, 70, 229, 0.12);
+        }
+        #decor-picker {
+            position: absolute;
+            top: 64px;
+            right: 16px;
+            z-index: 40;
+            width: min(90%, 280px);
+            background: #fff;
+            border-radius: 16px;
+            border: 2px solid #e0e7ff;
+            box-shadow: 0 12px 30px rgba(15, 23, 42, 0.18);
+            padding: 0.75rem;
+        }
+        .decor-picker-item {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            border: 2px solid #e2e8f0;
+            background: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            transition: all 0.2s ease;
+        }
+        .decor-picker-item:hover {
+            border-color: #818cf8;
+            box-shadow: 0 0 0 2px rgba(129, 140, 248, 0.2);
+        }
+
         /* 表情符號動畫 */
         @keyframes icon-float {
             0% { transform: translateY(0) scale(1); opacity: 1; }
@@ -254,20 +439,94 @@
         #q-hint {
             white-space: normal;
             word-break: break-word;
+            overflow-wrap: anywhere;
             text-align: center;
             line-height: 1.5;
+            max-width: 100%;
+        }
+
+        .area-grid-wrap {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            justify-content: center;
+            align-items: center;
+        }
+        .area-grid {
+            display: grid;
+            gap: 2px;
+            background: #f3f4f6;
+            padding: 6px;
+            border: 2px solid #c7d2fe;
+            border-radius: 12px;
+            max-width: 100%;
+        }
+        .area-cell {
+            width: var(--cell-size, 18px);
+            height: var(--cell-size, 18px);
+            border-radius: 4px;
+            background: #60a5fa;
         }
 
         .story-hint {
             font-size: clamp(0.85rem, 2.3vw, 1.05rem);
         }
+        .area-hint {
+            font-size: 0.95rem;
+            letter-spacing: 0;
+        }
 
         #q-hint-box {
             min-height: 4.5rem;
+            position: relative;
         }
 
         .story-mode #q-zhuyin {
             font-size: clamp(1.2rem, 3.4vw, 1.7rem);
+        }
+        .math-mode #q-zhuyin {
+            font-size: clamp(2.2rem, 7vw, 4rem);
+            letter-spacing: 0.12em;
+        }
+        .area-mode #q-zhuyin {
+            font-size: clamp(1.4rem, 4vw, 2.2rem);
+        }
+        .clock-mode #q-hint-box {
+            flex-direction: column;
+            gap: 0.5rem;
+            min-height: 7.5rem;
+            padding: 0.8rem 1rem !important;
+            overflow: visible;
+        }
+        .clock-mode #q-grid {
+            display: flex;
+            justify-content: center;
+        }
+        .clock-mode #q-zhuyin {
+            font-size: clamp(1.4rem, 4.5vw, 2.2rem);
+            letter-spacing: 0.06em;
+        }
+        .clock-mode #q-char {
+            font-size: clamp(2.6rem, 7.5vw, 4.6rem);
+            line-height: 1.1;
+            letter-spacing: 0;
+            font-family: 'Zen Maru Gothic', 'Noto Sans TC', sans-serif;
+        }
+        .clock-mode #a-word {
+            font-size: clamp(1rem, 3.2vw, 1.25rem);
+        }
+        .clock-wrap {
+            width: 170px;
+            height: 170px;
+        }
+        .clock-face {
+            width: 100%;
+            height: 100%;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
+        }
+        .clock-hand {
+            stroke-linecap: round;
+            transform-origin: 50% 50%;
         }
 
         .story-mode #q-hint {
@@ -286,6 +545,57 @@
 
         .story-mode #q-hint-box span {
             display: none;
+        }
+
+        .math-mode #q-hint {
+            font-size: clamp(0.9rem, 2.8vw, 1.05rem);
+            letter-spacing: 0;
+            color: #374151;
+        }
+        .math-mode #q-hint-box {
+            margin-top: 0.5rem !important;
+            padding: 0.6rem 0.8rem !important;
+            flex-direction: column;
+            gap: 0.5rem;
+            max-height: clamp(7rem, 32vh, 12rem);
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: thin;
+        }
+        .math-mode #q-hint-box span {
+            display: none;
+        }
+        .clock-mode.math-mode #q-hint-box {
+            max-height: none;
+            overflow: visible;
+            min-height: 7.5rem;
+            padding: 0.8rem 1rem !important;
+        }
+        .clock-mode.math-mode #q-hint {
+            font-size: clamp(0.85rem, 2.5vw, 1rem);
+            letter-spacing: 0;
+        }
+
+        .area-mode #q-hint {
+            display: block;
+            font-size: 0.95rem;
+            letter-spacing: 0;
+            color: #4b5563;
+        }
+        .area-mode #q-hint-box span {
+            display: none;
+        }
+        .area-mode #q-grid {
+            display: flex;
+            max-width: 100%;
+        }
+        .area-mode #q-hint-box {
+            flex-direction: column;
+            gap: 0.5rem;
+            max-height: clamp(7rem, 32vh, 12rem);
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: thin;
         }
         
         #start-screen, #scene-reward, #scene-shop, #scene-synthesis {
@@ -312,7 +622,7 @@
     <audio id="sfx-chew" preload="auto" src="sound/chew.mp3"></audio>
     <audio id="sfx-flip" preload="auto" src="https://assets.mixkit.co/sfx/download/mixkit-paper-slide-1530.wav"></audio>
     <audio id="sfx-win" preload="auto" src="sound/winner-game.mp3"></audio>
-    <audio id="sfx-boss-bgm" preload="auto" src="https://commondatastorage.googleapis.com/codeskulptor-assets/music/race_start.ogg"></audio>
+    <audio id="sfx-boss-bgm" preload="auto" src="music/boss-1.mp3"></audio>
     <audio id="sfx-boss-hit" preload="auto" src="https://commondatastorage.googleapis.com/codeskulptor-assets/sounddogs/missile.mp3"></audio>
     <audio id="sfx-boss-heal" preload="auto" src="https://commondatastorage.googleapis.com/codeskulptor-assets/week7-bounce.m4a"></audio>
     <audio id="sfx-boss-appear" preload="auto" src="https://commondatastorage.googleapis.com/codeskulptor-assets/sounddogs/thrust.mp3"></audio>
@@ -323,10 +633,33 @@
             <div class="text-6xl mb-4 animate-bounce">🐱</div>
             <h1 class="text-3xl font-black text-gray-800 mb-2">貓咪小學堂</h1>
             <p class="text-gray-500 mb-8">準備好幫貓咪賺罐頭了嗎？</p>
-            <button onclick="unlockAudioAndStart()" class="w-full btn-3d bg-orange-500 text-white text-xl font-bold py-4 rounded-xl border-b-4 border-orange-700 active:border-orange-500">
+            <button onclick="unlockAudioAndStart()" class="w-full btn-3d bg-orange-500 text-white text-xl font-bold py-4 rounded-xl border-b-4 border-orange-700 active:border-orange-500 mb-4">
                 ▶️ 點我開始遊戲
             </button>
+            <button onclick="openKeySettings()" class="text-gray-400 text-xs underline hover:text-orange-500 transition">
+                🔑 設定 AI 金鑰 (讓貓咪變聰明)
+            </button>
+            <p id="ai-status" class="mt-2 text-[11px] text-gray-400">AI：尚未設定</p>
             <p class="mt-4 text-xs text-gray-400">請確認平板聲音已開啟</p>
+        </div>
+    </div>
+
+    <div id="scene-key-settings" class="hidden fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl border-4 border-gray-200">
+            <h2 class="text-xl font-bold text-gray-700 mb-2">設定 Gemini API Key</h2>
+            <p class="text-xs text-gray-400 mb-4">輸入 Key 後，貓咪會根據你的狀況跟你聊天喔！<br>(Key 只會存在你的瀏覽器裡，很安全)</p>
+
+            <input type="text" id="input-api-key" placeholder="貼上你的 AIza... 金鑰" class="w-full p-3 border-2 border-gray-300 rounded-xl mb-4 text-sm focus:border-orange-400 focus:outline-none">
+            <p id="api-key-status" class="text-[11px] text-gray-400 mb-3"></p>
+
+            <div class="flex gap-2">
+                <button onclick="saveApiKey()" class="flex-1 py-3 bg-green-500 text-white rounded-xl font-bold btn-3d border-b-4 border-green-700">儲存</button>
+                <button onclick="closeKeySettings()" class="flex-1 py-3 bg-gray-400 text-white rounded-xl font-bold btn-3d border-b-4 border-gray-600">取消</button>
+            </div>
+
+            <div class="mt-4 text-[10px] text-gray-400 text-center">
+                還沒有 Key? <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-blue-400 underline">去 Google 申請免費 Key</a>
+            </div>
         </div>
     </div>
 
@@ -341,6 +674,7 @@
             <div id="decor-lamp" class="decor-item hidden">🏮</div>
             <div id="decor-balloon" class="decor-item hidden">🎈</div>
         </div>
+        <div id="poop-layer" class="absolute inset-0 w-full h-full z-[20] pointer-events-none"></div>
         
         <!-- 頂部資訊列 -->
         <div class="flex justify-between items-center bg-white/90 backdrop-blur-sm p-3 rounded-2xl shadow-lg mb-2 border-2 border-white z-10">
@@ -361,9 +695,17 @@
                 </div>
             </div>
 
-            <button id="btn-music" onclick="toggleMusic()" class="mr-2 p-2 bg-gray-100 rounded-full text-sm hover:bg-gray-200 transition">
-                🔊
-            </button>
+            <div class="flex items-center gap-2">
+                <button id="btn-music" onclick="toggleMusic()" class="p-2 bg-gray-100 rounded-full text-sm hover:bg-gray-200 transition">
+                    🔊
+                </button>
+                <div class="decor-quick">
+                    <button class="decor-slot" data-slot="0" onclick="openDecorPicker(0)">+</button>
+                    <button class="decor-slot" data-slot="1" onclick="openDecorPicker(1)">+</button>
+                    <button class="decor-slot" data-slot="2" onclick="openDecorPicker(2)">+</button>
+                    <button class="decor-slot" data-slot="3" onclick="openDecorPicker(3)">+</button>
+                </div>
+            </div>
 
             <div class="flex items-center gap-1 bg-yellow-100 px-3 py-1 rounded-xl border border-yellow-200 shadow-sm min-w-fit">
                 <span class="text-xl">🥫</span>
@@ -371,20 +713,65 @@
             </div>
         </div>
 
+        <div class="grid grid-cols-3 gap-2 mb-2 px-1 relative z-10">
+            <div class="rounded-2xl border border-orange-100 bg-white/80 backdrop-blur-sm p-2 shadow-sm">
+                <div class="flex items-center justify-between text-[11px] font-bold text-orange-600">
+                    <span class="flex items-center gap-1"><span class="text-base">🍗</span>飽食</span>
+                    <span id="ui-satiety-text" class="text-orange-500">100%</span>
+                </div>
+                <div class="mt-1 h-2.5 bg-orange-100 rounded-full overflow-hidden">
+                    <div id="ui-satiety-bar" class="h-full bg-gradient-to-r from-orange-400 to-orange-500 transition-all duration-500" style="width: 100%"></div>
+                </div>
+            </div>
+            <div class="rounded-2xl border border-pink-100 bg-white/80 backdrop-blur-sm p-2 shadow-sm">
+                <div class="flex items-center justify-between text-[11px] font-bold text-pink-600">
+                    <span class="flex items-center gap-1"><span class="text-base">❤️</span>心情</span>
+                    <span id="ui-mood-text" class="text-pink-500">100%</span>
+                </div>
+                <div class="mt-1 h-2.5 bg-pink-100 rounded-full overflow-hidden">
+                    <div id="ui-mood-bar" class="h-full bg-gradient-to-r from-pink-400 to-pink-500 transition-all duration-500" style="width: 100%"></div>
+                </div>
+            </div>
+            <div class="rounded-2xl border border-sky-100 bg-white/80 backdrop-blur-sm p-2 shadow-sm">
+                <div class="flex items-center justify-between text-[11px] font-bold text-sky-600">
+                    <span class="flex items-center gap-1"><span class="text-base">✨</span>清潔</span>
+                    <span id="ui-clean-text" class="text-sky-500">100%</span>
+                </div>
+                <div class="mt-1 h-2.5 bg-sky-100 rounded-full overflow-hidden">
+                    <div id="ui-clean-bar" class="h-full bg-gradient-to-r from-sky-400 to-sky-500 transition-all duration-500" style="width: 100%"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="status-sick" class="hidden absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-5xl animate-pulse z-30 pointer-events-none drop-shadow-lg">
+            😷
+        </div>
+        <div id="status-hungry" class="hidden absolute top-20 right-10 text-3xl animate-bounce z-30 pointer-events-none drop-shadow-md">
+            🍽️
+        </div>
+
+        <div id="decor-picker" class="hidden">
+            <div class="flex items-center justify-between mb-2">
+                <div class="text-sm font-bold text-indigo-600">選擇裝飾</div>
+                <button onclick="closeDecorPicker()" class="text-xs text-gray-400">關閉</button>
+            </div>
+            <div id="decor-picker-list" class="grid grid-cols-4 gap-2"></div>
+        </div>
+
         <!-- 貓咪互動區 -->
-        <div class="flex-1 flex flex-col items-center justify-center relative min-h-0 z-10">
-            <div id="cat-container" class="relative cursor-pointer cat-anim active:scale-95 transition-transform duration-100" onclick="petCat(event)">
-                <img id="cat-image" src="https://robohash.org/egg?set=set4&size=250x250" class="w-64 h-64 max-h-[40vh] object-contain drop-shadow-2xl" alt="Cat">
-                <div id="synth-stack" class="synth-stack"></div>
-                <div id="gene-overlay" class="gene-overlay hidden">
-                    <div class="organ-container" style="width: 26px; height: 26px; top: 24px; left: 18px;">
-                        <div id="gene-eye-l" class="organ-source">🤩</div>
-                    </div>
-                    <div class="organ-container" style="width: 26px; height: 26px; top: 24px; right: 18px;">
-                        <div id="gene-eye-r" class="organ-source">🤩</div>
-                    </div>
-                    <div class="organ-container" style="width: 46px; height: 28px; top: 56px; left: 50%; transform: translateX(-50%);">
-                        <div id="gene-mouth" class="organ-source">😺</div>
+        <div id="cat-zone" class="flex-1 flex flex-col items-center justify-center relative min-h-0 z-10">
+            <div id="cat-container" class="relative cursor-pointer cat-walk active:scale-95 transition-transform duration-100" onclick="petCat(event)">
+                <div id="cat-float" class="cat-float cat-anim">
+                    <div id="cat-body" class="cat-body">
+                        <img id="cat-image" src="https://robohash.org/egg?set=set4&size=250x250" class="w-64 h-64 max-h-[40vh] object-contain drop-shadow-2xl" alt="Cat">
+                        <div id="synth-stack" class="synth-stack"></div>
+                        <div id="gene-overlay" class="gene-overlay hidden">
+                            <div class="gene-fusion-stage">
+                                <div id="gene-overlay-left" class="gene-fusion-emoji left">🤩</div>
+                                <div id="gene-overlay-right" class="gene-fusion-emoji right">😺</div>
+                                <div class="gene-fusion-tape"></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div id="cat-speech" class="absolute -top-10 right-0 bg-white p-3 rounded-2xl rounded-bl-none shadow-md text-sm hidden font-bold text-gray-600 animate-bounce">
@@ -416,6 +803,18 @@
             <button onclick="openMenu()" class="btn-3d bg-blue-400 hover:bg-blue-500 text-white py-3 rounded-2xl text-base font-bold flex flex-col items-center justify-center gap-1 border-b-4 border-blue-600">
                 <span>✏️ 去打工</span>
                 <span class="text-xs opacity-80">賺罐頭</span>
+            </button>
+            <button onclick="cleanPoop()" class="btn-3d bg-emerald-400 hover:bg-emerald-500 text-white py-3 rounded-2xl text-base font-bold flex flex-col items-center justify-center gap-1 border-b-4 border-emerald-600">
+                <span>🧹 清理</span>
+                <span class="text-xs opacity-80">便便</span>
+            </button>
+            <button onclick="openBath()" class="btn-3d bg-cyan-400 hover:bg-cyan-500 text-white py-3 rounded-2xl text-base font-bold flex flex-col items-center justify-center gap-1 border-b-4 border-cyan-600 col-span-3">
+                <span>🛁 洗澡</span>
+                <span class="text-xs opacity-80">沖洗細菌</span>
+            </button>
+            <button id="btn-voice-chat" onclick="toggleVoiceChat()" class="btn-3d bg-teal-400 hover:bg-teal-500 text-white py-3 rounded-2xl text-base font-bold flex flex-col items-center justify-center gap-1 border-b-4 border-teal-600 col-span-3">
+                <span>🎤 說話</span>
+                <span class="text-xs opacity-80">讓貓咪回應</span>
             </button>
         </div>
     </div>
@@ -453,7 +852,7 @@
 
     <!-- 合成/收藏 -->
     <div id="scene-synthesis" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl animate-[fadeIn_0.3s_ease-out] border-4 border-indigo-200 flex flex-col max-h-[90dvh]">
+        <div class="bg-white w-full max-w-md rounded-3xl p-4 shadow-2xl animate-[fadeIn_0.3s_ease-out] border-4 border-indigo-200 flex flex-col max-h-[88dvh] overflow-hidden">
             <h2 class="text-2xl font-black text-indigo-600 mb-2 text-center">🔮 合成工坊</h2>
             <div class="flex mb-4 bg-gray-100 p-1 rounded-lg">
                 <button onclick="switchSynthesisTab('synth-tab-craft')" id="btn-synth-tab-craft" class="flex-1 py-2 rounded-md font-bold text-sm bg-white shadow-sm text-indigo-600 transition">🧪 合成</button>
@@ -461,7 +860,7 @@
                 <button onclick="switchSynthesisTab('synth-tab-gene')" id="btn-synth-tab-gene" class="flex-1 py-2 rounded-md font-bold text-sm text-gray-400 hover:bg-white/50 transition">🪄 Majic工坊</button>
             </div>
 
-            <div id="synth-tab-craft" class="flex-1 min-h-0 flex flex-col">
+            <div id="synth-tab-craft" class="flex-1 min-h-0 flex flex-col overflow-y-auto pr-1">
                 <div class="flex items-center justify-center gap-3 mb-3 bg-indigo-50 p-3 rounded-xl">
                     <div class="relative w-20 h-20 rounded-2xl bg-white border border-indigo-200 flex items-center justify-center text-3xl">
                         🐱
@@ -474,70 +873,111 @@
                 </div>
                 <p id="synth-msg" class="text-xs text-gray-500 mb-2 text-center"></p>
                 <p class="text-xs text-gray-400 mb-2">點選素材進行合成：</p>
-                <div id="material-list" class="flex-1 min-h-0 overflow-y-auto grid grid-cols-4 gap-2 content-start p-1">
+                <div id="material-list" class="grid grid-cols-4 gap-2 content-start p-1">
                     <!-- JS 生成素材 -->
                 </div>
             </div>
 
-            <div id="synth-tab-collection" class="hidden flex-1 min-h-0 overflow-y-auto grid grid-cols-2 gap-3 p-1 content-start">
+            <div id="synth-tab-collection" class="hidden flex-1 min-h-0 overflow-y-auto grid grid-cols-2 gap-3 p-1 content-start pr-1">
                 <!-- JS 生成收藏 -->
             </div>
 
-            <div id="synth-tab-gene" class="hidden flex-1 min-h-0 flex flex-col">
-                <div class="flex items-center justify-between bg-indigo-50 p-3 rounded-xl mb-3">
-                    <div>
-                        <p class="text-xs text-gray-500">魔法小夥伴</p>
-                        <h3 id="gene-name" class="text-lg font-black text-indigo-700">甜甜小喵 #001</h3>
-                        <p id="gene-desc" class="text-xs text-gray-400">閃閃發亮。</p>
+            <div id="synth-tab-gene" class="hidden flex-1 min-h-0 flex flex-col overflow-y-auto pr-1">
+                <div class="rounded-3xl bg-gradient-to-br from-slate-900 via-indigo-900 to-slate-950 text-white p-4 border border-white/10 shadow-[0_20px_60px_rgba(15,23,42,0.45)] mb-4">
+                    <div class="flex items-start justify-between gap-3">
+                        <div>
+                            <p class="text-[10px] uppercase tracking-[0.25em] text-slate-300">Majic Lab</p>
+                            <h3 id="gene-name" class="text-lg font-black text-white">甜甜小喵 #001</h3>
+                            <p id="gene-desc" class="text-xs text-slate-300">閃閃發亮。</p>
+                        </div>
+                        <button onclick="randomGeneMutation()" class="px-3 py-2 bg-gradient-to-r from-sky-400 to-indigo-400 text-slate-900 rounded-lg font-bold text-sm btn-3d">
+                            🎲 驚喜魔法
+                        </button>
                     </div>
-                    <button onclick="randomGeneMutation()" class="px-3 py-2 bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-lg font-bold text-sm btn-3d">
-                        🎲 驚喜魔法
-                    </button>
-                </div>
-                <p class="text-[11px] text-gray-400 mb-3">素材取得：完成關卡或 Boss 會掉落。</p>
+                    <p class="text-[11px] text-slate-300 mt-2">素材取得：完成關卡或 Boss 會掉落。</p>
 
-                <div class="grid grid-cols-2 gap-3 mb-3">
-                    <div>
-                        <div class="flex items-center gap-2 text-xs text-indigo-500 mb-2">
-                            <span>👁️</span> 眼神素材
+                    <div class="mt-4 flex flex-col sm:flex-row gap-4 items-center">
+                        <div class="relative w-40 h-40 rounded-full bg-slate-950/80 border border-white/10 shadow-[inset_0_0_45px_rgba(0,0,0,0.6)] flex items-center justify-center">
+                            <div class="absolute inset-0 rounded-full bg-gradient-to-br from-sky-500/20 via-indigo-500/20 to-transparent blur-2xl"></div>
+                            <div class="gene-fusion-stage">
+                                <div id="gene-fusion-left" class="gene-fusion-emoji left">🤩</div>
+                                <div id="gene-fusion-right" class="gene-fusion-emoji right">😺</div>
+                                <div class="gene-fusion-tape"></div>
+                            </div>
                         </div>
-                        <div id="gene-eyes-panel" class="grid grid-cols-5 gap-2"></div>
-                    </div>
-                    <div>
-                        <div class="flex items-center gap-2 text-xs text-pink-500 mb-2">
-                            <span>👄</span> 嘴巴素材
+
+                        <div class="flex-1 w-full space-y-2">
+                            <div class="flex items-center justify-between rounded-2xl bg-white/10 px-3 py-2 border border-white/10">
+                                <div class="flex items-center gap-2 text-sm text-sky-100">
+                                    <span>👁️</span>
+                                    <span>眼神素材</span>
+                                </div>
+                                <div id="gene-eye-slot" class="text-2xl">🤩</div>
+                            </div>
+                            <div class="flex items-center justify-between rounded-2xl bg-white/10 px-3 py-2 border border-white/10">
+                                <div class="flex items-center gap-2 text-sm text-pink-100">
+                                    <span>👄</span>
+                                    <span>嘴巴素材</span>
+                                </div>
+                                <div id="gene-mouth-slot" class="text-2xl">😺</div>
+                            </div>
+                            <div class="rounded-2xl bg-white/5 px-3 py-2 border border-white/10">
+                                <div class="flex justify-between text-xs text-slate-200 mb-1">
+                                    <span>彩色魔法</span>
+                                    <span id="gene-hue-val">0°</span>
+                                </div>
+                                <input id="gene-hue-slider" type="range" min="0" max="360" value="0" class="w-full accent-sky-400">
+                            </div>
+                            <div class="rounded-2xl bg-white/5 px-3 py-2 border border-white/10">
+                                <div class="flex justify-between text-xs text-slate-200 mb-1">
+                                    <span>柔焦魔法</span>
+                                    <span id="gene-blur-val">0</span>
+                                </div>
+                                <input id="gene-blur-slider" type="range" min="0" max="8" step="0.5" value="0" class="w-full accent-pink-400">
+                            </div>
                         </div>
-                        <div id="gene-mouth-panel" class="grid grid-cols-5 gap-2"></div>
                     </div>
                 </div>
 
-                <div class="space-y-3 mb-3">
-                    <div>
-                        <div class="flex justify-between text-xs text-indigo-400 mb-1">
-                            <span>彩色魔法</span>
-                            <span id="gene-hue-val">0°</span>
-                        </div>
-                        <input id="gene-hue-slider" type="range" min="0" max="360" value="0" class="w-full">
-                    </div>
-                    <div>
-                        <div class="flex justify-between text-xs text-indigo-400 mb-1">
-                            <span>柔焦魔法</span>
-                            <span id="gene-blur-val">0</span>
-                        </div>
-                        <input id="gene-blur-slider" type="range" min="0" max="8" step="0.5" value="0" class="w-full">
-                    </div>
+                <div class="flex items-center gap-2 mb-3">
+                    <button id="gene-tab-eyes" class="gene-tab active" onclick="switchGeneTab('eyes')">👁️ 眼神</button>
+                    <button id="gene-tab-mouth" class="gene-tab" onclick="switchGeneTab('mouth')">👄 嘴巴</button>
                 </div>
 
-                <div class="flex gap-2 mb-3">
+                <div id="gene-panel-eyes" class="mb-4">
+                    <div class="text-xs text-slate-500 mb-2">選擇眼神素材</div>
+                    <div id="gene-eyes-panel" class="grid grid-cols-5 gap-2"></div>
+                </div>
+                <div id="gene-panel-mouth" class="hidden mb-4">
+                    <div class="text-xs text-slate-500 mb-2">選擇嘴巴素材</div>
+                    <div id="gene-mouth-panel" class="grid grid-cols-5 gap-2"></div>
+                </div>
+
+                <div class="flex gap-2 mb-4">
                     <button onclick="saveGeneMutation()" id="btn-save-gene" class="flex-1 py-2 bg-indigo-600 text-white rounded-lg font-bold btn-3d">💾 收藏造型</button>
                     <button onclick="resetGeneMutation()" class="flex-1 py-2 bg-gray-200 text-gray-600 rounded-lg font-bold">清空</button>
                 </div>
 
                 <div class="text-xs text-gray-400 mb-1">我的魔法收藏：</div>
-                <div id="gene-collection-list" class="flex-1 min-h-0 overflow-y-auto grid grid-cols-2 gap-2 p-1 content-start"></div>
+                <div id="gene-collection-list" class="grid grid-cols-2 gap-2 p-1 content-start"></div>
             </div>
 
             <button onclick="closeSynthesis()" class="mt-4 w-full py-3 bg-gray-400 hover:bg-gray-500 text-white rounded-xl font-bold btn-3d border-b-4 border-gray-600 shrink-0">返回房間</button>
+        </div>
+    </div>
+
+    <!-- 洗澡 -->
+    <div id="scene-bath" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-cyan-900/40 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl border-4 border-cyan-200 flex flex-col gap-4">
+            <div class="flex items-center justify-between">
+                <h2 class="text-2xl font-black text-cyan-600 flex items-center gap-2">
+                    <span>🛁</span> 洗澡時間
+                </h2>
+                <button onclick="closeBath()" class="text-xs text-gray-400 hover:text-cyan-500">關閉</button>
+            </div>
+            <p class="text-xs text-gray-500">用水沖洗細菌，還需要 <span id="bath-remaining" class="font-bold text-cyan-600">10</span> 個。</p>
+            <div id="bath-zone" class="bath-zone"></div>
+            <button onclick="closeBath()" class="w-full py-3 bg-gray-400 hover:bg-gray-500 text-white rounded-xl font-bold btn-3d border-b-4 border-gray-600">完成回房間</button>
         </div>
     </div>
 
@@ -566,6 +1006,12 @@
         <div class="w-full max-w-md h-3 bg-gray-200 rounded-full mb-8 shadow-inner overflow-hidden">
             <div id="study-progress" class="h-full bg-blue-500 rounded-full transition-all duration-300" style="width: 0%"></div>
         </div>
+        <div id="study-speech" class="hidden mb-4 max-w-md w-full flex items-center gap-2">
+            <div class="w-10 h-10 rounded-full border-2 border-white shadow-md bg-white/80 flex items-center justify-center overflow-hidden">
+                <img id="study-cat-avatar" src="https://robohash.org/egg?set=set4&size=80x80" alt="Cat" class="w-full h-full object-cover">
+            </div>
+            <div id="study-speech-text" class="flex-1 bg-white/80 text-gray-700 text-sm font-bold px-4 py-2 rounded-full shadow-sm border border-blue-100 text-center"></div>
+        </div>
         <div class="perspective-1000 w-full max-w-xs h-96 cursor-pointer mb-8 relative group" onclick="flipCard()">
             <div id="tap-hint" class="absolute -right-4 top-1/2 z-10 animate-bounce bg-white/80 p-2 rounded-full shadow-lg pointer-events-none">👆</div>
             <div id="study-card" class="card-inner relative w-full h-full transform-style-3d shadow-xl rounded-3xl transition-all duration-500">
@@ -575,6 +1021,7 @@
                     <div id="q-hint-box" class="mt-4 bg-blue-50 px-6 py-3 rounded-2xl border border-blue-100 flex items-center justify-center gap-2 w-full">
                         <span class="text-gray-400 text-sm absolute top-2 left-4">提示：</span>
                         <p id="q-hint" class="text-3xl font-bold text-blue-600 tracking-widest"></p>
+                        <div id="q-grid" class="area-grid-wrap hidden"></div>
                     </div>
                     <p class="text-gray-400 mt-4 text-xs">寫完後點我翻牌</p>
                 </div>
@@ -618,8 +1065,8 @@
                 <p id="boss-q-word" class="text-xl text-blue-600 font-bold"></p>
             </div>
             
-            <div id="boss-answer-mask" class="absolute inset-0 bg-gray-800/90 rounded-xl flex items-center justify-center cursor-pointer transition-opacity z-10" onclick="revealBossAnswer()">
-                <p class="text-white text-2xl font-bold animate-bounce">👆 點我看答案攻擊</p>
+            <div id="boss-answer-mask" class="absolute bottom-3 left-1/2 -translate-x-1/2 bg-gray-900/90 px-4 py-2 rounded-full flex items-center justify-center cursor-pointer transition-opacity z-10 shadow-lg" onclick="revealBossAnswer()">
+                <p class="text-white text-base font-bold animate-bounce">👆 點我看答案攻擊</p>
             </div>
 
             <div id="boss-answer-area" class="hidden mt-4 pt-4 border-t-2 border-gray-100 flex flex-col items-center">
@@ -657,58 +1104,77 @@
 <script>
     // --- 0. 資料庫 ---
     const lessons = {
-        "7": { title: "第七課", words: [
+        "7": { title: "第七課", category: "國語", words: [
             {c:"樣",z:"ㄧㄤˋ",r:"木部",w:"樣子"}, {c:"食",z:"ㄕˊ",r:"食部",w:"食品"}, {c:"郊",z:"ㄐㄧㄠ",r:"邑部",w:"郊外"}, {c:"活",z:"ㄏㄨㄛˊ",r:"水部",w:"生活"},
             {c:"奇",z:"ㄑㄧˊ",r:"大部",w:"奇怪"}, {c:"筒",z:"ㄊㄨㄥˇ",r:"竹部",w:"竹筒"}, {c:"香",z:"ㄒㄧㄤ",r:"香部",w:"香水"}, {c:"味",z:"ㄨㄟˋ",r:"口部",w:"味道"},
             {c:"便",z:"ㄅㄧㄢˋ",r:"人部",w:"方便"}, {c:"當",z:"ㄉㄤ",r:"田部",w:"便當"}, {c:"盒",z:"ㄏㄜˊ",r:"皿部",w:"盒子"}, {c:"客",z:"ㄎㄜˋ",r:"宀部",w:"客人"},
             {c:"清",z:"ㄑㄧㄥ",r:"水部",w:"清水"}, {c:"節",z:"ㄐㄧㄝˊ",r:"竹部",w:"節日"}, {c:"保",z:"ㄅㄠˇ",r:"人部",w:"保護"}, {c:"平",z:"ㄆㄧㄥˊ",r:"干部",w:"平安"},
             {c:"安",z:"ㄢ",r:"宀部",w:"安全"}, {c:"南",z:"ㄋㄢˊ",r:"十部",w:"南方"}
         ]},
-        "8": { title: "第八課", words: [
+        "8": { title: "第八課", category: "國語", words: [
             {c:"介",z:"ㄐㄧㄝˋ",r:"人部",w:"介紹"}, {c:"園",z:"ㄩㄢˊ",r:"囗部",w:"公園"}, {c:"形",z:"ㄒㄧㄥˊ",r:"彡部",w:"形狀"}, {c:"白",z:"ㄅㄞˊ",r:"白部",w:"白色"},
             {c:"紙",z:"ㄓˇ",r:"糸部",w:"白紙"}, {c:"米",z:"ㄇㄧˇ",r:"米部",w:"白米"}, {c:"變",z:"ㄅㄧㄢˋ",r:"言部",w:"改變"}, {c:"軟",z:"ㄖㄨㄢˇ",r:"車部",w:"柔軟"},
             {c:"搶",z:"ㄑㄧㄤˇ",r:"手部",w:"搶走"}, {c:"材",z:"ㄘㄞˊ",r:"木部",w:"材料"}, {c:"蝦",z:"ㄒㄧㄚ",r:"虫部",w:"蝦子"}, {c:"線",z:"ㄒㄧㄢˋ",r:"糸部",w:"毛線"},
             {c:"各",z:"ㄍㄜˋ",r:"口部",w:"各種"}, {c:"種",z:"ㄓㄨㄥˇ",r:"禾部",w:"種子"}, {c:"菜",z:"ㄘㄞˋ",r:"艸部",w:"青菜"}, {c:"聽",z:"ㄊㄧㄥ",r:"耳部",w:"聽見"},
             {c:"更",z:"ㄍㄥˋ",r:"曰部",w:"更加"}, {c:"接",z:"ㄐㄧㄝ",r:"手部",w:"接受"}
         ]},
-        "9": { title: "第九課", words: [
+        "9": { title: "第九課", category: "國語", words: [
             {c:"黃",z:"ㄏㄨㄤˊ",r:"黃部",w:"黃色"}, {c:"沖",z:"ㄔㄨㄥ",r:"水部",w:"沖洗"}, {c:"澡",z:"ㄗㄠˇ",r:"水部",w:"洗澡"}, {c:"蘿",z:"ㄌㄨㄛˊ",r:"艸部",w:"蘿蔔"},
             {c:"蔔",z:"ㄅㄛ˙",r:"艸部",w:"蘿蔔"}, {c:"哪",z:"ㄋㄚˇ",r:"口部",w:"哪裡"}, {c:"粒",z:"ㄌㄧˋ",r:"米部",w:"米粒"}, {c:"熱",z:"ㄖㄜˋ",r:"火部",w:"熱鬧"},
             {c:"浴",z:"ㄩˋ",r:"水部",w:"浴室"}, {c:"蒸",z:"ㄓㄥ",r:"火部",w:"蒸氣"}, {c:"胖",z:"ㄆㄤˋ",r:"肉部",w:"肥胖"}, {c:"名",z:"ㄇㄧㄥˊ",r:"口部",w:"名字"},
             {c:"苔",z:"ㄊㄞˊ",r:"艸部",w:"青苔"}, {c:"蛋",z:"ㄉㄢˋ",r:"虫部",w:"雞蛋"}, {c:"蔬",z:"ㄕㄨ",r:"艸部",w:"蔬菜"}, {c:"通",z:"ㄊㄨㄥ",r:"辵部",w:"通過"},
             {c:"細",z:"ㄒㄧˋ",r:"糸部",w:"細小"}
         ]},
-        "10": { title: "第十課", words: [
+        "10": { title: "第十課", category: "國語", words: [
             {c:"減",z:"ㄐㄧㄢˇ",r:"水部",w:"減少"}, {c:"表",z:"ㄅㄧㄠˇ",r:"衣部",w:"課表"}, {c:"讀",z:"ㄉㄨˊ",r:"言部",w:"讀書"}, {c:"認",z:"ㄖㄣˋ",r:"言部",w:"認識"},
             {c:"識",z:"ㄕˋ",r:"言部",w:"知識"}, {c:"謎",z:"ㄇㄧˊ",r:"言部",w:"謎題"}, {c:"答",z:"ㄉㄚˊ",r:"竹部",w:"回答"}, {c:"搖",z:"ㄧㄠˊ",r:"手部",w:"搖頭"},
             {c:"百",z:"ㄅㄞˇ",r:"白部",w:"一百"}, {c:"嘴",z:"ㄗㄨㄟˇ",r:"口部",w:"嘴巴"}, {c:"哥",z:"ㄍㄜ",r:"口部",w:"哥哥"}, {c:"數",z:"ㄕㄨˋ",r:"攵部",w:"數學"},
             {c:"題",z:"ㄊㄧˊ",r:"頁部",w:"題目"}, {c:"趕",z:"ㄍㄢˇ",r:"走部",w:"趕快"}, {c:"突",z:"ㄊㄨˊ",r:"穴部",w:"突然"}, {c:"異",z:"ㄧˋ",r:"田部",w:"奇異"},
             {c:"口",z:"ㄎㄡˇ",r:"口部",w:"口袋"}, {c:"對",z:"ㄉㄨㄟˋ",r:"寸部",w:"對錯"}
         ]},
-        "11": { title: "第十一課", words: [
+        "11": { title: "第十一課", category: "國語", words: [
             {c:"怪",z:"ㄍㄨㄞˋ",r:"心部",w:"奇怪"}, {c:"門",z:"ㄇㄣˊ",r:"門部",w:"大門"}, {c:"扇",z:"ㄕㄢˋ",r:"戶部",w:"電扇"}, {c:"立",z:"ㄌㄧˋ",r:"立部",w:"起立"},
             {c:"刻",z:"ㄎㄜˋ",r:"刀部",w:"立刻"}, {c:"閒",z:"ㄒㄧㄢˊ",r:"門部",w:"空閒"}, {c:"馬",z:"ㄇㄚˇ",r:"馬部",w:"馬路"}, {c:"闖",z:"ㄔㄨㄤˇ",r:"門部",w:"闖關"},
             {c:"耳",z:"ㄦˇ",r:"耳部",w:"耳朵"}, {c:"主",z:"ㄓㄨˇ",r:"丶部",w:"主人"}, {c:"播",z:"ㄅㄛ",r:"手部",w:"廣播"}, {c:"報",z:"ㄅㄠˋ",r:"土部",w:"報告"},
             {c:"力",z:"ㄌㄧˋ",r:"力部",w:"力氣"}, {c:"竟",z:"ㄐㄧㄥˋ",r:"立部",w:"竟然"}, {c:"巴",z:"ㄅㄚ",r:"巳部",w:"尾巴"}, {c:"東",z:"ㄉㄨㄥ",r:"木部",w:"東西"},
             {c:"西",z:"ㄒㄧ",r:"襾部",w:"西瓜"}, {c:"底",z:"ㄉㄧˇ",r:"廣部",w:"底下"}
         ]},
-        "12": { title: "第十二課", words: [
+        "12": { title: "第十二課", category: "國語", words: [
             {c:"念",z:"ㄋㄧㄢˋ",r:"心部",w:"思念"}, {c:"曲",z:"ㄑㄩˇ",r:"曰部",w:"歌曲"}, {c:"項",z:"ㄒㄧㄤˋ",r:"頁部",w:"項目"}, {c:"浮",z:"ㄈㄨˊ",r:"水部",w:"浮力"},
             {c:"掌",z:"ㄓㄤˇ",r:"手部",w:"手掌"}, {c:"撥",z:"ㄅㄛ",r:"手部",w:"撥開"}, {c:"波",z:"ㄅㄛ",r:"水部",w:"波浪"}, {c:"詩",z:"ㄕ",r:"言部",w:"詩人"},
             {c:"作",z:"ㄗㄨㄛˋ",r:"人部",w:"作業"}, {c:"首",z:"ㄕㄡˇ",r:"首部",w:"首先"}, {c:"指",z:"ㄓˇ",r:"手部",w:"手指"}, {c:"伸",z:"ㄕㄣ",r:"人部",w:"伸手"},
             {c:"脖",z:"ㄅㄛˊ",r:"肉部",w:"脖子"}, {c:"身",z:"ㄕㄣ",r:"身部",w:"身體"}, {c:"體",z:"ㄊㄧˇ",r:"骨部",w:"體育"}, {c:"隻",z:"ㄓ",r:"隹部",w:"一隻"},
             {c:"倒",z:"ㄉㄠˇ",r:"人部",w:"跌倒"}, {c:"肚",z:"ㄉㄨˋ",r:"肉部",w:"肚子"}
         ]},
-        "R": { title: "全範圍隨機 (10題)", mode: "random10", words: Array(10).fill(null) },
-        "M": { title: "數學題 (10題)", mode: "math10", words: Array(10).fill(null) }
+        "R": { title: "全範圍隨機 (10題)", category: "國語", mode: "random10", count: 10, words: Array(10).fill(null) },
+        "M": { title: "數學題 (10題)", category: "數學", mode: "math10", count: 10, words: Array(10).fill(null) },
+        "T": { title: "時鐘題 (10題)", category: "數學", mode: "clock10", count: 10, words: Array(10).fill(null) },
+        "A": { title: "面積挑戰 (10題)", category: "數學", mode: "area10", count: 10, words: Array(10).fill(null) },
+        "Z": { title: "隨機總複習 (10題)", category: "總複習", mode: "mix10", count: 10, words: Array(10).fill(null) }
     };
 
-    // --- 1. 遊戲狀態管理 ---
+    const GENE_EYES = [
+        '🤩', '😍', '😎', '🥺', '😉', '😊', '😴', '🤗', '😺', '😻',
+        '✨', '🌟', '💫', '🌈', '🎀', '🧸', '🐾', '🐤', '🐰', '🐹',
+        '🐻', '🐼', '🍓', '🍬', '🧁', '🍰', '🍭', '🎈', '🫧', '🪄'
+    ];
+    const GENE_MOUTHS = [
+        '😺', '😋', '😁', '😆', '😮', '😜', '🙂', '🥳', '🤭', '😇',
+        '💖', '💗', '💕', '💞', '🌸', '🌼', '🍡', '🍩', '🍪', '🍫',
+        '🍯', '🍦', '🍧', '🧋', '🍓', '🎀', '🐣', '🐱', '🐶', '🪄'
+    ];
+
+    // --- 1. 遊戲狀態管理 (修改版) ---
     let gameState = {
         level: 1,
         exp: 0,
         food: 0,
         musicOn: true,
+        satiety: 100,
+        cleanliness: 100,
+        mood: 100,
+        isSick: false,
+        lastLoginTime: Date.now(),
         inventory: [],
         materialInventory: [],
         synthUnlocked: [0],
@@ -725,11 +1191,12 @@
         geneActive: false,
         geneName: '甜甜小喵 #001',
         geneDesc: '閃閃發亮。',
-        geneEyeMaterials: ['🤩', '😍', '😎'],
-        geneMouthMaterials: ['😺', '😋', '😁']
+        geneEyeMaterials: GENE_EYES.slice(0, 3),
+        geneMouthMaterials: GENE_MOUTHS.slice(0, 3)
     };
 
     const shopItems = [
+        { id: 'item-medicine', name: '萬能藥水', price: 50, icon: '💊', desc: '治癒生病與恢復健康' },
         { id: 'decor-window', name: '風景窗戶', price: 20, icon: '🖼️', desc: '看看外面的世界' },
         { id: 'decor-rug', name: '彩虹地毯', price: 15, icon: '🌈', desc: '軟綿綿的觸感' },
         { id: 'decor-toy', name: '毛線球', price: 10, icon: '🧶', desc: '貓咪最愛玩具' },
@@ -797,8 +1264,6 @@
 
     const ROOM_ATMOSPHERE_LIST = ['☁️', '🌸', '✨', '🎵', '🌱', '🌙', '💫'];
     const CAT_SPEECH_LIST = ['喵嗚～', '再摸一下！', '罐頭在哪？', '一起學習！', '你真厲害！'];
-    const GENE_EYES = ['🤩', '😍', '😎', '🥺', '😉', '😊', '😴', '🤗', '😺', '😻'];
-    const GENE_MOUTHS = ['😺', '😋', '😁', '😆', '😮', '😜', '🙂', '🥳', '🤭', '😇'];
     const GENE_ADJECTIVES = ['彩虹', '星星', '泡泡', '夢幻', '開心', '甜甜', '陽光', '閃亮'];
     const GENE_NOUNS = ['小喵', '小精靈', '小泡泡', '小星星', '魔法貓', '甜甜貓', '彩虹貓', '心情貓'];
     const GENE_DESCS = [
@@ -809,6 +1274,44 @@
         '正在發光中。'
     ];
     
+    const ONLINE_DECAY_INTERVAL_MS = 30000;
+    const ONLINE_SATIETY_DECAY = 2;
+    const ONLINE_MOOD_DECAY = 1;
+    const ONLINE_CLEAN_DECAY = 1;
+    const POOP_CLEAN_PENALTY = 3;
+    const CLEAN_POOP_RECOVER = 60;
+    const CLEAN_POOP_MAX = 80;
+    const BATH_CLEAN_COUNT = 10;
+    const CAT_SPEECH_COOLDOWN_MS = 12000;
+    const NEEDS_SPEECH_THRESHOLD = 10;
+    const CAT_PERSONALITIES = [
+        '傲嬌、愛命令主人、嘴硬心軟',
+        '貪吃、慢半拍、總想吃罐頭',
+        '溫柔、愛撒嬌、喜歡被誇',
+        '活力滿滿、好奇心爆棚、話很多',
+        '冷靜、理性、講話精簡',
+        '愛乾淨、有點潔癖、討厭髒亂',
+        '小公主、挑食、講究排場',
+        '勇敢、好勝、想當隊長',
+        '害羞、輕聲細語、躲在角落',
+        '調皮、愛惡作劇、笑嘻嘻',
+        '夢幻、浪漫、愛星星',
+        '古風、小書生、說話文靜',
+        '中二、覺得自己有超能力',
+        '愛睡覺、懶洋洋、慢吞吞',
+        '愛黏人、需要陪伴、容易不安',
+        '美食家、嘴刁、愛評論口感',
+        '元氣偶像、愛鼓勵、喊口號',
+        '吐槽系、嘴碎、愛嫌棄',
+        '大哥風、講義氣、護主心強',
+        '神秘、話少、偶爾突然爆梗',
+        '小老師、愛糾正、鼓勵學習',
+        '冒險家、嚮往外面、想出門',
+        '霸氣女王、態度高冷、愛下指令',
+        '暖心、很會安慰、會照顧人',
+        '幼貓、小吃貨、天真可愛'
+    ];
+
     const EXP_PER_LEVEL = 10;
     const HAPPY_MEOW_LIST = [
         "sound/meow1.mp3",
@@ -821,16 +1324,25 @@
         "sound/an2.mp3"
     ];
     const BGM_LIST = [
-        "music/兔兒跳不停.mp3",
-        "music/洗洗碗.mp3",
-        "music/洗碗.mp3",
-        "music/洗碗洗碗洗碗碗.mp3",
-        "music/蝦拉拉 .mp3"
+        "music/m1.mp3",
+        "music/m2.mp3",
+        "music/m3.mp3",
+        "music/m4.mp3"
+    ];
+    const BOSS_BGM_LIST = [
+        "music/boss-1.mp3",
+        "music/boss-2.mp3",
+        "music/boss-3.mp3"
     ];
     let currentBgmUrl = "";
     let bgmQueue = [];
+    let currentBossBgmUrl = "";
+    let bossBgmQueue = [];
     let bgmWasPlaying = false;
     let bossBgmWasPlaying = false;
+    let catWalkTimer = null;
+    let onlineDecayTimer = null;
+    let activeDecorSlot = null;
 
     const catSprites = [
         "https://robohash.org/egg?set=set4&size=250x250", 
@@ -895,6 +1407,13 @@
     let pendingMajicDrop = null;
     let selectedMaterial = null;
     let catSpeechTimer = null;
+    let lastCatSpeechAt = 0;
+    let catSpeechInFlight = false;
+    let lastNeedsSnapshot = null;
+    let activeGeneTab = 'eyes';
+    let bathRemaining = BATH_CLEAN_COUNT;
+    let speechRecognizer = null;
+    let isListening = false;
 
     function spawnParticles(x, y, emojis) {
         const count = 6;
@@ -920,6 +1439,67 @@
         }
     }
 
+    function applyNeedsDecay(satietyLoss, cleanlinessLoss, moodLoss) {
+        if (!satietyLoss && !cleanlinessLoss && !moodLoss) return;
+        gameState.satiety = Math.max(0, gameState.satiety - satietyLoss);
+        gameState.cleanliness = Math.max(0, gameState.cleanliness - cleanlinessLoss);
+        gameState.mood = Math.max(0, gameState.mood - moodLoss);
+
+        if (gameState.satiety < 10 || gameState.cleanliness < 20) {
+            gameState.isSick = true;
+        }
+        checkNeedsSpeech('decay');
+        gameState.lastLoginTime = Date.now();
+        saveGame();
+    }
+
+    function startOnlineDecay() {
+        if (onlineDecayTimer) return;
+        onlineDecayTimer = setInterval(() => {
+            applyNeedsDecay(ONLINE_SATIETY_DECAY, ONLINE_CLEAN_DECAY, ONLINE_MOOD_DECAY);
+        }, ONLINE_DECAY_INTERVAL_MS);
+    }
+
+    function stopOnlineDecay() {
+        if (!onlineDecayTimer) return;
+        clearInterval(onlineDecayTimer);
+        onlineDecayTimer = null;
+    }
+
+    // --- 新增：離線時間計算與狀態更新 ---
+    function calculateOfflineProgress() {
+        const now = Date.now();
+        const lastTime = gameState.lastLoginTime || now;
+        const hoursPassed = (now - lastTime) / (1000 * 60 * 60);
+
+        if (hoursPassed > 0.1) {
+            const decay = Math.floor(hoursPassed * 3);
+
+            gameState.satiety = Math.max(0, gameState.satiety - decay * 2);
+            gameState.cleanliness = Math.max(0, gameState.cleanliness - decay);
+            gameState.mood = Math.max(0, gameState.mood - decay);
+
+            const newPoops = Math.min(5, Math.floor(hoursPassed / 2));
+            if (newPoops > 0) {
+                gameState.cleanliness = Math.max(0, gameState.cleanliness - (newPoops * POOP_CLEAN_PENALTY));
+            }
+
+            if (gameState.satiety < 10 || gameState.cleanliness < 20) {
+                gameState.isSick = true;
+            }
+
+            setTimeout(() => {
+                if (gameState.isSick) {
+                    alert(`你回來了！但是貓咪生病了... 😷\n離開了 ${hoursPassed.toFixed(1)} 小時。\n請買藥水或照顧它！`);
+                } else if (newPoops > 0) {
+                    alert(`你回來了！房間有點髒亂... 💩\n記得清理一下喔！`);
+                }
+            }, 1000);
+        }
+        gameState.lastLoginTime = now;
+        saveGame();
+    }
+
     function loadGame() {
         const saved = localStorage.getItem('catGameSave');
         if (saved) {
@@ -929,6 +1509,10 @@
             } catch(e) {}
         }
         if (!Array.isArray(gameState.inventory)) gameState.inventory = [];
+        if (!Array.isArray(gameState.decorSlots)) gameState.decorSlots = Array(4).fill(null);
+        if (gameState.decorSlots.length < 4) {
+            gameState.decorSlots = [...gameState.decorSlots, ...Array(4 - gameState.decorSlots.length).fill(null)];
+        }
         if (!Array.isArray(gameState.materialInventory)) gameState.materialInventory = [];
         if (!Array.isArray(gameState.synthUnlocked)) gameState.synthUnlocked = [0];
         if (typeof gameState.synthCurrent !== 'number') gameState.synthCurrent = 0;
@@ -957,6 +1541,14 @@
             gameState.synthUnlocked.push(gameState.synthCurrent);
         }
         if (gameState.musicOn === undefined) gameState.musicOn = true;
+        if (typeof gameState.satiety !== 'number') gameState.satiety = 100;
+        if (typeof gameState.cleanliness !== 'number') gameState.cleanliness = 100;
+        if (typeof gameState.mood !== 'number') gameState.mood = 100;
+        if (typeof gameState.isSick !== 'boolean') gameState.isSick = false;
+        if (typeof gameState.lastLoginTime !== 'number') gameState.lastLoginTime = Date.now();
+
+        calculateOfflineProgress();
+
         gameState.level = Math.max(1, Math.floor(gameState.exp / EXP_PER_LEVEL) + 1);
         const levelIndex = clampCatIndex(gameState.level - 1);
         for (let i = 0; i <= levelIndex; i += 1) {
@@ -969,6 +1561,7 @@
         updateRoomUI();
         renderSynthStyle(gameState.synthCurrent);
         applyGeneState();
+        updateNeedsSnapshot();
     }
 
     function pickRandomBgmUrl() {
@@ -1065,34 +1658,190 @@
         return questions;
     }
 
-    function buildMathQuestions(count) {
-        const storyCount = Math.min(5, count);
-        const questions = buildStoryQuestions(storyCount);
-        for (let i = storyCount; i < count; i += 1) {
-            const useMultiply = Math.random() < 0.5;
-            if (useMultiply) {
-                const a = randInt(2, 9);
-                const b = randInt(2, 9);
-                questions.push({
-                    type: "math",
-                    q: `${a} × ${b}`,
-                    a: String(a * b),
-                    r: "數學題",
-                    w: `${a} × ${b} = ${a * b}`
-                });
-            } else {
-                const a = randInt(6, 44);
-                const b = randInt(6, 50 - a);
-                questions.push({
-                    type: "math",
-                    q: `${a} + ${b}`,
-                    a: String(a + b),
-                    r: "數學題",
-                    w: `${a} + ${b} = ${a + b}`
-                });
-            }
+    function buildBasicMathQuestion() {
+        const useMultiply = Math.random() < 0.5;
+        if (useMultiply) {
+            const a = randInt(2, 9);
+            const b = randInt(2, 9);
+            return {
+                type: "math",
+                q: `${a} × ${b}`,
+                a: String(a * b),
+                r: "數學題",
+                w: `${a} × ${b} = ${a * b}`
+            };
+        }
+        const a = randInt(6, 44);
+        const b = randInt(6, 50 - a);
+        return {
+            type: "math",
+            q: `${a} + ${b}`,
+            a: String(a + b),
+            r: "數學題",
+            w: `${a} + ${b} = ${a + b}`
+        };
+    }
+
+    function buildMultiQuestion() {
+        const themes = [
+            { emoji: "🚲", name: "輪子", mult: 2, unit: "個" },
+            { emoji: "🍌", name: "香蕉", mult: 5, unit: "根" },
+            { emoji: "🐙", name: "章魚腳", mult: 8, unit: "隻" },
+            { emoji: "🚗", name: "輪子", mult: 4, unit: "個" },
+            { emoji: "🍫", name: "巧克力", mult: 6, unit: "塊" },
+            { emoji: "🍡", name: "丸子", mult: 3, unit: "顆" }
+        ];
+        const theme = pickRandom(themes);
+        const groups = randInt(2, 9);
+        const answer = groups * theme.mult;
+        return {
+            type: "math",
+            q: `${theme.mult} × ${groups}`,
+            a: String(answer),
+            r: "數學題",
+            h: `有 ${groups} 組 ${theme.emoji}，每組 ${theme.mult}${theme.unit}。共有多少${theme.unit}？`,
+            w: `${theme.mult} × ${groups} = ${answer}`
+        };
+    }
+
+    function buildTimeQuestion() {
+        const h = randInt(1, 12);
+        const m = randInt(0, 11) * 5;
+        const minuteText = m === 0 ? "整點" : `${m}分`;
+        return {
+            type: "math",
+            q: "看時鐘回答",
+            a: `${h}點${m}分`,
+            r: "數學題",
+            h: "",
+            w: `時間是 ${h}點${m}分`,
+            visual: "clock",
+            time: { h, m }
+        };
+    }
+
+    function buildClockQuestions(count) {
+        const questions = [];
+        for (let i = 0; i < count; i += 1) {
+            questions.push(buildTimeQuestion());
         }
         return shuffle(questions);
+    }
+
+    function buildStep2Question() {
+        const useBus = Math.random() < 0.5;
+        if (useBus) {
+            const start = randInt(10, 24);
+            const down = randInt(1, 6);
+            const up = randInt(2, 8);
+            const answer = start - down + up;
+            return {
+                type: "math",
+                q: "兩步驟題",
+                a: String(answer),
+                r: "數學題",
+                h: `公車上原本有 ${start} 人，下車 ${down} 人，後來又上車 ${up} 人。現在有幾人？`,
+                w: `${start} - ${down} + ${up} = ${answer}`
+            };
+        }
+        const base = randInt(10, 20);
+        const add1 = randInt(2, 6);
+        const add2 = randInt(2, 6);
+        const answer = base + add1 + add2;
+        return {
+            type: "math",
+            q: "兩步驟題",
+            a: String(answer),
+            r: "數學題",
+            h: `紫球有 ${base} 顆，紅球比紫球多 ${add1} 顆，綠球比紅球多 ${add2} 顆。綠球有幾顆？`,
+            w: `${base} + ${add1} + ${add2} = ${answer}`
+        };
+    }
+
+    function buildMathQuestions(count) {
+        const storyCount = Math.min(3, Math.floor(count / 3));
+        const questions = buildStoryQuestions(storyCount);
+        const generators = [
+            buildBasicMathQuestion,
+            buildBasicMathQuestion,
+            buildMultiQuestion,
+            buildTimeQuestion,
+            buildStep2Question
+        ];
+        for (let i = storyCount; i < count; i += 1) {
+            const pick = pickRandom(generators);
+            questions.push(pick());
+        }
+        return shuffle(questions);
+    }
+
+    function buildAreaQuestions(count) {
+        const questions = [];
+        const variants = ['count', 'diff', 'sum'];
+        const makeGrid = () => {
+            const cols = randInt(2, 6);
+            const rows = randInt(2, 6);
+            return { cols, rows, total: cols * rows };
+        };
+        for (let i = 0; i < count; i += 1) {
+            const variant = pickRandom(variants);
+            const grid1 = makeGrid();
+
+            if (variant === 'count') {
+                questions.push({
+                    type: "area",
+                    q: "面積題",
+                    a: String(grid1.total),
+                    r: "數學題",
+                    w: "數數看有幾格？",
+                    grid: { cols: grid1.cols, rows: grid1.rows }
+                });
+                continue;
+            }
+
+            let grid2 = makeGrid();
+            if (variant === 'equal' && Math.random() < 0.5) {
+                grid2 = { cols: grid1.cols, rows: grid1.rows, total: grid1.total };
+            }
+
+            let answer = '';
+            let prompt = '';
+            let left = grid1;
+            let right = grid2;
+
+            if (variant === 'diff') {
+                if (left.total < right.total) {
+                    [left, right] = [right, left];
+                }
+                answer = String(left.total - right.total);
+                prompt = '左邊比右邊多幾格？';
+            } else if (variant === 'sum') {
+                answer = String(left.total + right.total);
+                prompt = '左右合起來總共幾格？';
+            }
+
+            questions.push({
+                type: "area",
+                q: "面積題",
+                a: answer,
+                r: "數學題",
+                w: prompt,
+                grid: { cols: left.cols, rows: left.rows },
+                grid2: { cols: right.cols, rows: right.rows }
+            });
+        }
+        return shuffle(questions);
+    }
+
+    function buildMixedQuestions(count) {
+        const result = [];
+        const wordPool = shuffle(getAllWords());
+        const mathPool = buildMathQuestions(Math.ceil(count * 0.2));
+        const areaPool = buildAreaQuestions(Math.ceil(count * 0.2));
+        const totalWords = Math.max(0, count - mathPool.length - areaPool.length);
+        const wordItems = wordPool.slice(0, totalWords).map((word) => ({ ...word }));
+        const mix = shuffle([...wordItems, ...mathPool, ...areaPool]);
+        return mix.slice(0, count);
     }
 
     function nextBgmUrl() {
@@ -1104,6 +1853,17 @@
             }
         }
         return bgmQueue.shift();
+    }
+
+    function nextBossBgmUrl() {
+        if (!BOSS_BGM_LIST.length) return "";
+        if (bossBgmQueue.length === 0) {
+            bossBgmQueue = shuffle(BOSS_BGM_LIST);
+            if (bossBgmQueue.length > 1 && bossBgmQueue[0] === currentBossBgmUrl) {
+                bossBgmQueue.push(bossBgmQueue.shift());
+            }
+        }
+        return bossBgmQueue.shift();
     }
 
     function normalizeAudioSrc(path) {
@@ -1127,6 +1887,18 @@
         }
     }
 
+    function setRandomBossBgm() {
+        const bossBgm = document.getElementById('sfx-boss-bgm');
+        if (!bossBgm) return;
+        const nextUrl = normalizeAudioSrc(nextBossBgmUrl());
+        if (!nextUrl) return;
+        if (bossBgm.src !== nextUrl) {
+            bossBgm.src = nextUrl;
+        }
+        currentBossBgmUrl = nextUrl;
+        bossBgm.load();
+    }
+
     function saveGame() {
         localStorage.setItem('catGameSave', JSON.stringify(gameState));
         updateRoomUI();
@@ -1142,7 +1914,7 @@
 
         if (uiLevel) uiLevel.innerText = gameState.level;
         if (uiFood) uiFood.innerText = gameState.food;
-        
+
         const currentExp = gameState.exp % EXP_PER_LEVEL;
         const pct = (currentExp / EXP_PER_LEVEL) * 100;
 
@@ -1154,6 +1926,35 @@
             if (uiExpBar) uiExpBar.style.width = `${pct}%`;
         }
 
+        const satBar = document.getElementById('ui-satiety-bar');
+        const moodBar = document.getElementById('ui-mood-bar');
+        const cleanBar = document.getElementById('ui-clean-bar');
+        const satText = document.getElementById('ui-satiety-text');
+        const moodText = document.getElementById('ui-mood-text');
+        const cleanText = document.getElementById('ui-clean-text');
+        
+        if (satBar) satBar.style.width = `${gameState.satiety}%`;
+        if (moodBar) moodBar.style.width = `${gameState.mood}%`;
+        if (cleanBar) cleanBar.style.width = `${gameState.cleanliness}%`;
+        if (satText) satText.innerText = `${Math.round(gameState.satiety)}%`;
+        if (moodText) moodText.innerText = `${Math.round(gameState.mood)}%`;
+        if (cleanText) cleanText.innerText = `${Math.round(gameState.cleanliness)}%`;
+
+        const sickIcon = document.getElementById('status-sick');
+        if (sickIcon) sickIcon.classList.toggle('hidden', !gameState.isSick);
+        const hungryIcon = document.getElementById('status-hungry');
+        if (hungryIcon) hungryIcon.classList.toggle('hidden', gameState.satiety > 30);
+
+        if (catImg) {
+            if (gameState.isSick) {
+                catImg.style.filter = 'grayscale(100%) brightness(80%) sepia(30%)';
+            } else {
+                catImg.style.filter = '';
+                const style = getSynthStyle(gameState.synthCurrent);
+                setCatFilter(style.catFilter);
+            }
+        }
+
         const levelIndex = clampCatIndex(gameState.level - 1);
         if (!gameState.unlockedCats.includes(levelIndex)) {
             unlockCatSkin(levelIndex, false);
@@ -1162,16 +1963,10 @@
             typeof gameState.currentCatIndex === 'number' ? gameState.currentCatIndex : levelIndex
         );
         if (catImg) catImg.src = catSprites[currentIndex];
+        const studyAvatar = document.getElementById('study-cat-avatar');
+        if (studyAvatar) studyAvatar.src = catSprites[currentIndex];
 
-        shopItems.forEach((item) => {
-            const el = document.getElementById(item.id);
-            if (!el) return;
-            if (gameState.inventory.includes(item.id)) {
-                el.classList.remove('hidden');
-            } else {
-                el.classList.add('hidden');
-            }
-        });
+        renderDecorSlots();
 
         const shopFood = document.getElementById('shop-food-display');
         if (shopFood) shopFood.innerText = gameState.food;
@@ -1184,6 +1979,123 @@
 
         renderSynthStyle(gameState.synthCurrent);
         applyGeneState();
+    }
+
+    function getDecorItemById(itemId) {
+        return shopItems.find((item) => item.id === itemId);
+    }
+
+    function renderDecorShelf() {
+        const shelf = document.getElementById('decor-shelf');
+        if (!shelf) return;
+        shelf.innerHTML = '';
+        if (!gameState.inventory.length) {
+            const empty = document.createElement('div');
+            empty.className = 'text-[11px] text-gray-400';
+            empty.innerText = '先去商店買裝飾吧～';
+            shelf.appendChild(empty);
+            return;
+        }
+
+        gameState.inventory.forEach((itemId) => {
+            const item = getDecorItemById(itemId);
+            if (!item) return;
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = `decor-shelf-item${selectedDecorId === itemId ? ' selected' : ''}`;
+            btn.innerText = item.icon;
+            btn.draggable = true;
+            btn.addEventListener('dragstart', (e) => {
+                e.dataTransfer?.setData('text/plain', itemId);
+                selectedDecorId = itemId;
+                renderDecorShelf();
+            });
+            btn.addEventListener('click', () => {
+                selectedDecorId = itemId;
+                renderDecorShelf();
+            });
+            shelf.appendChild(btn);
+        });
+    }
+
+    function renderDecorSlots() {
+        const slots = document.querySelectorAll('.decor-slot');
+        slots.forEach((slot) => {
+            const index = Number(slot.dataset.slot || 0);
+            const itemId = gameState.decorSlots[index];
+            const item = getDecorItemById(itemId);
+            slot.classList.toggle('filled', Boolean(item));
+            slot.innerText = item ? item.icon : '+';
+            slot.title = item ? `裝飾：${item.name}` : '拖曳裝飾到這裡';
+        });
+    }
+
+    function openDecorPicker(slotIndex) {
+        const picker = document.getElementById('decor-picker');
+        const list = document.getElementById('decor-picker-list');
+        if (!picker || !list) return;
+        activeDecorSlot = slotIndex;
+        list.innerHTML = '';
+
+        if (!gameState.inventory.length) {
+            const empty = document.createElement('div');
+            empty.className = 'col-span-4 text-xs text-gray-400 text-center py-2';
+            empty.innerText = '先去商店買裝飾吧～';
+            list.appendChild(empty);
+        } else {
+            gameState.inventory.forEach((itemId) => {
+                const item = getDecorItemById(itemId);
+                if (!item) return;
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'decor-picker-item';
+                btn.innerText = item.icon;
+                btn.title = item.name;
+                btn.addEventListener('click', () => {
+                    placeDecorAt(slotIndex, itemId);
+                    closeDecorPicker();
+                });
+                list.appendChild(btn);
+            });
+        }
+
+        const clearBtn = document.createElement('button');
+        clearBtn.type = 'button';
+        clearBtn.className = 'decor-picker-item';
+        clearBtn.innerText = '✖️';
+        clearBtn.title = '移除裝飾';
+        clearBtn.addEventListener('click', () => {
+            removeDecorAt(slotIndex);
+            closeDecorPicker();
+        });
+        list.appendChild(clearBtn);
+
+        picker.classList.remove('hidden');
+    }
+
+    function closeDecorPicker() {
+        const picker = document.getElementById('decor-picker');
+        if (picker) picker.classList.add('hidden');
+        activeDecorSlot = null;
+    }
+
+    function placeDecorAt(slotIndex, itemId) {
+        if (!itemId || !gameState.inventory.includes(itemId)) return;
+        gameState.decorSlots = gameState.decorSlots.map((value, idx) => (value === itemId && idx !== slotIndex ? null : value));
+        gameState.decorSlots[slotIndex] = itemId;
+        saveGame();
+        renderDecorSlots();
+        const item = getDecorItemById(itemId);
+        requestCatSpeech('decor-change', { itemName: item ? item.name : '' });
+    }
+
+    function removeDecorAt(slotIndex) {
+        if (!gameState.decorSlots[slotIndex]) return;
+        const item = getDecorItemById(gameState.decorSlots[slotIndex]);
+        gameState.decorSlots[slotIndex] = null;
+        saveGame();
+        renderDecorSlots();
+        requestCatSpeech('decor-change', { itemName: item ? `${item.name}已移除` : '移除裝飾' });
     }
 
     // --- 音效播放 (含安全機制) ---
@@ -1204,6 +2116,185 @@
         } catch(e) {
             console.log("Audio Element missing or error");
         }
+    }
+
+    function playSoundFor(id, durationMs) {
+        try {
+            const audio = document.getElementById(id);
+            if (!audio) return;
+            audio.muted = false;
+            audio.currentTime = 0;
+            audio.volume = 0.5;
+            const promise = audio.play();
+            if (promise !== undefined) {
+                promise.catch(() => {});
+            }
+            setTimeout(() => {
+                audio.pause();
+                audio.currentTime = 0;
+            }, durationMs);
+        } catch(e) {}
+    }
+
+    function startCatWalk() {
+        stopCatWalk();
+        startOnlineDecay();
+        const step = () => {
+            walkCat();
+            const delay = randInt(5000, 9000);
+            catWalkTimer = setTimeout(step, delay);
+        };
+        catWalkTimer = setTimeout(step, 3000);
+    }
+
+    function stopCatWalk() {
+        if (catWalkTimer) {
+            clearTimeout(catWalkTimer);
+            catWalkTimer = null;
+        }
+    }
+
+    function walkCat() {
+        const cat = document.getElementById('cat-container');
+        const catBody = document.getElementById('cat-body');
+        const zone = document.getElementById('cat-zone');
+        if (!cat || !zone) return;
+        const zoneWidth = zone.clientWidth || 0;
+        const catWidth = cat.clientWidth || 0;
+        const baseShift = Math.max(0, Math.floor((zoneWidth - catWidth) / 2));
+        const minShift = Math.min(60, Math.floor(zoneWidth * 0.2));
+        const maxShift = Math.max(baseShift, minShift);
+        const offset = randInt(-maxShift, maxShift);
+        cat.style.left = `${offset}px`;
+        if (catBody) {
+            if (offset < -6) {
+                catBody.classList.add('facing-left');
+            } else if (offset > 6) {
+                catBody.classList.remove('facing-left');
+            }
+        }
+        if (Math.random() < 0.25) {
+            spawnPoop();
+        }
+    }
+
+    function spawnPoop() {
+        const layer = document.getElementById('poop-layer');
+        const cat = document.getElementById('cat-container');
+        const room = document.getElementById('scene-room');
+        if (!layer || !cat || !room) return;
+        if (room.classList.contains('hidden')) return;
+        if (layer.children.length >= 6) return;
+        const rect = cat.getBoundingClientRect();
+        const roomRect = room.getBoundingClientRect();
+        const x = rect.left - roomRect.left + rect.width * 0.5 + randInt(-24, 24);
+        const y = rect.bottom - roomRect.top - 18 + randInt(-6, 10);
+        const maxX = roomRect.width - 24;
+        const maxY = roomRect.height - 24;
+        const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
+        const poop = document.createElement('button');
+        poop.type = 'button';
+        poop.className = 'poop';
+        poop.style.left = `${clamp(x, 12, maxX)}px`;
+        poop.style.top = `${clamp(y, 120, maxY)}px`;
+        poop.innerText = '💩';
+        poop.addEventListener('click', (e) => {
+            e.stopPropagation();
+            poop.remove();
+        });
+        layer.appendChild(poop);
+        applyNeedsDecay(0, POOP_CLEAN_PENALTY, 0);
+    }
+
+    function cleanPoop() {
+        const layer = document.getElementById('poop-layer');
+        if (!layer) return;
+        
+        if (layer.children.length > 0) {
+            if (gameState.cleanliness < CLEAN_POOP_MAX) {
+                gameState.cleanliness = Math.min(CLEAN_POOP_MAX, gameState.cleanliness + CLEAN_POOP_RECOVER);
+            }
+            gameState.mood = Math.min(100, gameState.mood + 5);
+            checkNeedsSpeech('clean');
+            saveGame();
+        } else {
+            showCatSpeech("已經很乾淨囉！");
+        }
+
+        layer.innerHTML = '';
+        spawnParticles(window.innerWidth / 2, window.innerHeight / 2, ['🧼', '✨', '💧']);
+        playSound('sfx-flip');
+        updateRoomUI();
+    }
+
+    function openBath() {
+        const scene = document.getElementById('scene-bath');
+        if (!scene) return;
+        scene.classList.remove('hidden');
+        initBath();
+        playSound('sfx-flip');
+    }
+
+    function closeBath() {
+        const scene = document.getElementById('scene-bath');
+        if (scene) scene.classList.add('hidden');
+    }
+
+    function initBath() {
+        bathRemaining = BATH_CLEAN_COUNT;
+        updateBathRemaining();
+        const zone = document.getElementById('bath-zone');
+        if (!zone) return;
+        zone.innerHTML = '';
+        requestAnimationFrame(spawnBathGerms);
+    }
+
+    function updateBathRemaining() {
+        const remainingEl = document.getElementById('bath-remaining');
+        if (remainingEl) remainingEl.innerText = bathRemaining;
+    }
+
+    function spawnBathGerms() {
+        const zone = document.getElementById('bath-zone');
+        if (!zone) return;
+        zone.innerHTML = '';
+        const rect = zone.getBoundingClientRect();
+        const size = 42;
+        const maxX = Math.max(0, rect.width - size - 6);
+        const maxY = Math.max(0, rect.height - size - 6);
+        const germs = ['🦠', '🫧', '💧'];
+        for (let i = 0; i < BATH_CLEAN_COUNT; i += 1) {
+            const germ = document.createElement('button');
+            germ.type = 'button';
+            germ.className = 'bath-germ';
+            germ.innerText = pickRandom(germs);
+            const x = randInt(6, maxX + 6);
+            const y = randInt(6, maxY + 6);
+            germ.style.left = `${x}px`;
+            germ.style.top = `${y}px`;
+            germ.addEventListener('click', (e) => handleBathGermClick(e));
+            zone.appendChild(germ);
+        }
+    }
+
+    function handleBathGermClick(e) {
+        const germ = e.currentTarget;
+        if (!germ) return;
+        const rect = germ.getBoundingClientRect();
+        germ.remove();
+        bathRemaining = Math.max(0, bathRemaining - 1);
+        updateBathRemaining();
+        spawnParticles(rect.left + rect.width / 2, rect.top + rect.height / 2, ['💦', '🫧', '✨']);
+        if (bathRemaining <= 0) {
+            finishBath();
+        }
+    }
+
+    function finishBath() {
+        gameState.cleanliness = 100;
+        checkNeedsSpeech('clean');
+        saveGame();
+        closeBath();
     }
 
     function unlockAudioAndStart() {
@@ -1251,6 +2342,7 @@
         const room = document.getElementById('scene-room');
         room.classList.remove('hidden');
         setTimeout(() => room.classList.remove('opacity-0'), 50);
+        startCatWalk();
     }
 
     // --- 2. 貓咪互動 ---
@@ -1289,9 +2381,13 @@
             icon.style.color = "#ff4757";
             catContainer.classList.remove('cat-angry');
             spawnParticles(x, y, ['❤️', '😻', '🐾']);
+            gameState.mood = Math.min(100, gameState.mood + 5);
+            checkNeedsSpeech('pet');
+            saveGame();
+            updateRoomUI();
             if (Math.random() < 0.12) {
                 spawnParticles(x, y, ['✨', '🍀', '🎁']);
-                showCatSpeech();
+                showCatSpeech(null, 'pet');
             }
         } else {
             try {
@@ -1314,7 +2410,7 @@
             void catContainer.offsetWidth; 
             catContainer.classList.add('cat-angry');
             spawnParticles(x, y, ['💢', '⚡', '🙀']);
-            showCatSpeech();
+            showCatSpeech(null, 'pet');
         }
 
         catContainer.appendChild(icon);
@@ -1322,22 +2418,32 @@
     }
 
     function feedCat(e) {
+        if (gameState.isSick) {
+            alert("貓咪生病了，吃不下東西！💊\n請先去商店買藥水。");
+            return;
+        }
+        if (gameState.satiety >= 100) {
+            showCatSpeech("我飽了～嗝！");
+            return;
+        }
         if (gameState.food <= 0) {
             alert("罐頭不夠了！快去「去打工」賺罐頭吧！");
             return;
         }
 
         gameState.food--;
+        gameState.satiety = Math.min(100, gameState.satiety + 20);
         gameState.exp += 1;
+        checkNeedsSpeech('feed');
         playSound('sfx-chew');
 
         const rect = e?.target?.getBoundingClientRect();
         const x = rect ? rect.left + rect.width / 2 : window.innerWidth / 2;
         const y = rect ? rect.top : window.innerHeight / 2;
         spawnParticles(x, y, ['🐟', '😋', '✨']);
-        
+
         const calculatedLevel = Math.floor(gameState.exp / EXP_PER_LEVEL) + 1;
-        
+
         if (calculatedLevel > gameState.level) {
             gameState.level = calculatedLevel;
             unlockCatSkin(calculatedLevel - 1, true);
@@ -1401,6 +2507,35 @@
     }
 
     function buyItem(itemId, price, evt) {
+        if (itemId === 'item-medicine') {
+            if (!gameState.isSick && gameState.satiety > 50 && gameState.mood > 50) {
+                alert("貓咪很健康，不需要吃藥！");
+                return;
+            }
+            if (gameState.food < price) {
+                playSound('sfx-wrong');
+                return;
+            }
+            gameState.food -= price;
+            gameState.isSick = false;
+            gameState.satiety = 100;
+            gameState.mood = 100;
+            gameState.cleanliness = 100;
+            checkNeedsSpeech('medicine');
+
+            playSound('sfx-heal');
+            alert("貓咪康復了！精神百倍！✨");
+            saveGame();
+            renderShop();
+            updateRoomUI();
+
+            const rect = evt?.target?.getBoundingClientRect();
+            const x = rect ? rect.left + rect.width / 2 : window.innerWidth / 2;
+            const y = rect ? rect.top : window.innerHeight / 2;
+            spawnParticles(x, y, ['💊', '💖', '✨']);
+            return;
+        }
+
         if (gameState.inventory.includes(itemId)) return;
         if (gameState.food < price) {
             playSound('sfx-wrong');
@@ -1465,6 +2600,92 @@
             el.style.transform = transforms.join(' ');
             container.appendChild(el);
         });
+    }
+
+    function renderAreaGrid(word) {
+        const grid = document.getElementById('q-grid');
+        if (!grid) return;
+        if (!word || !word.grid) {
+            grid.classList.add('hidden');
+            grid.innerHTML = '';
+            return;
+        }
+        grid.classList.remove('hidden');
+        grid.innerHTML = '';
+
+        const buildGrid = (gridData, label, size) => {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'flex flex-col items-center gap-1';
+
+            const gridEl = document.createElement('div');
+            gridEl.className = 'area-grid';
+            const cols = gridData.cols || 0;
+            const rows = gridData.rows || 0;
+            gridEl.style.gridTemplateColumns = `repeat(${cols}, ${size}px)`;
+            gridEl.style.gridTemplateRows = `repeat(${rows}, ${size}px)`;
+            gridEl.style.setProperty('--cell-size', `${size}px`);
+            for (let i = 0; i < cols * rows; i += 1) {
+                const cell = document.createElement('div');
+                cell.className = 'area-cell';
+                gridEl.appendChild(cell);
+            }
+
+            wrapper.appendChild(gridEl);
+            if (label) {
+                const tag = document.createElement('div');
+                tag.className = 'text-[10px] text-gray-400';
+                tag.innerText = label;
+                wrapper.appendChild(tag);
+            }
+            return wrapper;
+        };
+
+        const grids = word.grid2 ? [word.grid, word.grid2] : [word.grid];
+        const maxDim = Math.max(...grids.map((g) => Math.max(g.cols || 0, g.rows || 0)), 1);
+        const baseSize = word.grid2 ? 120 : 170;
+        const size = Math.max(10, Math.min(20, Math.floor(baseSize / maxDim)));
+
+        if (word.grid2) {
+            grid.appendChild(buildGrid(word.grid, '左邊', size));
+            grid.appendChild(buildGrid(word.grid2, '右邊', size));
+        } else {
+            grid.appendChild(buildGrid(word.grid, '', size));
+        }
+    }
+
+    function renderMathVisual(word) {
+        const grid = document.getElementById('q-grid');
+        if (!grid) return;
+        if (!word || word.visual !== 'clock' || !word.time) {
+            if (!grid.classList.contains('hidden')) {
+                grid.classList.add('hidden');
+                grid.innerHTML = '';
+            }
+            return;
+        }
+        const h = word.time.h;
+        const m = word.time.m;
+        const hourAngle = (h % 12) * 30 + m * 0.5;
+        const minuteAngle = m * 6;
+        grid.classList.remove('hidden');
+        grid.innerHTML = `
+            <div class="clock-wrap">
+                <svg viewBox="0 0 200 200" class="clock-face" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="100" cy="100" r="92" fill="#fff" stroke="#374151" stroke-width="6"/>
+                    ${Array.from({ length: 12 }).map((_, i) => {
+                        const angle = i * 30 * (Math.PI / 180);
+                        const x1 = 100 + 78 * Math.sin(angle);
+                        const y1 = 100 - 78 * Math.cos(angle);
+                        const x2 = 100 + 92 * Math.sin(angle);
+                        const y2 = 100 - 92 * Math.cos(angle);
+                        return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#374151" stroke-width="4"/>`;
+                    }).join('')}
+                    <line x1="100" y1="100" x2="100" y2="60" stroke="#f97316" stroke-width="8" stroke-linecap="round" transform="rotate(${hourAngle} 100 100)"/>
+                    <line x1="100" y1="100" x2="100" y2="30" stroke="#3b82f6" stroke-width="6" stroke-linecap="round" transform="rotate(${minuteAngle} 100 100)"/>
+                    <circle cx="100" cy="100" r="6" fill="#111827"/>
+                </svg>
+            </div>
+        `;
     }
 
     let geneLabReady = false;
@@ -1539,10 +2760,9 @@
 
     function applyGeneState() {
         const overlay = document.getElementById('gene-overlay');
-        const eyeL = document.getElementById('gene-eye-l');
-        const eyeR = document.getElementById('gene-eye-r');
-        const mouth = document.getElementById('gene-mouth');
-        if (!overlay || !eyeL || !eyeR || !mouth) return;
+        const left = document.getElementById('gene-overlay-left');
+        const right = document.getElementById('gene-overlay-right');
+        if (!overlay || !left || !right) return;
 
         if (!gameState.geneActive) {
             overlay.classList.add('hidden');
@@ -1551,9 +2771,8 @@
         }
 
         overlay.classList.remove('hidden');
-        eyeL.textContent = gameState.geneEyes;
-        eyeR.textContent = gameState.geneEyes;
-        mouth.textContent = gameState.geneMouth;
+        left.textContent = gameState.geneEyes;
+        right.textContent = gameState.geneMouth;
         overlay.style.filter = `hue-rotate(${gameState.geneHue}deg) blur(${gameState.geneBlur}px)`;
     }
 
@@ -1575,6 +2794,27 @@
         const descEl = document.getElementById('gene-desc');
         if (nameEl) nameEl.textContent = gameState.geneName;
         if (descEl) descEl.textContent = gameState.geneDesc;
+        const eyeSlot = document.getElementById('gene-eye-slot');
+        const mouthSlot = document.getElementById('gene-mouth-slot');
+        if (eyeSlot) eyeSlot.textContent = gameState.geneEyes;
+        if (mouthSlot) mouthSlot.textContent = gameState.geneMouth;
+        const fusionLeft = document.getElementById('gene-fusion-left');
+        const fusionRight = document.getElementById('gene-fusion-right');
+        if (fusionLeft) fusionLeft.textContent = gameState.geneEyes;
+        if (fusionRight) fusionRight.textContent = gameState.geneMouth;
+        switchGeneTab(activeGeneTab);
+    }
+
+    function switchGeneTab(tab) {
+        activeGeneTab = tab;
+        const eyesPanel = document.getElementById('gene-panel-eyes');
+        const mouthPanel = document.getElementById('gene-panel-mouth');
+        if (eyesPanel) eyesPanel.classList.toggle('hidden', tab !== 'eyes');
+        if (mouthPanel) mouthPanel.classList.toggle('hidden', tab !== 'mouth');
+        const btnEyes = document.getElementById('gene-tab-eyes');
+        const btnMouth = document.getElementById('gene-tab-mouth');
+        if (btnEyes) btnEyes.classList.toggle('active', tab === 'eyes');
+        if (btnMouth) btnMouth.classList.toggle('active', tab === 'mouth');
     }
 
     function highlightGeneButtons(panelId, emoji) {
@@ -1931,13 +3171,33 @@
         const list = document.getElementById('lesson-list');
         list.innerHTML = '';
         
-        for (let k in lessons) {
-            const btn = document.createElement('button');
-            btn.className = "btn-3d p-4 bg-yellow-100 rounded-xl font-bold hover:bg-yellow-200 border-b-4 border-yellow-300 text-lg flex items-center justify-between";
-            btn.innerHTML = `<span>📚 ${lessons[k].title}</span> <span class="text-sm bg-yellow-300 px-2 py-1 rounded-full text-yellow-800">${lessons[k].words.length}字</span>`;
-            btn.onclick = () => startLevel(k);
-            list.appendChild(btn);
-        }
+        const categories = ['國語', '數學', '總複習'];
+        const byCategory = {};
+        Object.keys(lessons).forEach((key) => {
+            const lesson = lessons[key];
+            const category = lesson.category || '其他';
+            if (!byCategory[category]) byCategory[category] = [];
+            byCategory[category].push({ key, lesson });
+        });
+
+        categories.forEach((category) => {
+            const items = byCategory[category];
+            if (!items || items.length === 0) return;
+            const header = document.createElement('div');
+            header.className = 'col-span-2 text-sm font-bold text-gray-500 px-2';
+            header.innerText = category;
+            list.appendChild(header);
+
+            items.forEach(({ key, lesson }) => {
+                const count = lesson.count || (lesson.words ? lesson.words.length : 0);
+                const unit = lesson.mode ? '題' : '字';
+                const btn = document.createElement('button');
+                btn.className = "btn-3d p-4 bg-yellow-100 rounded-xl font-bold hover:bg-yellow-200 border-b-4 border-yellow-300 text-lg flex items-center justify-between";
+                btn.innerHTML = `<span>📚 ${lesson.title}</span> <span class="text-sm bg-yellow-300 px-2 py-1 rounded-full text-yellow-800">${count}${unit}</span>`;
+                btn.onclick = () => startLevel(key);
+                list.appendChild(btn);
+            });
+        });
     }
 
     function closeMenu() {
@@ -1945,6 +3205,25 @@
     }
 
     function startLevel(key) {
+        if (gameState.isSick) {
+            const medicineItem = shopItems.find((item) => item.id === 'item-medicine');
+            const medicinePrice = medicineItem ? medicineItem.price : 50;
+            if (gameState.food >= medicinePrice) {
+                playSound('sfx-wrong');
+                alert("貓咪生病了！😷\n它沒辦法陪你讀書。\n請去商店買「萬能藥水」治好它！");
+                return;
+            }
+            alert("貓咪生病了，但罐頭不夠買藥水。\n先去打工賺藥水錢吧！");
+        }
+        if (gameState.satiety < 10) {
+            if (gameState.food > 0) {
+                playSound('sfx-wrong');
+                alert("貓咪肚子餓扁了... 🐟\n請先餵它吃東西！");
+                return;
+            }
+            alert("貓咪很餓但罐頭不足。\n先去打工賺罐頭吧！");
+        }
+
         closeMenu();
         bossPending = false;
         isBossBattle = false;
@@ -1953,6 +3232,12 @@
             studyQueue = buildRandomWords(10);
         } else if (lesson && lesson.mode === "math10") {
             studyQueue = buildMathQuestions(10);
+        } else if (lesson && lesson.mode === "clock10") {
+            studyQueue = buildClockQuestions(10);
+        } else if (lesson && lesson.mode === "area10") {
+            studyQueue = buildAreaQuestions(10);
+        } else if (lesson && lesson.mode === "mix10") {
+            studyQueue = buildMixedQuestions(10);
         } else {
             studyQueue = [...lesson.words].sort(() => Math.random() - 0.5);
         }
@@ -1969,6 +3254,7 @@
         stopBossBgm();
         resumeRoomBgm();
         window.speechSynthesis.cancel();
+        startCatWalk();
     }
 
     function pauseRoomBgm() {
@@ -1984,6 +3270,9 @@
     function startBossBgm() {
         const bossBgm = document.getElementById('sfx-boss-bgm');
         if (!bossBgm || !gameState.musicOn) return;
+        if (!bossBgm.src || !currentBossBgmUrl) {
+            setRandomBossBgm();
+        }
         bossBgm.volume = 0.3;
         bossBgm.currentTime = 0;
         bossBgm.play().catch(() => {});
@@ -2008,8 +3297,9 @@
 
     function triggerBossEvent() {
         pauseRoomBgm();
-        playSound('sfx-boss-appear');
-        setTimeout(startBossBgm, 900);
+        playSoundFor('sfx-boss-appear', 3000);
+        setRandomBossBgm();
+        startBossBgm();
 
         isBossBattle = true;
         bossPending = false;
@@ -2047,14 +3337,21 @@
 
         const isMath = bossCurrentQ.type === "math";
         const isStory = bossCurrentQ.type === "story";
-        const qText = isMath ? bossCurrentQ.q : isStory ? "情境題" : bossCurrentQ.z;
-        const wText = isStory ? bossCurrentQ.w : isMath ? "" : bossCurrentQ.w.split(bossCurrentQ.c).join("＿");
+        const isArea = bossCurrentQ.type === "area";
+        const qText = isMath ? bossCurrentQ.q : isStory ? "情境題" : isArea ? "面積題" : bossCurrentQ.z;
+        const wText = isStory
+            ? bossCurrentQ.w
+            : isMath
+                ? (bossCurrentQ.h || "")
+                : isArea
+                    ? bossCurrentQ.w
+                    : bossCurrentQ.w.split(bossCurrentQ.c).join("＿");
 
         document.getElementById('boss-q-zhuyin').innerText = qText;
         document.getElementById('boss-q-word').innerText = wText;
-        document.getElementById('boss-a-char').innerText = (isMath || isStory) ? bossCurrentQ.a : bossCurrentQ.c;
+        document.getElementById('boss-a-char').innerText = (isMath || isStory || isArea) ? bossCurrentQ.a : bossCurrentQ.c;
 
-        speak("攻擊準備！" + (isStory ? bossCurrentQ.w : isMath ? bossCurrentQ.q : bossCurrentQ.w));
+        speak("攻擊準備！" + (isStory ? bossCurrentQ.w : isMath ? (bossCurrentQ.h || bossCurrentQ.q) : isArea ? bossCurrentQ.w : bossCurrentQ.w));
     }
 
     function revealBossAnswer() {
@@ -2062,7 +3359,8 @@
         document.getElementById('boss-answer-area').classList.remove('hidden');
         const isMath = bossCurrentQ.type === "math";
         const isStory = bossCurrentQ.type === "story";
-        const ans = (isMath || isStory) ? bossCurrentQ.a : bossCurrentQ.c;
+        const isArea = bossCurrentQ.type === "area";
+        const ans = (isMath || isStory || isArea) ? bossCurrentQ.a : bossCurrentQ.c;
         playSound('sfx-flip');
         speak(ans);
     }
@@ -2157,15 +3455,315 @@
         }
     }
 
-    function showCatSpeech() {
-        const bubble = document.getElementById('cat-speech');
-        if (!bubble) return;
-        bubble.innerText = pickRandom(CAT_SPEECH_LIST);
+    function openKeySettings() {
+        const modal = document.getElementById('scene-key-settings');
+        const input = document.getElementById('input-api-key');
+        if (!modal || !input) return;
+        const savedKey = localStorage.getItem('user_gemini_key');
+        if (savedKey) input.value = savedKey;
+        setApiStatus('');
+        modal.classList.remove('hidden');
+    }
+
+    function closeKeySettings() {
+        const modal = document.getElementById('scene-key-settings');
+        if (modal) modal.classList.add('hidden');
+    }
+
+    function saveApiKey() {
+        const input = document.getElementById('input-api-key');
+        if (!input) return;
+        const key = input.value.trim();
+        if (!key.startsWith('AIza')) {
+            alert("這看起來不像正確的 Key（應該是 AIza 開頭）");
+            return;
+        }
+        setApiStatus('驗證中...');
+        validateApiKey(key).then((ok) => {
+            if (!ok) {
+                setApiStatus('驗證失敗，請確認金鑰是否正確。');
+                setAiStatus('AI：驗證失敗', false);
+                return;
+            }
+            localStorage.setItem('user_gemini_key', key);
+            setApiStatus('驗證成功！');
+            setAiStatus('AI：已啟用', true);
+            alert("設定成功！貓咪變聰明了！🧠✨");
+            closeKeySettings();
+        });
+    }
+
+    function setAiStatus(text, ok) {
+        const el = document.getElementById('ai-status');
+        if (!el) return;
+        el.innerText = text;
+        if (ok === true) el.className = 'mt-2 text-[11px] text-green-600';
+        else if (ok === false) el.className = 'mt-2 text-[11px] text-red-500';
+        else el.className = 'mt-2 text-[11px] text-gray-400';
+    }
+
+    function setApiStatus(text) {
+        const el = document.getElementById('api-key-status');
+        if (!el) return;
+        el.innerText = text;
+    }
+
+    async function validateApiKey(key) {
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${key}`;
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: [{ parts: [{ text: 'ping' }] }]
+                })
+            });
+            const data = await response.json();
+            return !data.error;
+        } catch (error) {
+            return false;
+        }
+    }
+
+    function getCatPersonality() {
+        return CAT_PERSONALITIES[gameState.currentCatIndex] || '可愛、黏人、很有自己的想法';
+    }
+
+    function getEventHint(reason, context) {
+        const sourceLabels = {
+            feed: '餵食後',
+            clean: '清理後',
+            pet: '摸摸後',
+            decay: '放著一段時間後',
+            medicine: '吃藥後',
+            offline: '回來時'
+        };
+        const sourceText = context.source ? (sourceLabels[context.source] || context.source) : '';
+        const hints = {
+            'answer-correct': '小朋友剛剛答對了一題',
+            'answer-wrong': '小朋友剛剛答錯了，需要鼓勵',
+            'reward': `剛拿到獎勵 ${context.amount || 0} 罐頭`,
+            'decor-change': context.itemName ? `主人換了裝飾：${context.itemName}` : '主人更換了房間裝飾',
+            'status-change': context.changeSummary
+                ? `${sourceText}狀態變化：${context.changeSummary}`.trim()
+                : `${sourceText}狀態有變化`.trim(),
+            'user-chat': context.userText ? `主人說：「${context.userText}」` : '主人正在跟你聊天',
+            'pet': '主人摸摸你',
+            'feed': '主人餵你吃東西',
+            'clean': '主人把房間清乾淨了'
+        };
+        return hints[reason] || '正在和主人互動';
+    }
+
+    function buildCatPrompt(reason, context) {
+        const hour = new Date().getHours();
+        const userText = context.userText ? context.userText.slice(0, 60) : '';
+        return `
+【角色設定】
+你不是 AI，你是住在遊戲裡的一隻貓咪。
+【你的個性】
+${getCatPersonality()}
+【字數限制】
+請用繁體中文，20字以內。
+【安全規則】
+不要有髒話、暴力、成人內容。
+【目前狀態】
+- 飽食度: ${gameState.satiety}
+- 心情: ${gameState.mood}
+- 清潔度: ${gameState.cleanliness}
+- 生病: ${gameState.isSick ? '是' : '否'}
+- 等級: ${gameState.level}
+- 現在時間: ${hour}點
+【事件】
+${getEventHint(reason, context)}
+${userText ? `【主人剛剛說】\n${userText}\n` : ''}
+【回應規則】
+- 生病就虛弱；餓就討罐頭；髒就抱怨。
+- 凌晨(0-6點)可抱怨被吵醒。
+- 狀態很好時，撒嬌或鼓勵學習。
+${userText ? '- 請針對主人說的話回應。' : ''}
+請說一句話：
+`;
+    }
+
+    async function askGeminiCat(reason, context) {
+        const userKey = localStorage.getItem('user_gemini_key');
+        if (!userKey) return null;
+
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${userKey}`;
+        const prompt = buildCatPrompt(reason, context);
+
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: [{ parts: [{ text: prompt }] }]
+                })
+            });
+            const data = await response.json();
+            if (data.error) {
+                console.warn("AI Key 可能過期或錯誤:", data.error.message);
+                return null;
+            }
+            const aiText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+            return aiText ? aiText.trim() : null;
+        } catch (error) {
+            console.error("AI 連線失敗:", error);
+            return null;
+        }
+    }
+
+    function getActiveSpeechBubble() {
+        const study = document.getElementById('scene-study');
+        if (study && !study.classList.contains('hidden')) {
+            return document.getElementById('study-speech');
+        }
+        return document.getElementById('cat-speech');
+    }
+
+    function displayCatSpeech(text, durationMs = 3200) {
+        const bubble = getActiveSpeechBubble();
+        if (!bubble || !text) return;
+        if (bubble.id === 'study-speech') {
+            const speechText = document.getElementById('study-speech-text');
+            if (speechText) speechText.innerText = text;
+        } else {
+            bubble.innerText = text;
+        }
         bubble.classList.remove('hidden');
         if (catSpeechTimer) clearTimeout(catSpeechTimer);
         catSpeechTimer = setTimeout(() => {
             bubble.classList.add('hidden');
-        }, 1200);
+        }, durationMs);
+        lastCatSpeechAt = Date.now();
+    }
+
+    function updateVoiceButton(isActive) {
+        const btn = document.getElementById('btn-voice-chat');
+        if (!btn) return;
+        btn.classList.toggle('bg-teal-500', isActive);
+        btn.classList.toggle('bg-teal-400', !isActive);
+        btn.innerHTML = isActive
+            ? '<span>🎤 我在聽...</span><span class="text-xs opacity-80">說完會回應</span>'
+            : '<span>🎤 說話</span><span class="text-xs opacity-80">讓貓咪回應</span>';
+    }
+
+    function initSpeechRecognizer() {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognition) return null;
+        const recognition = new SpeechRecognition();
+        recognition.lang = 'zh-TW';
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+        recognition.onstart = () => {
+            isListening = true;
+            updateVoiceButton(true);
+        };
+        recognition.onend = () => {
+            isListening = false;
+            updateVoiceButton(false);
+        };
+        recognition.onerror = () => {
+            isListening = false;
+            updateVoiceButton(false);
+            showCatSpeech("喵？我沒聽清楚耶", 'user-chat');
+        };
+        recognition.onresult = (event) => {
+            const transcript = event.results?.[0]?.[0]?.transcript?.trim();
+            if (transcript) {
+                requestCatChat(transcript);
+            }
+        };
+        speechRecognizer = recognition;
+        return recognition;
+    }
+
+    function toggleVoiceChat() {
+        if (!speechRecognizer) {
+            if (!initSpeechRecognizer()) {
+                alert("你的瀏覽器不支援語音辨識功能。");
+                return;
+            }
+        }
+        if (isListening) {
+            speechRecognizer.stop();
+            return;
+        }
+        try {
+            speechRecognizer.start();
+        } catch (e) {
+            console.warn("Speech start error:", e);
+        }
+    }
+
+    function canTriggerSpeech() {
+        return !catSpeechInFlight && (Date.now() - lastCatSpeechAt >= CAT_SPEECH_COOLDOWN_MS);
+    }
+
+    async function requestCatSpeech(reason, context = {}) {
+        if (!canTriggerSpeech()) return;
+        catSpeechInFlight = true;
+
+        let text = await askGeminiCat(reason, context);
+        if (!text) {
+            text = pickRandom(CAT_SPEECH_LIST);
+        }
+
+        displayCatSpeech(text, 3200);
+        catSpeechInFlight = false;
+    }
+
+    async function requestCatChat(userText) {
+        if (catSpeechInFlight) return;
+        catSpeechInFlight = true;
+        const trimmed = userText.slice(0, 60);
+        let text = await askGeminiCat('user-chat', { userText: trimmed });
+        if (!text) text = pickRandom(CAT_SPEECH_LIST);
+        displayCatSpeech(text, 3600);
+        catSpeechInFlight = false;
+    }
+
+    function updateNeedsSnapshot() {
+        lastNeedsSnapshot = {
+            satiety: gameState.satiety,
+            mood: gameState.mood,
+            cleanliness: gameState.cleanliness
+        };
+    }
+
+    function checkNeedsSpeech(source) {
+        if (!lastNeedsSnapshot) {
+            updateNeedsSnapshot();
+            return;
+        }
+        if (!canTriggerSpeech()) return;
+        const changes = {
+            satiety: gameState.satiety - lastNeedsSnapshot.satiety,
+            mood: gameState.mood - lastNeedsSnapshot.mood,
+            cleanliness: gameState.cleanliness - lastNeedsSnapshot.cleanliness
+        };
+        const significant = Object.entries(changes).filter(([, value]) => Math.abs(value) >= NEEDS_SPEECH_THRESHOLD);
+        if (!significant.length) return;
+
+        const changeSummary = significant
+            .map(([key, value]) => {
+                const label = key === 'satiety' ? '飽食' : key === 'mood' ? '心情' : '清潔';
+                const sign = value > 0 ? '+' : '';
+                return `${label}${sign}${value}`;
+            })
+            .join(' ');
+
+        updateNeedsSnapshot();
+        requestCatSpeech('status-change', { source, changeSummary });
+    }
+
+    function showCatSpeech(forceText = null, reason = 'random', context = {}) {
+        if (forceText) {
+            displayCatSpeech(forceText, 2000);
+            return;
+        }
+        requestCatSpeech(reason, context);
     }
 
     // 顯示結算畫面
@@ -2201,11 +3799,12 @@
         }
 
         if (isBossWin) {
+            stopBossBgm();
             rewardTitle.innerText = "🏆 戰勝魔王！";
             rewardTitle.className = "text-4xl font-black text-yellow-600 mb-4 animate-bounce";
             rewardIcon.innerText = "🥫✨";
             rewardType.innerText = "黃金罐頭";
-            rewardExpInfo.classList.remove('hidden');
+            rewardExpInfo.classList.add('hidden');
             countSpan.dataset.isGolden = "true";
             bossPending = false;
         } else {
@@ -2233,13 +3832,7 @@
             const isGolden = countSpan.dataset.isGolden === "true";
 
             if (isGolden) {
-                gameState.exp += 50;
-                const calculatedLevel = Math.floor(gameState.exp / EXP_PER_LEVEL) + 1;
-                if (calculatedLevel > gameState.level) {
-                    gameState.level = calculatedLevel;
-                    unlockCatSkin(calculatedLevel - 1, true);
-                    setTimeout(showLevelUp, 500);
-                }
+                gameState.food += amount;
             } else {
                 gameState.food += amount;
             }
@@ -2280,8 +3873,15 @@
 
         document.getElementById('scene-study').classList.add('hidden');
         document.getElementById('scene-room').classList.remove('hidden');
+        stopBossBgm();
         resumeRoomBgm();
         window.speechSynthesis.cancel();
+        const rewardCountEl = document.getElementById('reward-count');
+        requestCatSpeech('reward', {
+            amount: Number(rewardCountEl?.innerText || 0),
+            isGolden: rewardCountEl?.dataset?.isGolden === "true"
+        });
+        startCatWalk();
     }
 
     function loadCard() {
@@ -2301,17 +3901,26 @@
 
         const isMath = word.type === "math";
         const isStory = word.type === "story";
+        const isArea = word.type === "area";
+        const isClock = isMath && word.visual === "clock";
         const studyScene = document.getElementById('scene-study');
-        if (studyScene) studyScene.classList.toggle('story-mode', isStory);
-        const questionText = isMath ? word.q : isStory ? "情境題" : word.z;
-        const answerText = isMath || isStory ? word.a : word.c;
-        const radicalText = isMath || isStory ? "數學題" : word.r;
-        const maskedWord = isStory ? word.w : isMath ? "" : word.w.split(word.c).join("＿");
+        if (studyScene) {
+            studyScene.classList.toggle('story-mode', isStory);
+            studyScene.classList.toggle('area-mode', isArea);
+            studyScene.classList.toggle('clock-mode', isClock);
+            studyScene.classList.toggle('math-mode', isMath && !isStory && !isArea);
+        }
+        const questionText = isMath ? word.q : isStory ? "情境題" : isArea ? "面積題" : word.z;
+        const answerText = isMath || isStory || isArea ? word.a : word.c;
+        const radicalText = isMath || isStory || isArea ? "數學題" : word.r;
+        const maskedWord = isStory ? word.w : isMath ? (word.h || "") : isArea ? word.w : word.w.split(word.c).join("＿");
 
         document.getElementById('q-zhuyin').innerText = questionText;
         const hintEl = document.getElementById('q-hint');
         hintEl.innerText = maskedWord;
         hintEl.classList.toggle('story-hint', isStory);
+        hintEl.classList.toggle('area-hint', isArea);
+        hintEl.classList.toggle('hidden', isClock && !maskedWord);
 
         document.getElementById('q-char').innerText = answerText;
         document.getElementById('q-radical').innerText = radicalText;
@@ -2320,7 +3929,12 @@
         const pct = (currentCardIndex / studyQueue.length) * 100;
         document.getElementById('study-progress').style.width = `${pct}%`;
 
-        speak(isStory ? word.w : isMath ? word.q : word.w);
+        renderAreaGrid(isArea ? word : null);
+        if (isClock) {
+            renderMathVisual(word);
+        }
+        const speakText = isStory ? word.w : isMath ? (word.h || word.q) : isArea ? word.w : word.w;
+        speak(speakText);
     }
 
     function flipCard() {
@@ -2336,17 +3950,21 @@
             const word = studyQueue[currentCardIndex];
             const isMath = word.type === "math";
             const isStory = word.type === "story";
-            const answerText = isMath || isStory ? word.a : word.c;
-            speak(answerText + "。" + word.w);
+            const isArea = word.type === "area";
+            const answerText = isMath || isStory || isArea ? word.a : word.c;
+            const speakText = isArea ? `${answerText}格。${word.w}` : `${answerText}。${word.w}`;
+            speak(speakText);
         }
     }
 
     function answer(isCorrect) {
         const controls = document.getElementById('study-controls');
         controls.style.pointerEvents = 'none';
+        const currentWord = studyQueue[currentCardIndex];
 
         if (isCorrect) {
             playSound('sfx-correct');
+            requestCatSpeech('answer-correct', { subject: currentWord?.type || 'word' });
             currentCardIndex++;
             setTimeout(() => {
                 loadCard();
@@ -2354,7 +3972,8 @@
             }, 600);
         } else {
             playSound('sfx-wrong');
-            const word = studyQueue[currentCardIndex];
+            requestCatSpeech('answer-wrong', { subject: currentWord?.type || 'word' });
+            const word = currentWord;
             studyQueue.push(word);
             
             setTimeout(() => {
@@ -2362,7 +3981,13 @@
                 document.getElementById('study-controls').classList.add('hidden');
                 document.getElementById('tap-hint').classList.remove('hidden');
                 
-                const retryText = word.type === "math" ? word.q : word.type === "story" ? word.w : word.z;
+                const retryText = word.type === "math"
+                    ? (word.h || word.q)
+                    : word.type === "story"
+                        ? word.w
+                        : word.type === "area"
+                            ? word.w
+                            : word.z;
                 speak("再試一次: " + retryText);
                 controls.style.pointerEvents = 'auto';
             }, 1000);
@@ -2420,10 +4045,29 @@
         loadGame();
         setRandomBgm(false);
         spawnRoomAtmosphere();
+        const savedKey = localStorage.getItem('user_gemini_key');
+        if (savedKey) {
+            setAiStatus('AI：驗證中...', null);
+            validateApiKey(savedKey).then((ok) => {
+                if (ok) setAiStatus('AI：已啟用', true);
+                else setAiStatus('AI：驗證失敗', false);
+            });
+        } else {
+            setAiStatus('AI：尚未設定', null);
+        }
         const bgm = document.getElementById('bgm');
         if (bgm) {
             bgm.addEventListener('ended', () => setRandomBgm(true));
             bgm.addEventListener('error', () => setRandomBgm(true));
+        }
+        const bossBgm = document.getElementById('sfx-boss-bgm');
+        if (bossBgm) {
+            bossBgm.addEventListener('ended', () => {
+                if (isBossBattle && gameState.musicOn) {
+                    setRandomBossBgm();
+                    bossBgm.play().catch(() => {});
+                }
+            });
         }
         document.addEventListener('visibilitychange', handleVisibilityChange);
         window.addEventListener('pagehide', () => {
