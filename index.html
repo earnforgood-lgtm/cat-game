@@ -782,40 +782,42 @@
         </div>
 
         <!-- 控制按鈕區 -->
-        <div class="grid grid-cols-3 gap-3 mt-2 mb-4 shrink-0 z-10">
-            <button onclick="feedCat(event)" class="btn-3d bg-orange-400 hover:bg-orange-500 text-white py-3 rounded-2xl text-base font-bold flex flex-col items-center justify-center gap-1 border-b-4 border-orange-600">
-                <span>🐟 餵食</span>
-                <span class="text-xs opacity-80">(1exp)</span>
-            </button>
-            <button onclick="openShop()" class="btn-3d bg-purple-400 hover:bg-purple-500 text-white py-3 rounded-2xl text-base font-bold flex flex-col items-center justify-center gap-1 border-b-4 border-purple-600">
-                <span>🛒 商店</span>
-                <span class="text-xs opacity-80">買家具</span>
-            </button>
-            <button onclick="openSynthesis()" class="btn-3d bg-indigo-400 hover:bg-indigo-500 text-white py-3 rounded-2xl text-base font-bold flex flex-col items-center justify-center gap-1 border-b-4 border-indigo-600 relative">
-                <span>🔮 合成</span>
-                <span class="text-xs opacity-80">收藏</span>
-                <div id="synth-badge" class="hidden absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">!</div>
-            </button>
-            <button onclick="openCatBook()" class="btn-3d bg-amber-400 hover:bg-amber-500 text-white py-3 rounded-2xl text-base font-bold flex flex-col items-center justify-center gap-1 border-b-4 border-amber-600">
-                <span>📖 圖鑑</span>
-                <span class="text-xs opacity-80">召喚</span>
-            </button>
-            <button onclick="openMenu()" class="btn-3d bg-blue-400 hover:bg-blue-500 text-white py-3 rounded-2xl text-base font-bold flex flex-col items-center justify-center gap-1 border-b-4 border-blue-600">
-                <span>✏️ 去打工</span>
-                <span class="text-xs opacity-80">賺罐頭</span>
-            </button>
-            <button onclick="cleanPoop()" class="btn-3d bg-emerald-400 hover:bg-emerald-500 text-white py-3 rounded-2xl text-base font-bold flex flex-col items-center justify-center gap-1 border-b-4 border-emerald-600">
-                <span>🧹 清理</span>
-                <span class="text-xs opacity-80">便便</span>
-            </button>
-            <button onclick="openBath()" class="btn-3d bg-cyan-400 hover:bg-cyan-500 text-white py-3 rounded-2xl text-base font-bold flex flex-col items-center justify-center gap-1 border-b-4 border-cyan-600 col-span-3">
-                <span>🛁 洗澡</span>
-                <span class="text-xs opacity-80">沖洗細菌</span>
-            </button>
-            <button id="btn-voice-chat" onclick="toggleVoiceChat()" class="btn-3d bg-teal-400 hover:bg-teal-500 text-white py-3 rounded-2xl text-base font-bold flex flex-col items-center justify-center gap-1 border-b-4 border-teal-600 col-span-3">
-                <span>🎤 說話</span>
-                <span class="text-xs opacity-80">讓貓咪回應</span>
-            </button>
+        <div class="flex items-stretch gap-3 mt-2 mb-4 shrink-0 z-10">
+            <div class="flex flex-col gap-2">
+                <button onclick="feedCat(event)" class="btn-3d bg-orange-300 hover:bg-orange-400 text-white py-2 px-3 rounded-xl text-sm font-bold flex items-center gap-2 border-b-4 border-orange-500">
+                    🐟 <span>餵食</span>
+                </button>
+                <button onclick="cleanPoop()" class="btn-3d bg-emerald-300 hover:bg-emerald-400 text-white py-2 px-3 rounded-xl text-sm font-bold flex items-center gap-2 border-b-4 border-emerald-500">
+                    🧹 <span>清理</span>
+                </button>
+                <button onclick="openBath()" class="btn-3d bg-cyan-300 hover:bg-cyan-400 text-white py-2 px-3 rounded-xl text-sm font-bold flex items-center gap-2 border-b-4 border-cyan-500">
+                    🛁 <span>洗澡</span>
+                </button>
+            </div>
+
+            <div class="flex-1 grid grid-cols-2 gap-3">
+                <button onclick="openMenu()" class="btn-3d bg-blue-500 hover:bg-blue-600 text-white py-4 rounded-2xl text-base font-black flex flex-col items-center justify-center gap-1 border-b-4 border-blue-700">
+                    <span>✏️ 去打工</span>
+                    <span class="text-xs opacity-80">賺罐頭</span>
+                </button>
+                <button id="btn-voice-chat" onclick="toggleVoiceChat()" class="btn-3d bg-teal-500 hover:bg-teal-600 text-white py-4 rounded-2xl text-base font-black flex flex-col items-center justify-center gap-1 border-b-4 border-teal-700">
+                    <span>🎤 說話</span>
+                    <span class="text-xs opacity-80">讓貓咪回應</span>
+                </button>
+            </div>
+
+            <div class="flex flex-col gap-2">
+                <button onclick="openShop()" class="btn-3d bg-purple-300 hover:bg-purple-400 text-white py-2 px-3 rounded-xl text-sm font-bold flex items-center gap-2 border-b-4 border-purple-500">
+                    🛒 <span>商店</span>
+                </button>
+                <button onclick="openSynthesis()" class="btn-3d bg-indigo-300 hover:bg-indigo-400 text-white py-2 px-3 rounded-xl text-sm font-bold flex items-center gap-2 border-b-4 border-indigo-500 relative">
+                    🔮 <span>合成</span>
+                    <div id="synth-badge" class="hidden absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">!</div>
+                </button>
+                <button onclick="openCatBook()" class="btn-3d bg-amber-300 hover:bg-amber-400 text-white py-2 px-3 rounded-xl text-sm font-bold flex items-center gap-2 border-b-4 border-amber-500">
+                    📖 <span>圖鑑</span>
+                </button>
+            </div>
         </div>
     </div>
 
@@ -1197,12 +1199,12 @@
 
     const shopItems = [
         { id: 'item-medicine', name: '萬能藥水', price: 50, icon: '💊', desc: '治癒生病與恢復健康' },
-        { id: 'decor-window', name: '風景窗戶', price: 20, icon: '🖼️', desc: '看看外面的世界' },
-        { id: 'decor-rug', name: '彩虹地毯', price: 15, icon: '🌈', desc: '軟綿綿的觸感' },
-        { id: 'decor-toy', name: '毛線球', price: 10, icon: '🧶', desc: '貓咪最愛玩具' },
-        { id: 'decor-plant', name: '綠色盆栽', price: 15, icon: '🌿', desc: '清新小角落' },
-        { id: 'decor-lamp', name: '紅燈籠', price: 25, icon: '🏮', desc: '增添氣氛' },
-        { id: 'decor-balloon', name: '氣球', price: 10, icon: '🎈', desc: '飄來飄去' }
+        { id: 'decor-window', name: '風景窗戶', price: 20, icon: '🖼️', desc: '看看外面的世界', effectDesc: '心情提升・變慢餓肚子', effects: { moodGainPerTick: 0.4, satietyDecayMul: 0.9 } },
+        { id: 'decor-rug', name: '彩虹地毯', price: 15, icon: '🌈', desc: '軟綿綿的觸感', effectDesc: '心情提升・更容易弄髒', effects: { moodGainPerTick: 0.5, cleanlinessDecayMul: 1.15 } },
+        { id: 'decor-toy', name: '毛線球', price: 10, icon: '🧶', desc: '貓咪最愛玩具', effectDesc: '心情大提升・餓得更快', effects: { moodGainPerTick: 0.8, satietyDecayMul: 1.2 } },
+        { id: 'decor-plant', name: '綠色盆栽', price: 15, icon: '🌿', desc: '清新小角落', effectDesc: '自動清潔・變慢變髒', effects: { cleanlinessDecayMul: 0.7, cleanlinessGainPerTick: 0.3 } },
+        { id: 'decor-lamp', name: '紅燈籠', price: 25, icon: '🏮', desc: '增添氣氛', effectDesc: '心情提升・夜貓子更餓', effects: { moodGainPerTick: 0.4, satietyDecayMul: 1.1 } },
+        { id: 'decor-balloon', name: '氣球', price: 10, icon: '🎈', desc: '飄來飄去', effectDesc: '心情提升・心情更穩定', effects: { moodGainPerTick: 0.6, moodDecayMul: 0.9 } }
     ];
 
     const synthMaterials = [
@@ -1414,6 +1416,7 @@
     let bathRemaining = BATH_CLEAN_COUNT;
     let speechRecognizer = null;
     let isListening = false;
+    let catVoice = null;
 
     function spawnParticles(x, y, emojis) {
         const count = 6;
@@ -1441,9 +1444,14 @@
 
     function applyNeedsDecay(satietyLoss, cleanlinessLoss, moodLoss) {
         if (!satietyLoss && !cleanlinessLoss && !moodLoss) return;
-        gameState.satiety = Math.max(0, gameState.satiety - satietyLoss);
-        gameState.cleanliness = Math.max(0, gameState.cleanliness - cleanlinessLoss);
-        gameState.mood = Math.max(0, gameState.mood - moodLoss);
+        const effects = getActiveDecorEffects();
+        const satietyAdjusted = satietyLoss * effects.satietyDecayMul;
+        const cleanAdjusted = cleanlinessLoss * effects.cleanlinessDecayMul;
+        const moodAdjusted = moodLoss * effects.moodDecayMul;
+
+        gameState.satiety = Math.min(100, Math.max(0, gameState.satiety - satietyAdjusted + effects.satietyGainPerTick));
+        gameState.cleanliness = Math.min(100, Math.max(0, gameState.cleanliness - cleanAdjusted + effects.cleanlinessGainPerTick));
+        gameState.mood = Math.min(100, Math.max(0, gameState.mood - moodAdjusted + effects.moodGainPerTick));
 
         if (gameState.satiety < 10 || gameState.cleanliness < 20) {
             gameState.isSick = true;
@@ -1474,14 +1482,15 @@
 
         if (hoursPassed > 0.1) {
             const decay = Math.floor(hoursPassed * 3);
+            const effects = getActiveDecorEffects();
 
-            gameState.satiety = Math.max(0, gameState.satiety - decay * 2);
-            gameState.cleanliness = Math.max(0, gameState.cleanliness - decay);
-            gameState.mood = Math.max(0, gameState.mood - decay);
+            gameState.satiety = Math.max(0, gameState.satiety - (decay * 2 * effects.satietyDecayMul));
+            gameState.cleanliness = Math.max(0, gameState.cleanliness - (decay * effects.cleanlinessDecayMul));
+            gameState.mood = Math.max(0, gameState.mood - (decay * effects.moodDecayMul));
 
             const newPoops = Math.min(5, Math.floor(hoursPassed / 2));
             if (newPoops > 0) {
-                gameState.cleanliness = Math.max(0, gameState.cleanliness - (newPoops * POOP_CLEAN_PENALTY));
+                gameState.cleanliness = Math.max(0, gameState.cleanliness - (newPoops * POOP_CLEAN_PENALTY * effects.cleanlinessDecayMul));
             }
 
             if (gameState.satiety < 10 || gameState.cleanliness < 20) {
@@ -1983,6 +1992,30 @@
 
     function getDecorItemById(itemId) {
         return shopItems.find((item) => item.id === itemId);
+    }
+
+    function getActiveDecorEffects() {
+        const effects = {
+            satietyDecayMul: 1,
+            cleanlinessDecayMul: 1,
+            moodDecayMul: 1,
+            satietyGainPerTick: 0,
+            cleanlinessGainPerTick: 0,
+            moodGainPerTick: 0
+        };
+        const slots = gameState.decorSlots || [];
+        slots.forEach((itemId) => {
+            const item = getDecorItemById(itemId);
+            if (!item || !item.effects) return;
+            const effect = item.effects;
+            if (effect.satietyDecayMul) effects.satietyDecayMul *= effect.satietyDecayMul;
+            if (effect.cleanlinessDecayMul) effects.cleanlinessDecayMul *= effect.cleanlinessDecayMul;
+            if (effect.moodDecayMul) effects.moodDecayMul *= effect.moodDecayMul;
+            if (effect.satietyGainPerTick) effects.satietyGainPerTick += effect.satietyGainPerTick;
+            if (effect.cleanlinessGainPerTick) effects.cleanlinessGainPerTick += effect.cleanlinessGainPerTick;
+            if (effect.moodGainPerTick) effects.moodGainPerTick += effect.moodGainPerTick;
+        });
+        return effects;
     }
 
     function renderDecorShelf() {
@@ -2498,6 +2531,7 @@
                     <div>
                         <h3 class="font-bold text-gray-800">${item.name}</h3>
                         <p class="text-xs text-gray-500">${item.desc}</p>
+                        ${item.effectDesc ? `<p class="text-[10px] text-indigo-500">${item.effectDesc}</p>` : ''}
                     </div>
                 </div>
                 ${buttonHtml}
@@ -3721,6 +3755,7 @@ ${userText ? '- 請針對主人說的話回應。' : ''}
         let text = await askGeminiCat('user-chat', { userText: trimmed });
         if (!text) text = pickRandom(CAT_SPEECH_LIST);
         displayCatSpeech(text, 3600);
+        speakCat(text);
         catSpeechInFlight = false;
     }
 
@@ -3996,6 +4031,34 @@ ${userText ? '- 請針對主人說的話回應。' : ''}
 
     // --- 4. 語音 ---
     const synth = window.speechSynthesis;
+    function getCatVoice() {
+        if (!synth) return null;
+        if (catVoice) return catVoice;
+        const voices = synth.getVoices();
+        if (!voices || voices.length === 0) return null;
+        const zhVoices = voices.filter((voice) => voice.lang && voice.lang.startsWith('zh'));
+        const preferred = zhVoices.find((voice) => /zh-tw/i.test(voice.lang) && /(mei|sin|ting|siri|yushu|xiaoxiao|zhiyu)/i.test(voice.name))
+            || zhVoices.find((voice) => /zh-tw/i.test(voice.lang))
+            || zhVoices[0]
+            || voices[0];
+        catVoice = preferred;
+        return catVoice;
+    }
+
+    function speakCat(text) {
+        if (!text || !synth) return;
+        try {
+            if (synth.speaking) synth.cancel();
+            const utter = new SpeechSynthesisUtterance(text);
+            utter.lang = 'zh-TW';
+            utter.rate = 1.7;
+            utter.pitch = 1.8;
+            const voice = getCatVoice();
+            if (voice) utter.voice = voice;
+            synth.speak(utter);
+        } catch (e) {}
+    }
+
     function speak(text) {
         if (synth.speaking) synth.cancel();
         
