@@ -217,6 +217,171 @@
         .bath-germ:active {
             transform: scale(0.9);
         }
+        .treasure-canvas {
+            image-rendering: pixelated;
+            background: #111827;
+            border-radius: 18px;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+            width: min(92vw, 396px);
+            height: min(92vw, 396px);
+            max-width: 100%;
+        }
+        .treasure-dpad-btn {
+            background: #f8fafc;
+            border: 2px solid #cbd5e1;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            color: #1f2937;
+            font-weight: 700;
+            touch-action: manipulation;
+            transition: background 0.15s ease, transform 0.1s ease;
+        }
+        .treasure-dpad-btn:active {
+            background: #e2e8f0;
+            transform: translateY(2px);
+        }
+        .treasure-scanline {
+            background: linear-gradient(to bottom, transparent 50%, rgba(56, 189, 248, 0.12) 51%);
+            background-size: 100% 4px;
+            pointer-events: none;
+            position: absolute;
+            inset: 0;
+            opacity: 0.2;
+        }
+        .treasure-wheel-wrap {
+            position: relative;
+            width: 220px;
+            height: 220px;
+            margin: 0 auto;
+        }
+        .treasure-wheel {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            border-radius: 999px;
+            border: 6px solid #f8fafc;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+            background: conic-gradient(
+                #fde68a 0deg 30deg,
+                #fde047 30deg 60deg,
+                #fbbf24 60deg 90deg,
+                #facc15 90deg 120deg,
+                #fde68a 120deg 150deg,
+                #fbbf24 150deg 180deg,
+                #fde047 180deg 210deg,
+                #facc15 210deg 240deg,
+                #fde68a 240deg 270deg,
+                #fbbf24 270deg 300deg,
+                #fde047 300deg 330deg,
+                #facc15 330deg 360deg
+            );
+            transition: transform 3.2s cubic-bezier(0.2, 0.7, 0.2, 1);
+        }
+        .treasure-wheel-labels {
+            position: absolute;
+            inset: 0;
+        }
+        .treasure-wheel-labels span {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform-origin: 0 0;
+            font-size: 12px;
+            font-weight: 800;
+            color: #7c2d12;
+        }
+        .treasure-wheel-pointer {
+            position: absolute;
+            top: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 12px solid transparent;
+            border-right: 12px solid transparent;
+            border-bottom: 18px solid #ef4444;
+            filter: drop-shadow(0 4px 4px rgba(0, 0, 0, 0.3));
+        }
+        .slot-reels {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            align-items: center;
+        }
+        .slot-machine-window {
+            width: 72px;
+            height: 72px;
+            background: #f8fafc;
+            border-radius: 16px;
+            border: 2px solid #cbd5e1;
+            box-shadow: inset 0 -6px 0 rgba(0,0,0,0.06);
+            overflow: hidden;
+        }
+        .reel-strip {
+            display: flex;
+            flex-direction: column;
+            transform: translateY(0);
+            will-change: transform;
+        }
+        .slot-symbol {
+            height: 72px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            font-weight: 800;
+            color: #0f172a;
+        }
+        .reel-strip.is-spinning {
+            filter: blur(1.6px);
+        }
+        .backyard-cat-entity {
+            position: absolute;
+            width: 64px;
+            height: 64px;
+            transform: scaleX(var(--flip, 1));
+            transition: transform 2s linear, left 2s linear, top 2s linear;
+            z-index: 10;
+            pointer-events: none;
+        }
+        .backyard-cat-entity.eating {
+            transform: scaleX(var(--flip, 1)) scale(1.15) !important;
+            filter: brightness(1.15);
+            transition: transform 0.2s;
+        }
+        .kibble {
+            position: absolute;
+            font-size: 1.5rem;
+            z-index: 5;
+            animation: drop-kibble 1s ease-in forwards;
+            pointer-events: none;
+        }
+        @keyframes drop-kibble {
+            from { transform: translateY(0); }
+            to { transform: translateY(60vh); }
+        }
+        .backyard-item {
+            position: absolute;
+            font-size: 2rem;
+            z-index: 20;
+            cursor: pointer;
+            animation: pop-up-down 0.6s ease-out forwards;
+            transition: transform 0.1s;
+        }
+        .backyard-item:active {
+            transform: scale(1.3);
+        }
+        .backyard-item.poop {
+            filter: grayscale(0.4);
+        }
+        @keyframes pop-up-down {
+            0% { transform: scale(0.5) translateY(0); opacity: 0; }
+            50% { transform: scale(1.2) translateY(-40px); opacity: 1; }
+            100% { transform: scale(1) translateY(0); }
+        }
         .gene-tab {
             padding: 0.5rem 0.9rem;
             border-radius: 999px;
@@ -620,8 +785,14 @@
     <audio id="sfx-angry" preload="auto" src="sound/an1.mp3"></audio>
     <audio id="sfx-levelup" preload="auto" src="https://assets.mixkit.co/sfx/download/mixkit-quick-win-video-game-notification-269.wav"></audio>
     <audio id="sfx-chew" preload="auto" src="sound/chew.mp3"></audio>
+    <audio id="sfx-coin" preload="auto" src="sound/coin.mp3"></audio>
+    <audio id="sfx-clean" preload="auto" src="sound/clean.mp3"></audio>
     <audio id="sfx-flip" preload="auto" src="https://assets.mixkit.co/sfx/download/mixkit-paper-slide-1530.wav"></audio>
     <audio id="sfx-win" preload="auto" src="sound/winner-game.mp3"></audio>
+    <audio id="sfx-treasure-step" preload="auto" src="https://assets.mixkit.co/sfx/download/mixkit-player-jumping-in-a-video-game-2043.wav"></audio>
+    <audio id="sfx-treasure-push" preload="auto" src="https://assets.mixkit.co/sfx/download/mixkit-heavy-stone-slide-204.wav"></audio>
+    <audio id="sfx-treasure-win" preload="auto" src="https://assets.mixkit.co/sfx/download/mixkit-winning-chimes-2015.wav"></audio>
+    <audio id="sfx-treasure-ding" preload="auto" src="https://assets.mixkit.co/sfx/download/mixkit-bell-notification-933.wav"></audio>
     <audio id="sfx-boss-bgm" preload="auto" src="music/boss-1.mp3"></audio>
     <audio id="sfx-boss-hit" preload="auto" src="https://commondatastorage.googleapis.com/codeskulptor-assets/sounddogs/missile.mp3"></audio>
     <audio id="sfx-boss-heal" preload="auto" src="https://commondatastorage.googleapis.com/codeskulptor-assets/week7-bounce.m4a"></audio>
@@ -831,6 +1002,12 @@
                 <button onclick="openCatBook()" class="btn-3d bg-amber-300 hover:bg-amber-400 text-white py-2 px-3 rounded-xl text-sm font-bold flex items-center gap-2 border-b-4 border-amber-500">
                     📖 <span>圖鑑</span>
                 </button>
+                <button onclick="openTreasureGame()" class="btn-3d bg-lime-300 hover:bg-lime-400 text-white py-2 px-3 rounded-xl text-sm font-bold flex items-center gap-2 border-b-4 border-lime-500">
+                    🧩 <span>藏寶</span>
+                </button>
+                <button onclick="openBackyard()" class="btn-3d bg-pink-300 hover:bg-pink-400 text-white py-2 px-3 rounded-xl text-sm font-bold flex items-center gap-2 border-b-4 border-pink-500">
+                    🏡 <span>貓咪屋</span>
+                </button>
             </div>
         </div>
     </div>
@@ -1013,6 +1190,119 @@
         </div>
     </div>
 
+    <!-- 藏寶小遊戲 -->
+    <div id="scene-treasure" class="hidden fixed inset-0 z-50 flex flex-col items-center justify-start p-4 pt-6 pb-6 text-white overflow-y-auto">
+        <div id="treasure-backdrop" class="absolute inset-0 bg-slate-900/95 pointer-events-none"></div>
+        <div class="treasure-scanline"></div>
+        <div class="relative w-full max-w-md flex items-center justify-between mb-3 gap-2">
+            <div>
+                <div class="text-xs text-slate-400">貓咪藏寶模式</div>
+                <div class="text-lg font-black">🧩 貓咪藏寶</div>
+            </div>
+            <div class="flex items-center gap-2 flex-wrap justify-end">
+                <div class="px-3 py-1 rounded-lg bg-white text-xs font-bold text-slate-800 border border-slate-200">
+                    🎟️ <span id="treasure-ticket-count">0</span>
+                </div>
+                <button onclick="treasureUndoMove()" class="px-3 py-1 rounded-lg bg-white text-xs font-bold text-slate-800 hover:bg-slate-100 border border-slate-200">↩️ 復原</button>
+                <button onclick="treasureGenerateLevel()" class="px-3 py-1 rounded-lg bg-white text-xs font-bold text-slate-800 hover:bg-slate-100 border border-slate-200">🔄 跳過</button>
+                <button onclick="closeTreasureGame()" class="px-3 py-1 rounded-lg bg-white text-xs font-bold text-slate-800 hover:bg-slate-100 border border-slate-200">返回房間</button>
+            </div>
+        </div>
+
+        <div class="relative w-full max-w-md mb-3 px-1">
+            <div class="flex justify-between items-end mb-1">
+                <h2 id="treasure-title" class="text-xl font-bold text-white tracking-wide">未知領域</h2>
+                <div class="text-xs text-slate-300 bg-white/10 px-2 py-1 rounded">Lv.<span id="treasure-level">1</span></div>
+            </div>
+            <p id="treasure-story" class="text-xs text-slate-300 min-h-[2.5em] leading-relaxed opacity-80">貓咪正在尋找藏寶路線...</p>
+        </div>
+
+        <div class="relative">
+            <canvas id="treasure-canvas" class="treasure-canvas" width="396" height="396"></canvas>
+
+            <div id="treasure-mask" class="hidden absolute inset-0 bg-black/80 flex flex-col items-center justify-center rounded-2xl z-20 backdrop-blur-sm">
+                <div class="text-5xl mb-4 animate-spin">💠</div>
+                <div class="text-yellow-300 text-sm font-bold mb-1">貓咪正在旅行中...</div>
+                <div id="treasure-ai-status" class="text-blue-200 text-xs font-mono">要到哪裡去呢...</div>
+            </div>
+
+            <div id="treasure-win" class="hidden absolute inset-0 bg-black/60 backdrop-blur-md flex flex-col items-center justify-center rounded-2xl z-30">
+                <div class="text-6xl mb-2 animate-bounce">🎉</div>
+                <div class="text-xl font-bold text-yellow-300 mb-2">藏寶成功！</div>
+                <p id="treasure-win-comment" class="text-white/80 text-xs px-8 text-center mb-4">貓咪把寶藏藏好了！</p>
+                <div class="treasure-wheel-wrap">
+                    <div id="treasure-win-reward" class="absolute -top-10 left-1/2 -translate-x-1/2 text-base font-black text-yellow-200 hidden">
+                        獲得 0 罐頭！
+                    </div>
+                    <div id="treasure-wheel" class="treasure-wheel">
+                        <div id="treasure-wheel-labels" class="treasure-wheel-labels"></div>
+                    </div>
+                    <div class="treasure-wheel-pointer"></div>
+                </div>
+                <div class="mt-4 flex gap-2">
+                    <button id="treasure-spin-btn" onclick="spinTreasureRoulette()" class="btn-3d bg-yellow-400 border-b-4 border-yellow-600 text-slate-900 px-6 py-2 rounded-xl font-bold shadow-lg">
+                        🎡 開始抽獎
+                    </button>
+                    <button id="treasure-next-btn" onclick="treasureGenerateLevel()" class="btn-3d bg-green-500 border-b-4 border-green-700 text-white px-6 py-2 rounded-xl font-bold shadow-lg hidden">
+                        下一層 ➜
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="w-full max-w-[396px] mt-4 flex justify-between items-center text-xs font-bold">
+            <span class="text-slate-300">藏寶進度</span>
+            <span class="text-yellow-300" id="treasure-score">0/0</span>
+        </div>
+        <div class="w-full max-w-[396px] h-2 bg-slate-700 rounded-full mt-1 overflow-hidden">
+            <div id="treasure-progress" class="h-full bg-yellow-400 transition-all duration-300" style="width: 0%"></div>
+        </div>
+
+        <div class="w-full max-w-[396px] mt-3 flex gap-2">
+            <button onclick="treasureUndoMove()" class="flex-1 py-2 rounded-xl bg-white border border-slate-200 text-sm font-bold text-slate-800 hover:bg-slate-100">
+                ↩️ 復原
+            </button>
+            <button onclick="treasureGenerateLevel()" class="flex-1 py-2 rounded-xl bg-white border border-slate-200 text-sm font-bold text-slate-800 hover:bg-slate-100">
+                🔄 跳過
+            </button>
+        </div>
+
+        <div class="grid grid-cols-3 gap-3 mt-6 w-64 h-40">
+            <div></div>
+            <button class="treasure-dpad-btn" onpointerdown="treasureHandleInput(0, -1)">⬆️</button>
+            <button class="treasure-dpad-btn text-sm" onclick="treasureGenerateLevel()">🔄<br>跳過</button>
+            <button class="treasure-dpad-btn" onpointerdown="treasureHandleInput(-1, 0)">⬅️</button>
+            <button class="treasure-dpad-btn text-sm" onclick="treasureUndoMove()">↩️<br>復原</button>
+            <button class="treasure-dpad-btn" onpointerdown="treasureHandleInput(1, 0)">➡️</button>
+            <div></div>
+            <button class="treasure-dpad-btn" onpointerdown="treasureHandleInput(0, 1)">⬇️</button>
+            <div></div>
+        </div>
+    </div>
+
+    <!-- 貓咪後院 -->
+    <div id="scene-backyard" class="hidden fixed inset-0 z-50 bg-[#e0f7fa] overflow-hidden cursor-crosshair">
+        <div class="absolute bottom-0 w-full h-1/3 bg-[#a5d6a7] border-t-4 border-[#81c784]"></div>
+        <div class="absolute top-10 left-10 text-6xl opacity-20">🏡</div>
+        <div class="absolute top-20 right-20 text-4xl opacity-20">☁️</div>
+
+        <div class="absolute top-4 left-4 z-50 flex gap-3">
+            <button onclick="closeBackyard()" class="btn-3d px-4 py-2 bg-gray-500 text-white rounded-xl font-bold border-b-4 border-gray-700">
+                🚪 返回房間
+            </button>
+            <div class="bg-white/90 px-4 py-2 rounded-xl border-2 border-orange-200 flex items-center gap-2 font-bold text-orange-600">
+                <span>🥫 庫存:</span>
+                <span id="backyard-food-count">0</span>
+            </div>
+        </div>
+
+        <div class="absolute bottom-4 left-1/2 -translate-x-1/2 z-50 text-gray-500 text-sm font-bold bg-white/60 px-4 py-1 rounded-full pointer-events-none">
+            👆 點擊空白處餵食 (消耗1) • 點擊金幣/便便回收
+        </div>
+
+        <div id="backyard-stage" class="absolute inset-0 w-full h-full" onclick="dropKibble(event)"></div>
+    </div>
+
     <!-- 3. 戰鬥畫面 -->
     <div id="scene-study" class="hidden fixed inset-0 bg-[#FFF3E0] z-40 flex flex-col items-center justify-center p-4">
         <div class="w-full max-w-md flex justify-between items-center mb-4 px-2">
@@ -1050,6 +1340,18 @@
                          </div>
                     </div>
                 </div>
+            </div>
+        </div>
+        <div id="writing-area" class="hidden flex flex-col items-center mt-2 w-full">
+            <div class="relative border-4 border-dashed border-gray-300 rounded-xl bg-white touch-none" style="width: 280px; height: 280px;">
+                <div class="absolute inset-0 pointer-events-none opacity-20"
+                     style="background: linear-gradient(45deg, transparent 49%, #ef4444 49%, #ef4444 51%, transparent 51%), linear-gradient(-45deg, transparent 49%, #ef4444 49%, #ef4444 51%, transparent 51%), linear-gradient(90deg, transparent 49%, #ef4444 49%, #ef4444 51%, transparent 51%), linear-gradient(0deg, transparent 49%, #ef4444 49%, #ef4444 51%, transparent 51%);">
+                </div>
+                <canvas id="write-canvas" width="280" height="280"></canvas>
+            </div>
+            <div class="flex gap-2 mt-2">
+                <button onclick="clearCanvas()" class="px-3 py-1 bg-gray-200 rounded text-sm">清除</button>
+                <button onclick="togglePenColor()" class="px-3 py-1 bg-black text-white rounded text-sm" id="pen-btn">筆色: 黑</button>
             </div>
         </div>
         <div id="study-controls" class="hidden flex gap-4 w-full max-w-md animate-[fadeIn_0.5s_ease-out]">
@@ -1107,6 +1409,32 @@
             <button onclick="collectReward(event)" class="w-full btn-3d bg-green-500 text-white text-xl font-bold py-4 rounded-xl border-b-4 border-green-700 active:border-green-500" style="pointer-events: auto;">
                 💰 收下獎勵回家
             </button>
+        </div>
+    </div>
+
+    <!-- 打工拉霸抽獎 -->
+    <div id="scene-slot" class="hidden fixed inset-0 z-[9999] flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
+        <div class="relative bg-white w-full max-w-sm rounded-3xl p-6 shadow-2xl border-4 border-yellow-200 text-center">
+            <h2 class="text-2xl font-black text-yellow-500 mb-2">🎰 打工拉霸</h2>
+            <p class="text-xs text-gray-500 mb-4">本次打工獎勵：<span id="slot-base-reward" class="font-bold text-gray-700">0</span> 罐頭</p>
+            <div class="slot-reels mb-4">
+                <div class="slot-machine-window">
+                    <div id="slot-reel-1" class="reel-strip"></div>
+                </div>
+                <div class="slot-machine-window">
+                    <div id="slot-reel-2" class="reel-strip"></div>
+                </div>
+                <div class="slot-machine-window">
+                    <div id="slot-reel-3" class="reel-strip"></div>
+                </div>
+            </div>
+            <p id="slot-result" class="text-sm font-bold text-orange-500 mb-3 hidden">抽到 +3</p>
+            <p class="text-[11px] text-gray-400 mb-4">可能結果：30% 槓龜、+1~+6、水果加碼、低機率 x2/x3/x5</p>
+            <div class="flex gap-2">
+                <button id="slot-spin-btn" onclick="spinWorkSlot()" class="flex-1 btn-3d bg-yellow-400 text-slate-900 font-bold py-3 rounded-xl border-b-4 border-yellow-600">開始拉霸</button>
+                <button id="slot-claim-btn" onclick="claimWorkSlot()" class="flex-1 btn-3d bg-green-500 text-white font-bold py-3 rounded-xl border-b-4 border-green-700 hidden">領取獎勵</button>
+            </div>
         </div>
     </div>
 
@@ -1191,6 +1519,7 @@
         mood: 100,
         isSick: false,
         lastLoginTime: Date.now(),
+        treasureTickets: 0,
         inventory: [],
         materialInventory: [],
         synthUnlocked: [0],
@@ -1213,6 +1542,7 @@
 
     const shopItems = [
         { id: 'item-medicine', name: '萬能藥水', price: 50, icon: '💊', desc: '治癒生病與恢復健康' },
+        { id: 'item-treasure-ticket', name: '藏寶券', price: 5, icon: '🎟️', desc: '開啟/下一關需要', consumable: true },
         { id: 'decor-window', name: '風景窗戶', price: 20, icon: '🖼️', desc: '看看外面的世界', effectDesc: '心情提升・變慢餓肚子', effects: { moodGainPerTick: 0.4, satietyDecayMul: 0.9 } },
         { id: 'decor-rug', name: '彩虹地毯', price: 15, icon: '🌈', desc: '軟綿綿的觸感', effectDesc: '心情提升・更容易弄髒', effects: { moodGainPerTick: 0.5, cleanlinessDecayMul: 1.15 } },
         { id: 'decor-toy', name: '毛線球', price: 10, icon: '🧶', desc: '貓咪最愛玩具', effectDesc: '心情大提升・餓得更快', effects: { moodGainPerTick: 0.8, satietyDecayMul: 1.2 } },
@@ -1298,8 +1628,21 @@
     const CLEAN_POOP_RECOVER = 60;
     const CLEAN_POOP_MAX = 80;
     const BATH_CLEAN_COUNT = 10;
+    const BACKYARD_MAX_CATS = 6;
+    const BACKYARD_TICK_MS = 1000;
+    const BACKYARD_MOVE_MS = 1500;
+    const BACKYARD_KIBBLE_LIFE_MS = 4500;
+    const BACKYARD_POOP_CHANCE = 0.05;
+    const BACKYARD_POOP_SICK_MS = 15000;
+    const BACKYARD_CLEAN_RECOVER = 10;
     const CAT_SPEECH_COOLDOWN_MS = 12000;
     const VOICE_LONG_PRESS_MS = 550;
+    const TREASURE_TILE_SIZE = 36;
+    const TREASURE_COLS = 11;
+    const TREASURE_ROWS = 11;
+    const TREASURE_TARGETS = 3;
+    const TREASURE_WALL_DENSITY = 0.32;
+    const TREASURE_PULL_BASE = 45;
     const NEEDS_SPEECH_THRESHOLD = 10;
     const CAT_PERSONALITIES = [
         '傲嬌、愛命令主人、嘴硬心軟',
@@ -1389,6 +1732,25 @@
         "https://robohash.org/god_cat?set=set4&size=250x250"
     ];
 
+    const TREASURE_T = { FLOOR: 0, WALL: 1, BOX: 2, TARGET: 3, DONE: 4 };
+    const TREASURE_DEFAULT_THEME = {
+        name: "預設地城",
+        story: "貓咪要把寶箱推進藏寶點！",
+        bgColor: "#0f172a",
+        colors: {
+            floor: "#1f2937",
+            wall: "#475569",
+            done: "rgba(34, 197, 94, 0.35)"
+        },
+        chars: {
+            wall: "",
+            player: "🐈",
+            box: "📦",
+            target: "❌",
+            done: "🎁"
+        }
+    };
+
     function clampCatIndex(index) {
         if (!Number.isFinite(index)) return 0;
         return Math.max(0, Math.min(index, catSprites.length - 1));
@@ -1436,6 +1798,50 @@
     let voiceLongPressTriggered = false;
     let voiceUnsupportedNotice = false;
     let catVoice = null;
+    let treasureActive = false;
+    let treasureCanvas = null;
+    let treasureCtx = null;
+    let treasureTheme = { ...TREASURE_DEFAULT_THEME };
+    let treasureState = {
+        map: [],
+        player: { x: 1, y: 1 },
+        goals: 0,
+        done: 0,
+        history: [],
+        level: 0
+    };
+    let treasureKeybound = false;
+    let treasureSpinInProgress = false;
+    let treasureWheelRotation = 0;
+    let treasureAudioPrimed = false;
+    let backyardLoop = null;
+    let backyardCats = [];
+    let backyardItems = [];
+    let backyardPoops = [];
+    let backyardDirtySince = null;
+    let backyardSickFromPoop = false;
+    let backyardSickNotified = false;
+    const TREASURE_ROULETTE_VALUES = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 30];
+    let workSlotBaseReward = 0;
+    let workSlotFinalReward = 0;
+    let workSlotSpinning = false;
+    let workSlotEvent = null;
+    let workSlotReady = false;
+    const WORK_SLOT_SYMBOL_HEIGHT = 72;
+    const WORK_SLOT_OUTCOMES = [
+        { id: 'miss', type: 'miss', emoji: '🪨', label: '槓龜' },
+        { id: 'plus1', type: 'add', value: 1, emoji: '🍎', label: '+1' },
+        { id: 'plus2', type: 'add', value: 2, emoji: '🍌', label: '+2' },
+        { id: 'plus3', type: 'add', value: 3, emoji: '🍓', label: '+3' },
+        { id: 'plus4', type: 'add', value: 4, emoji: '🍊', label: '+4' },
+        { id: 'plus5', type: 'add', value: 5, emoji: '🍉', label: '+5' },
+        { id: 'plus6', type: 'add', value: 6, emoji: '🍇', label: '+6' },
+        { id: 'x2', type: 'mult', value: 2, emoji: '🪙', label: 'x2' },
+        { id: 'x3', type: 'mult', value: 3, emoji: '💰', label: 'x3' },
+        { id: 'x5', type: 'mult', value: 5, emoji: '💎', label: 'x5' }
+    ];
+    const WORK_SLOT_SYMBOLS = WORK_SLOT_OUTCOMES.map((outcome) => outcome.emoji);
+    const WORK_SLOT_STRIP_LENGTH = 18;
 
     function spawnParticles(x, y, emojis) {
         const count = 6;
@@ -1573,6 +1979,7 @@
         if (typeof gameState.cleanliness !== 'number') gameState.cleanliness = 100;
         if (typeof gameState.mood !== 'number') gameState.mood = 100;
         if (typeof gameState.isSick !== 'boolean') gameState.isSick = false;
+        if (typeof gameState.treasureTickets !== 'number') gameState.treasureTickets = 0;
         if (typeof gameState.lastLoginTime !== 'number') gameState.lastLoginTime = Date.now();
 
         calculateOfflineProgress();
@@ -1946,13 +2353,8 @@
         const currentExp = gameState.exp % EXP_PER_LEVEL;
         const pct = (currentExp / EXP_PER_LEVEL) * 100;
 
-        if (gameState.level > catSprites.length) {
-            if (uiExpText) uiExpText.innerText = "MAX";
-            if (uiExpBar) uiExpBar.style.width = "100%";
-        } else {
-            if (uiExpText) uiExpText.innerText = `${currentExp}/${EXP_PER_LEVEL}`;
-            if (uiExpBar) uiExpBar.style.width = `${pct}%`;
-        }
+        if (uiExpText) uiExpText.innerText = `${currentExp}/${EXP_PER_LEVEL}`;
+        if (uiExpBar) uiExpBar.style.width = `${pct}%`;
 
         const satBar = document.getElementById('ui-satiety-bar');
         const moodBar = document.getElementById('ui-mood-bar');
@@ -2004,6 +2406,8 @@
             if (gameState.synthHasNew) synthBadge.classList.remove('hidden');
             else synthBadge.classList.add('hidden');
         }
+
+        updateTreasureTicketUI();
 
         renderSynthStyle(gameState.synthCurrent);
         applyGeneState();
@@ -2351,7 +2755,28 @@
 
     function unlockAudioAndStart() {
         // 嘗試解鎖所有音效
-        const audios = ['bgm', 'sfx-correct', 'sfx-wrong', 'sfx-meow', 'sfx-levelup', 'sfx-chew', 'sfx-flip', 'sfx-angry', 'sfx-win', 'sfx-real-meow', 'sfx-boss-bgm', 'sfx-boss-hit', 'sfx-boss-heal', 'sfx-boss-appear'];
+        const audios = [
+            'bgm',
+            'sfx-correct',
+            'sfx-wrong',
+            'sfx-meow',
+            'sfx-levelup',
+            'sfx-chew',
+            'sfx-coin',
+            'sfx-clean',
+            'sfx-flip',
+            'sfx-angry',
+            'sfx-win',
+            'sfx-real-meow',
+            'sfx-boss-bgm',
+            'sfx-boss-hit',
+            'sfx-boss-heal',
+            'sfx-boss-appear',
+            'sfx-treasure-step',
+            'sfx-treasure-push',
+            'sfx-treasure-win',
+            'sfx-treasure-ding'
+        ];
         audios.forEach(id => {
             try {
                 const el = document.getElementById(id);
@@ -2535,7 +2960,8 @@
         list.innerHTML = '';
 
         shopItems.forEach((item) => {
-            const isOwned = gameState.inventory.includes(item.id);
+            const isConsumable = item.consumable === true;
+            const isOwned = !isConsumable && gameState.inventory.includes(item.id);
             const canAfford = gameState.food >= item.price;
             const row = document.createElement('div');
             row.className = `flex items-center justify-between p-3 rounded-xl border-2 ${isOwned ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-200'}`;
@@ -2550,6 +2976,7 @@
                     <div>
                         <h3 class="font-bold text-gray-800">${item.name}</h3>
                         <p class="text-xs text-gray-500">${item.desc}</p>
+                        ${item.id === 'item-treasure-ticket' ? `<p class="text-[10px] text-emerald-600">持有：${gameState.treasureTickets || 0} 張</p>` : ''}
                         ${item.effectDesc ? `<p class="text-[10px] text-indigo-500">${item.effectDesc}</p>` : ''}
                     </div>
                 </div>
@@ -2586,6 +3013,23 @@
             const x = rect ? rect.left + rect.width / 2 : window.innerWidth / 2;
             const y = rect ? rect.top : window.innerHeight / 2;
             spawnParticles(x, y, ['💊', '💖', '✨']);
+            return;
+        }
+        if (itemId === 'item-treasure-ticket') {
+            if (gameState.food < price) {
+                playSound('sfx-wrong');
+                return;
+            }
+            gameState.food -= price;
+            gameState.treasureTickets = (gameState.treasureTickets || 0) + 1;
+            saveGame();
+            renderShop();
+            updateRoomUI();
+            playSound('sfx-correct');
+            const rect = evt?.target?.getBoundingClientRect();
+            const x = rect ? rect.left + rect.width / 2 : window.innerWidth / 2;
+            const y = rect ? rect.top : window.innerHeight / 2;
+            spawnParticles(x, y, ['🎟️', '🥫', '✨']);
             return;
         }
 
@@ -3218,6 +3662,110 @@
     // --- 3. 學習系統 ---
     let studyQueue = [];
     let currentCardIndex = 0;
+    let writeCanvas = null;
+    let writeCtx = null;
+    let isDrawing = false;
+    let lastDrawX = 0;
+    let lastDrawY = 0;
+    let penIsBlack = true;
+    let canvasReady = false;
+
+    function initCanvas() {
+        const canvas = document.getElementById('write-canvas');
+        if (!canvas) return;
+        writeCanvas = canvas;
+        writeCtx = canvas.getContext('2d');
+        if (!writeCtx) return;
+        const size = 280;
+        const ratio = window.devicePixelRatio || 1;
+        canvas.style.width = `${size}px`;
+        canvas.style.height = `${size}px`;
+        canvas.width = size * ratio;
+        canvas.height = size * ratio;
+        writeCtx.setTransform(ratio, 0, 0, ratio, 0, 0);
+        writeCtx.lineWidth = 8;
+        writeCtx.lineJoin = 'round';
+        writeCtx.lineCap = 'round';
+        writeCtx.strokeStyle = penIsBlack ? '#111827' : '#ef4444';
+        if (!canvasReady) {
+            setupCanvasEvents(canvas);
+            canvasReady = true;
+        }
+    }
+
+    function setupCanvasEvents(canvas) {
+        const opts = { passive: false };
+        if (window.PointerEvent) {
+            canvas.addEventListener('pointerdown', startDraw, opts);
+            canvas.addEventListener('pointermove', drawLine, opts);
+            canvas.addEventListener('pointerup', stopDraw, opts);
+            canvas.addEventListener('pointerleave', stopDraw, opts);
+            canvas.addEventListener('pointercancel', stopDraw, opts);
+        } else {
+            canvas.addEventListener('touchstart', startDraw, opts);
+            canvas.addEventListener('touchmove', drawLine, opts);
+            canvas.addEventListener('touchend', stopDraw, opts);
+            canvas.addEventListener('touchcancel', stopDraw, opts);
+            canvas.addEventListener('mousedown', startDraw);
+            canvas.addEventListener('mousemove', drawLine);
+            canvas.addEventListener('mouseup', stopDraw);
+            canvas.addEventListener('mouseout', stopDraw);
+        }
+    }
+
+    function getCanvasPos(e) {
+        if (!writeCanvas) return { x: 0, y: 0 };
+        const rect = writeCanvas.getBoundingClientRect();
+        const point = e.touches?.[0] || e.changedTouches?.[0] || e;
+        return {
+            x: point.clientX - rect.left,
+            y: point.clientY - rect.top
+        };
+    }
+
+    function startDraw(e) {
+        if (!writeCtx) return;
+        e.preventDefault();
+        isDrawing = true;
+        const pos = getCanvasPos(e);
+        lastDrawX = pos.x;
+        lastDrawY = pos.y;
+    }
+
+    function drawLine(e) {
+        if (!isDrawing || !writeCtx) return;
+        e.preventDefault();
+        const pos = getCanvasPos(e);
+        writeCtx.beginPath();
+        writeCtx.moveTo(lastDrawX, lastDrawY);
+        writeCtx.lineTo(pos.x, pos.y);
+        writeCtx.stroke();
+        lastDrawX = pos.x;
+        lastDrawY = pos.y;
+    }
+
+    function stopDraw() {
+        isDrawing = false;
+    }
+
+    function clearCanvas() {
+        if (!writeCtx || !writeCanvas) return;
+        const ratio = window.devicePixelRatio || 1;
+        writeCtx.clearRect(0, 0, writeCanvas.width / ratio, writeCanvas.height / ratio);
+    }
+
+    function togglePenColor() {
+        penIsBlack = !penIsBlack;
+        if (writeCtx) {
+            writeCtx.strokeStyle = penIsBlack ? '#111827' : '#ef4444';
+        }
+        const btn = document.getElementById('pen-btn');
+        if (btn) {
+            btn.innerText = penIsBlack ? '筆色: 黑' : '筆色: 紅';
+            btn.classList.toggle('bg-black', penIsBlack);
+            btn.classList.toggle('bg-red-500', !penIsBlack);
+        }
+    }
     
     function openMenu() {
         document.getElementById('scene-menu').classList.remove('hidden');
@@ -3799,7 +4347,7 @@ ${userText ? '- 請針對主人說的話回應。' : ''}
             return;
         }
         closeChatInput();
-        requestCatChat(text, { speak: false });
+        requestCatChat(text);
     }
 
     function initSpeechRecognizer() {
@@ -3862,11 +4410,26 @@ ${userText ? '- 請針對主人說的話回應。' : ''}
         return !catSpeechInFlight && (Date.now() - lastCatSpeechAt >= CAT_SPEECH_COOLDOWN_MS);
     }
 
+    const DEFAULT_SPEECH_REASONS = new Set([
+        'answer-correct',
+        'answer-wrong',
+        'reward',
+        'status-change',
+        'pet',
+        'feed',
+        'clean',
+        'medicine',
+        'decay'
+    ]);
+
     async function requestCatSpeech(reason, context = {}) {
         if (!canTriggerSpeech()) return;
         catSpeechInFlight = true;
 
-        let text = await askGeminiCat(reason, context);
+        let text = null;
+        if (!DEFAULT_SPEECH_REASONS.has(reason)) {
+            text = await askGeminiCat(reason, context);
+        }
         if (!text) {
             text = pickRandom(CAT_SPEECH_LIST);
         }
@@ -3977,7 +4540,7 @@ ${userText ? '- 請針對主人說的話回應。' : ''}
             rewardType.innerText = "罐頭";
             rewardExpInfo.classList.add('hidden');
             countSpan.dataset.isGolden = "false";
-            bossPending = true;
+            bossPending = Math.random() < 0.1;
         }
 
         countSpan.innerText = reward;
@@ -3989,17 +4552,11 @@ ${userText ? '- 請針對主人說的話回應。' : ''}
 
     // 領取獎勵並回首頁
     function collectReward(e) {
+        const countSpan = document.getElementById('reward-count');
+        const amount = parseInt(countSpan.innerText, 10);
+        const isGolden = countSpan.dataset.isGolden === "true";
+
         try {
-            const countSpan = document.getElementById('reward-count');
-            const amount = parseInt(countSpan.innerText, 10);
-            const isGolden = countSpan.dataset.isGolden === "true";
-
-            if (isGolden) {
-                gameState.food += amount;
-            } else {
-                gameState.food += amount;
-            }
-
             if (pendingMaterialDrop) {
                 gameState.materialInventory.push(pendingMaterialDrop.id);
                 gameState.synthHasNew = true;
@@ -4018,14 +4575,208 @@ ${userText ? '- 請針對主人說的話回應。' : ''}
             saveGame();
         } catch(e) { console.error("Save error"); }
 
+        const rewardScene = document.getElementById('scene-reward');
+        rewardScene.classList.add('hidden');
+        rewardScene.style.display = 'none';
+
+        const shouldSlot = !isGolden && !bossPending;
+        if (shouldSlot) {
+            openWorkSlot(amount, e);
+            return;
+        }
+
+        applyWorkReward(amount, e);
+    }
+
+    function openWorkSlot(baseReward, e) {
+        workSlotBaseReward = baseReward;
+        workSlotFinalReward = 0;
+        workSlotEvent = e;
+        workSlotSpinning = false;
+
+        const scene = document.getElementById('scene-slot');
+        if (scene) scene.classList.remove('hidden');
+        initWorkSlotMachine();
+        const baseEl = document.getElementById('slot-base-reward');
+        if (baseEl) baseEl.innerText = baseReward;
+        const resultEl = document.getElementById('slot-result');
+        if (resultEl) {
+            resultEl.classList.add('hidden');
+            resultEl.innerText = '';
+        }
+        const spinBtn = document.getElementById('slot-spin-btn');
+        const claimBtn = document.getElementById('slot-claim-btn');
+        if (spinBtn) spinBtn.classList.remove('hidden');
+        if (claimBtn) claimBtn.classList.add('hidden');
+    }
+
+    function initWorkSlotMachine() {
+        if (workSlotReady) return;
+        for (let i = 1; i <= 3; i += 1) {
+            const reel = document.getElementById(`slot-reel-${i}`);
+            if (!reel) continue;
+            let html = '';
+            for (let r = 0; r < WORK_SLOT_STRIP_LENGTH; r += 1) {
+                WORK_SLOT_SYMBOLS.forEach((symbol) => {
+                    html += `<div class="slot-symbol">${symbol}</div>`;
+                });
+            }
+            reel.innerHTML = html;
+            resetWorkReel(reel);
+        }
+        workSlotReady = true;
+    }
+
+    function resetWorkReel(reel) {
+        reel.style.transition = 'none';
+        reel.style.transform = 'translateY(0px)';
+        void reel.offsetHeight;
+    }
+
+    function spinWorkSlot() {
+        if (workSlotSpinning) return;
+        workSlotSpinning = true;
+
+        const reels = [
+            document.getElementById('slot-reel-1'),
+            document.getElementById('slot-reel-2'),
+            document.getElementById('slot-reel-3')
+        ];
+
+        const result = pickWorkSlotResult();
+        workSlotFinalReward = result.reward;
+
+        const spinTasks = reels.map((reel, idx) => spinWorkReel(reel, result.indexes[idx], idx));
+
+        Promise.all(spinTasks).then(() => {
+            const resultEl = document.getElementById('slot-result');
+            if (resultEl) {
+                resultEl.innerText = result.message;
+                resultEl.classList.remove('hidden');
+            }
+            const spinBtn = document.getElementById('slot-spin-btn');
+            const claimBtn = document.getElementById('slot-claim-btn');
+            if (spinBtn) spinBtn.classList.add('hidden');
+            if (claimBtn) claimBtn.classList.remove('hidden');
+            workSlotSpinning = false;
+        });
+    }
+
+    function pickWorkSlotOutcome() {
+        const roll = Math.random();
+        const missChance = 0.30;
+        const x5Chance = 0.02;
+        const x3Chance = 0.04;
+        const x2Chance = 0.08;
+        const plusOutcomes = WORK_SLOT_OUTCOMES.filter((outcome) => outcome.type === 'add');
+
+        if (roll < missChance) return WORK_SLOT_OUTCOMES.find((o) => o.id === 'miss');
+        if (roll < missChance + x5Chance) return WORK_SLOT_OUTCOMES.find((o) => o.id === 'x5');
+        if (roll < missChance + x5Chance + x3Chance) return WORK_SLOT_OUTCOMES.find((o) => o.id === 'x3');
+        if (roll < missChance + x5Chance + x3Chance + x2Chance) return WORK_SLOT_OUTCOMES.find((o) => o.id === 'x2');
+
+        const idx = Math.floor(Math.random() * plusOutcomes.length);
+        return plusOutcomes[idx];
+    }
+
+    function spinWorkReel(reel, targetIndex, reelIndex) {
+        return new Promise((resolve) => {
+            if (!reel) {
+                resolve();
+                return;
+            }
+            resetWorkReel(reel);
+            const delay = 180 * reelIndex;
+            setTimeout(() => {
+                const rounds = WORK_SLOT_SYMBOLS.length * (WORK_SLOT_STRIP_LENGTH - 3);
+                const safeIndex = Math.max(0, Math.min(WORK_SLOT_SYMBOLS.length - 1, targetIndex));
+                const targetPosition = (rounds + safeIndex) * WORK_SLOT_SYMBOL_HEIGHT;
+                const duration = 1.8 + reelIndex * 0.45;
+                reel.style.transition = `transform ${duration}s cubic-bezier(0.25, 0.1, 0.25, 1)`;
+                reel.style.transform = `translateY(-${targetPosition}px)`;
+                reel.classList.add('is-spinning');
+                setTimeout(() => {
+                    reel.classList.remove('is-spinning');
+                    resolve();
+                }, duration * 1000);
+            }, delay);
+        });
+    }
+
+    function pickWorkSlotResult() {
+        const roll = Math.random();
+        const missChance = 0.30;
+        const x5Chance = 0.02;
+        const x3Chance = 0.04;
+        const x2Chance = 0.08;
+        const plusOutcomes = WORK_SLOT_OUTCOMES.filter((outcome) => outcome.type === 'add');
+        const missOutcome = WORK_SLOT_OUTCOMES.find((outcome) => outcome.type === 'miss');
+        const x5Outcome = WORK_SLOT_OUTCOMES.find((outcome) => outcome.id === 'x5');
+        const x3Outcome = WORK_SLOT_OUTCOMES.find((outcome) => outcome.id === 'x3');
+        const x2Outcome = WORK_SLOT_OUTCOMES.find((outcome) => outcome.id === 'x2');
+
+        if (roll < missChance) {
+            let indexes = [
+                randInt(0, WORK_SLOT_SYMBOLS.length - 1),
+                randInt(0, WORK_SLOT_SYMBOLS.length - 1),
+                randInt(0, WORK_SLOT_SYMBOLS.length - 1)
+            ];
+            while (indexes[0] === indexes[1] && indexes[1] === indexes[2]) {
+                indexes[2] = randInt(0, WORK_SLOT_SYMBOLS.length - 1);
+            }
+            const reward = workSlotBaseReward;
+            return {
+                win: false,
+                outcome: missOutcome,
+                indexes,
+                reward,
+                message: `槓龜 ${missOutcome?.emoji || ''}，總共 ${reward} 罐頭！`
+            };
+        }
+
+        const winRoll = roll - missChance;
+        const winTotal = 1 - missChance;
+        const thresholdX5 = x5Chance / winTotal;
+        const thresholdX3 = thresholdX5 + x3Chance / winTotal;
+        const thresholdX2 = thresholdX3 + x2Chance / winTotal;
+        const normalized = winRoll / winTotal;
+
+        let outcome = null;
+        if (normalized < thresholdX5) outcome = x5Outcome;
+        else if (normalized < thresholdX3) outcome = x3Outcome;
+        else if (normalized < thresholdX2) outcome = x2Outcome;
+        else outcome = plusOutcomes[randInt(0, plusOutcomes.length - 1)];
+
+        let reward = workSlotBaseReward;
+        if (outcome?.type === 'add') reward = workSlotBaseReward + outcome.value;
+        if (outcome?.type === 'mult') reward = workSlotBaseReward * outcome.value;
+        const index = WORK_SLOT_OUTCOMES.findIndex((item) => item.id === outcome.id);
+        return {
+            win: true,
+            outcome,
+            indexes: [index, index, index],
+            reward,
+            message: `抽到 ${outcome.emoji} ${outcome.label}，總共 ${reward} 罐頭！`
+        };
+    }
+
+    function claimWorkSlot() {
+        const scene = document.getElementById('scene-slot');
+        if (scene) scene.classList.add('hidden');
+        const reward = workSlotFinalReward || workSlotBaseReward;
+        applyWorkReward(reward, workSlotEvent);
+    }
+
+    function applyWorkReward(amount, e) {
+        try {
+            gameState.food += amount;
+            saveGame();
+        } catch(e) {}
+
         const rect = e?.target?.getBoundingClientRect();
         const x = rect ? rect.left + rect.width / 2 : window.innerWidth / 2;
         const y = rect ? rect.top : window.innerHeight / 2;
         spawnParticles(x, y, ['💰', '🎉', '✨']);
-
-        const rewardScene = document.getElementById('scene-reward');
-        rewardScene.classList.add('hidden');
-        rewardScene.style.display = 'none'; 
 
         if (bossPending) {
             bossPending = false;
@@ -4039,12 +4790,850 @@ ${userText ? '- 請針對主人說的話回應。' : ''}
         stopBossBgm();
         resumeRoomBgm();
         window.speechSynthesis.cancel();
-        const rewardCountEl = document.getElementById('reward-count');
-        requestCatSpeech('reward', {
-            amount: Number(rewardCountEl?.innerText || 0),
-            isGolden: rewardCountEl?.dataset?.isGolden === "true"
-        });
+        requestCatSpeech('reward', { amount, isGolden: false });
         startCatWalk();
+    }
+
+    // --- 貓咪屋模式 ---
+    function openBackyard() {
+        const scene = document.getElementById('scene-backyard');
+        const room = document.getElementById('scene-room');
+        if (!scene || !room) return;
+
+        room.classList.add('hidden');
+        scene.classList.remove('hidden');
+
+        const stage = document.getElementById('backyard-stage');
+        if (stage) stage.innerHTML = '';
+        backyardCats = [];
+        backyardItems = [];
+        backyardPoops = [];
+        backyardDirtySince = null;
+        backyardSickFromPoop = false;
+        backyardSickNotified = false;
+
+        initBackyardCats();
+        updateBackyardUI();
+
+        if (backyardLoop) clearInterval(backyardLoop);
+        backyardLoop = setInterval(updateBackyardState, BACKYARD_TICK_MS);
+        playSound('sfx-flip');
+    }
+
+    function closeBackyard() {
+        const scene = document.getElementById('scene-backyard');
+        const room = document.getElementById('scene-room');
+        if (!scene || !room) return;
+        scene.classList.add('hidden');
+        room.classList.remove('hidden');
+
+        if (backyardLoop) {
+            clearInterval(backyardLoop);
+            backyardLoop = null;
+        }
+
+        const stage = document.getElementById('backyard-stage');
+        if (stage) stage.innerHTML = '';
+        backyardCats = [];
+        backyardItems = [];
+        backyardPoops = [];
+        backyardDirtySince = null;
+        backyardSickNotified = false;
+
+        updateRoomUI();
+    }
+
+    function updateBackyardUI() {
+        const count = document.getElementById('backyard-food-count');
+        if (count) count.innerText = gameState.food;
+    }
+
+    function initBackyardCats() {
+        const stage = document.getElementById('backyard-stage');
+        if (!stage) return;
+        stage.innerHTML = '';
+        backyardCats = [];
+
+        const pool = Array.isArray(gameState.unlockedCats) ? shuffle(gameState.unlockedCats) : [0];
+        const maxCats = Math.max(1, Math.min(BACKYARD_MAX_CATS, pool.length || 1));
+        const catsToShow = pool.slice(0, maxCats);
+
+        catsToShow.forEach((catIndex) => {
+            const el = document.createElement('img');
+            el.src = catSprites[catIndex];
+            el.className = 'backyard-cat-entity';
+
+            const x = randInt(10, 85);
+            const y = randInt(20, 75);
+            el.style.left = `${x}%`;
+            el.style.top = `${y}%`;
+            el.style.setProperty('--flip', Math.random() > 0.5 ? 1 : -1);
+
+            stage.appendChild(el);
+            backyardCats.push({
+                el,
+                x,
+                y,
+                state: 'idle',
+                busyUntil: 0
+            });
+        });
+    }
+
+    function dropKibble(e) {
+        const stage = document.getElementById('backyard-stage');
+        if (!stage) return;
+        if (e.target && e.target !== stage && e.target.closest('.backyard-item')) return;
+
+        if (gameState.food < 1) {
+            playSound('sfx-wrong');
+            alert('罐頭不足！');
+            return;
+        }
+
+        gameState.food -= 1;
+        saveGame();
+        updateBackyardUI();
+        updateRoomUI();
+
+        const rect = stage.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+
+        const kibble = document.createElement('div');
+        kibble.className = 'kibble';
+        kibble.innerText = '🍖';
+        kibble.style.left = `${x - 10}px`;
+        kibble.style.top = `${y - 10}px`;
+        const id = `${Date.now()}-${Math.random()}`;
+        kibble.dataset.id = id;
+        stage.appendChild(kibble);
+
+        const xPct = (x / rect.width) * 100;
+        const yPct = (y / rect.height) * 100;
+        const landY = Math.min(85, yPct + 25);
+
+        backyardItems.push({
+            id,
+            el: kibble,
+            x: Math.max(6, Math.min(94, xPct)),
+            y: Math.max(12, Math.min(86, landY)),
+            active: true,
+            claimed: false
+        });
+
+        setTimeout(() => {
+            const item = backyardItems.find((entry) => entry.id === id);
+            if (item) item.active = false;
+            if (kibble.parentNode) kibble.remove();
+        }, BACKYARD_KIBBLE_LIFE_MS);
+
+        playSound('sfx-flip');
+    }
+
+    function updateBackyardState() {
+        if (!backyardCats.length) return;
+        const now = Date.now();
+        updateBackyardDirtyStatus(now);
+        backyardItems = backyardItems.filter((item) => item.active);
+
+        backyardCats.forEach((cat) => {
+            if (cat.busyUntil && now < cat.busyUntil) return;
+
+            const food = backyardItems.find((item) => item.active && !item.claimed);
+            if (food) {
+                food.claimed = true;
+                backyardMoveCat(cat, food.x, food.y - 4);
+                cat.state = 'eating';
+                cat.busyUntil = now + BACKYARD_MOVE_MS;
+
+                setTimeout(() => {
+                    if (!food.active) return;
+                    food.active = false;
+                    if (food.el && food.el.parentNode) food.el.remove();
+
+                    cat.el.classList.add('eating');
+                    setTimeout(() => cat.el.classList.remove('eating'), 500);
+
+                    if (!backyardSickFromPoop) {
+                        spawnBackyardReward(cat.x, cat.y);
+                    }
+                    playSound('sfx-chew');
+                }, Math.max(300, BACKYARD_MOVE_MS - 200));
+                return;
+            }
+
+            cat.state = 'idle';
+            if (Math.random() < 0.35) {
+                const nx = Math.max(5, Math.min(92, cat.x + randInt(-20, 20)));
+                const ny = Math.max(14, Math.min(84, cat.y + randInt(-12, 12)));
+                backyardMoveCat(cat, nx, ny);
+                cat.busyUntil = now + BACKYARD_MOVE_MS;
+            }
+
+            if (Math.random() < BACKYARD_POOP_CHANCE) {
+                spawnBackyardPoop(cat.x, cat.y);
+            }
+        });
+    }
+
+    function backyardMoveCat(cat, x, y) {
+        const dir = x >= cat.x ? 1 : -1;
+        cat.x = x;
+        cat.y = y;
+        cat.el.style.left = `${x}%`;
+        cat.el.style.top = `${y}%`;
+        cat.el.style.setProperty('--flip', dir);
+    }
+
+    function updateBackyardDirtyStatus(now = Date.now()) {
+        if (backyardPoops.length > 0) {
+            if (!backyardDirtySince) backyardDirtySince = now;
+            if (!backyardSickFromPoop && now - backyardDirtySince >= BACKYARD_POOP_SICK_MS) {
+                backyardSickFromPoop = true;
+                gameState.isSick = true;
+                saveGame();
+                updateRoomUI();
+                if (!backyardSickNotified) {
+                    backyardSickNotified = true;
+                    alert('太髒了...貓咪生病了，清理便便才會有獎勵！');
+                }
+            }
+        } else {
+            backyardDirtySince = null;
+            backyardSickNotified = false;
+            if (backyardSickFromPoop) {
+                backyardSickFromPoop = false;
+                if (gameState.satiety >= 10 && gameState.cleanliness >= 20) {
+                    gameState.isSick = false;
+                }
+                saveGame();
+                updateRoomUI();
+            }
+        }
+    }
+
+    function spawnBackyardReward(x, y) {
+        const stage = document.getElementById('backyard-stage');
+        if (!stage) return;
+        const el = document.createElement('div');
+        el.className = 'backyard-item';
+
+        const roll = Math.random();
+        if (roll < 0.15) {
+            const material = synthMaterials[randInt(0, synthMaterials.length - 1)];
+            el.innerText = '💎';
+            el.dataset.type = 'material';
+            el.dataset.materialId = material?.id || '';
+            el.dataset.materialIcon = material?.icon || '💎';
+        } else if (roll < 0.3) {
+            el.innerText = '💰';
+            el.dataset.type = 'food';
+            el.dataset.amount = '5';
+        } else {
+            el.innerText = '🪙';
+            el.dataset.type = 'food';
+            el.dataset.amount = '2';
+        }
+
+        el.style.left = `${x}%`;
+        el.style.top = `${y + 6}%`;
+        el.addEventListener('click', (evt) => {
+            evt.stopPropagation();
+            collectBackyardItem(el);
+        });
+
+        stage.appendChild(el);
+        setTimeout(() => {
+            if (el.parentNode) el.remove();
+        }, 10000);
+    }
+
+    function spawnBackyardPoop(x, y) {
+        const stage = document.getElementById('backyard-stage');
+        if (!stage) return;
+        if (backyardPoops.length >= 6) return;
+
+        const el = document.createElement('div');
+        el.className = 'backyard-item poop';
+        el.innerText = '💩';
+        el.dataset.type = 'poop';
+        el.dataset.id = `${Date.now()}-${Math.random()}`;
+        el.style.left = `${x}%`;
+        el.style.top = `${y + 6}%`;
+        el.addEventListener('click', (evt) => {
+            evt.stopPropagation();
+            collectBackyardItem(el);
+        });
+
+        stage.appendChild(el);
+        backyardPoops.push({ id: el.dataset.id, el });
+        applyNeedsDecay(0, POOP_CLEAN_PENALTY, 0);
+    }
+
+    function collectBackyardItem(el) {
+        if (!el || el.classList.contains('collected')) return;
+        el.classList.add('collected');
+
+        const type = el.dataset.type;
+        if (type === 'poop') {
+            backyardPoops = backyardPoops.filter((item) => item.id !== el.dataset.id);
+            if (gameState.cleanliness < CLEAN_POOP_MAX) {
+                gameState.cleanliness = Math.min(CLEAN_POOP_MAX, gameState.cleanliness + BACKYARD_CLEAN_RECOVER);
+            }
+            saveGame();
+            updateRoomUI();
+            updateBackyardDirtyStatus();
+            playSound('sfx-clean');
+        } else if (type === 'food') {
+            const amount = parseInt(el.dataset.amount || '0', 10);
+            gameState.food += amount;
+            saveGame();
+            updateBackyardUI();
+            updateRoomUI();
+            playSound('sfx-coin');
+            const rect = el.getBoundingClientRect();
+            spawnParticles(rect.left + rect.width / 2, rect.top + rect.height / 2, ['🥫', '✨', '💛']);
+        } else if (type === 'material') {
+            const materialId = el.dataset.materialId;
+            if (materialId) gameState.materialInventory.push(materialId);
+            saveGame();
+            updateRoomUI();
+            playSound('sfx-levelup');
+            const rect = el.getBoundingClientRect();
+            const icon = el.dataset.materialIcon || '💎';
+            spawnParticles(rect.left + rect.width / 2, rect.top + rect.height / 2, [icon, '✨', '💎']);
+        }
+
+        el.style.transition = 'all 0.4s ease';
+        el.style.transform = 'translateY(-30px) scale(1.4)';
+        el.style.opacity = '0';
+        setTimeout(() => {
+            if (el.parentNode) el.remove();
+        }, 400);
+    }
+
+    // --- 藏寶小遊戲 ---
+    function openTreasureGame() {
+        const scene = document.getElementById('scene-treasure');
+        if (!scene) return;
+        if (treasureState.level === 0 && (gameState.treasureTickets || 0) <= 0) {
+            playSound('sfx-wrong');
+            alert('需要藏寶券才能開啟藏寶模式！\n請到商店用 5 罐頭兌換一張。');
+            return;
+        }
+        scene.classList.remove('hidden');
+        treasureActive = true;
+        primeTreasureAudio();
+        initTreasureGame();
+        updateTreasureTicketUI();
+        if (treasureState.level === 0) {
+            treasureGenerateLevel();
+        }
+    }
+
+    function closeTreasureGame() {
+        const scene = document.getElementById('scene-treasure');
+        if (!scene) return;
+        scene.classList.add('hidden');
+        treasureActive = false;
+    }
+
+    function initTreasureGame() {
+        if (!treasureCanvas) {
+            treasureCanvas = document.getElementById('treasure-canvas');
+            if (!treasureCanvas) return;
+            treasureCtx = treasureCanvas.getContext('2d');
+            const size = TREASURE_TILE_SIZE * TREASURE_COLS;
+            treasureCanvas.width = size;
+            treasureCanvas.height = size;
+            treasureCanvas.style.width = `${size}px`;
+            treasureCanvas.style.height = `${size}px`;
+        }
+        initTreasureWheel();
+        if (!treasureKeybound) {
+            window.addEventListener('keydown', (e) => {
+                if (!treasureActive) return;
+                const key = e.key;
+                if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'z', 'Z', 'Backspace'].includes(key)) {
+                    e.preventDefault();
+                }
+                if (key === 'ArrowUp') treasureHandleInput(0, -1);
+                if (key === 'ArrowDown') treasureHandleInput(0, 1);
+                if (key === 'ArrowLeft') treasureHandleInput(-1, 0);
+                if (key === 'ArrowRight') treasureHandleInput(1, 0);
+                if (key === 'z' || key === 'Z' || key === 'Backspace') treasureUndoMove();
+            });
+            treasureKeybound = true;
+        }
+    }
+
+    function initTreasureWheel() {
+        const labels = document.getElementById('treasure-wheel-labels');
+        if (!labels || labels.dataset.ready === 'true') return;
+        labels.innerHTML = '';
+        const count = TREASURE_ROULETTE_VALUES.length;
+        const angleStep = 360 / count;
+        const radius = 86;
+        TREASURE_ROULETTE_VALUES.forEach((value, index) => {
+            const angle = angleStep * index + angleStep / 2;
+            const span = document.createElement('span');
+            span.innerText = value === 30 ? '30' : String(value);
+            span.style.transform = `rotate(${angle}deg) translate(${radius}px, -50%) rotate(${90}deg)`;
+            labels.appendChild(span);
+        });
+        labels.dataset.ready = 'true';
+    }
+
+    function primeTreasureAudio() {
+        if (treasureAudioPrimed) return;
+        const ids = ['sfx-treasure-step', 'sfx-treasure-push', 'sfx-treasure-win', 'sfx-treasure-ding'];
+        ids.forEach((id) => {
+            try {
+                const el = document.getElementById(id);
+                if (!el) return;
+                el.muted = true;
+                el.load();
+                const playPromise = el.play();
+                if (playPromise !== undefined) {
+                    playPromise.then(() => {
+                        el.pause();
+                        el.currentTime = 0;
+                        el.muted = false;
+                    }).catch(() => {
+                        el.muted = false;
+                    });
+                } else {
+                    el.muted = false;
+                }
+            } catch (e) {}
+        });
+        treasureAudioPrimed = true;
+    }
+
+    function treasureGenerateLevel() {
+        const actionLabel = treasureState.level === 0 ? '開啟' : '下一關';
+        if (!consumeTreasureTicket(actionLabel)) {
+            treasureShowLoading(false);
+            return;
+        }
+        treasureShowLoading(true);
+        treasureSetAiStatus('演算法正在鋪路...');
+        treasureState.level += 1;
+        treasureState.history = [];
+        treasureState.done = 0;
+        treasureResetWinUI();
+        const win = document.getElementById('treasure-win');
+        if (win) win.classList.add('hidden');
+
+        const map = Array(TREASURE_ROWS).fill(0).map((_, y) =>
+            Array(TREASURE_COLS).fill(0).map((__, x) =>
+                (x === 0 || y === 0 || x === TREASURE_COLS - 1 || y === TREASURE_ROWS - 1)
+                    ? TREASURE_T.WALL
+                    : (Math.random() < TREASURE_WALL_DENSITY ? TREASURE_T.WALL : TREASURE_T.FLOOR)
+            )
+        );
+
+        const targets = [];
+        while (targets.length < TREASURE_TARGETS) {
+            const tx = treasureRandInt(2, TREASURE_COLS - 3);
+            const ty = treasureRandInt(2, TREASURE_ROWS - 3);
+            if (map[ty][tx] === TREASURE_T.FLOOR) {
+                map[ty][tx] = TREASURE_T.TARGET;
+                targets.push({ x: tx, y: ty });
+            }
+        }
+
+        const boxes = targets.map((t) => ({ ...t }));
+        let ghost = treasurePickFloor(map);
+        const pullSteps = TREASURE_PULL_BASE + (treasureState.level * 5);
+        const dirs = [[0, 1], [0, -1], [1, 0], [-1, 0]];
+
+        for (let i = 0; i < pullSteps; i += 1) {
+            const idx = treasureRandInt(0, boxes.length - 1);
+            const box = boxes[idx];
+            const dir = dirs[treasureRandInt(0, dirs.length - 1)];
+            const pullX = box.x + dir[0];
+            const pullY = box.y + dir[1];
+            const ghostX = box.x + dir[0] * 2;
+            const ghostY = box.y + dir[1] * 2;
+
+            if (treasureIsOut(ghostX, ghostY)) continue;
+            if (pullX <= 0 || pullX >= TREASURE_COLS - 1 || pullY <= 0 || pullY >= TREASURE_ROWS - 1) {
+                continue;
+            }
+            if (ghostX <= 0 || ghostX >= TREASURE_COLS - 1 || ghostY <= 0 || ghostY >= TREASURE_ROWS - 1) {
+                continue;
+            }
+            if (map[pullY][pullX] === TREASURE_T.WALL) map[pullY][pullX] = TREASURE_T.FLOOR;
+            if (map[ghostY][ghostX] === TREASURE_T.WALL) map[ghostY][ghostX] = TREASURE_T.FLOOR;
+
+            const stacked = boxes.some((b, bIdx) => bIdx !== idx && b.x === pullX && b.y === pullY);
+            if (stacked) continue;
+
+            box.x = pullX;
+            box.y = pullY;
+            ghost = { x: ghostX, y: ghostY };
+        }
+
+        for (let y = 0; y < TREASURE_ROWS; y += 1) {
+            for (let x = 0; x < TREASURE_COLS; x += 1) {
+                if (map[y][x] !== TREASURE_T.WALL) map[y][x] = TREASURE_T.FLOOR;
+            }
+        }
+
+        targets.forEach((t) => {
+            map[t.y][t.x] = TREASURE_T.TARGET;
+        });
+        boxes.forEach((b) => {
+            map[b.y][b.x] = (map[b.y][b.x] === TREASURE_T.TARGET) ? TREASURE_T.DONE : TREASURE_T.BOX;
+        });
+
+        treasureState.map = map;
+        treasureState.player = ghost;
+        treasureState.goals = targets.length;
+        treasureTheme = { ...TREASURE_DEFAULT_THEME };
+        treasureApplyTheme(treasureTheme);
+        treasureUpdateUI();
+        treasureDraw();
+
+        const key = localStorage.getItem('user_gemini_key');
+        if (!key) {
+            treasureSetAiStatus('使用預設主題');
+            setTimeout(() => treasureShowLoading(false), 300);
+            return;
+        }
+
+        treasureSetAiStatus('我看看要藏什麼好...');
+        fetchTreasureTheme(key).then((theme) => {
+            if (theme) {
+                treasureTheme = theme;
+                treasureApplyTheme(treasureTheme);
+            }
+            treasureDraw();
+            treasureShowLoading(false);
+        });
+    }
+
+    function treasureHandleInput(dx, dy) {
+        if (!treasureActive) return;
+        const win = document.getElementById('treasure-win');
+        if (win && !win.classList.contains('hidden')) return;
+
+        const { x, y } = treasureState.player;
+        const nx = x + dx;
+        const ny = y + dy;
+        if (treasureIsOut(nx, ny)) return;
+
+        const tile = treasureState.map[ny][nx];
+        if (tile === TREASURE_T.WALL) return;
+
+        if (tile === TREASURE_T.FLOOR || tile === TREASURE_T.TARGET) {
+            treasureMovePlayer(dx, dy);
+            treasurePlaySfx('sfx-treasure-step');
+        } else if (tile === TREASURE_T.BOX || tile === TREASURE_T.DONE) {
+            const nnx = nx + dx;
+            const nny = ny + dy;
+            if (treasureIsOut(nnx, nny)) return;
+            const nextTile = treasureState.map[nny][nnx];
+            if (nextTile === TREASURE_T.FLOOR || nextTile === TREASURE_T.TARGET) {
+                treasurePushBox(nx, ny, nnx, nny);
+                treasureMovePlayer(dx, dy);
+                treasurePlaySfx('sfx-treasure-push');
+            }
+        }
+
+        treasureCheckWin();
+        treasureDraw();
+    }
+
+    function treasureMovePlayer(dx, dy) {
+        treasureState.history.push({
+            map: treasureState.map.map((row) => [...row]),
+            player: { ...treasureState.player }
+        });
+        if (treasureState.history.length > 50) treasureState.history.shift();
+        treasureState.player.x += dx;
+        treasureState.player.y += dy;
+    }
+
+    function treasurePushBox(fromX, fromY, toX, toY) {
+        const placingOnTarget = treasureState.map[toY][toX] === TREASURE_T.TARGET;
+        treasureState.map[fromY][fromX] = (treasureState.map[fromY][fromX] === TREASURE_T.DONE)
+            ? TREASURE_T.TARGET
+            : TREASURE_T.FLOOR;
+        treasureState.map[toY][toX] = (treasureState.map[toY][toX] === TREASURE_T.TARGET)
+            ? TREASURE_T.DONE
+            : TREASURE_T.BOX;
+        if (placingOnTarget) {
+            playSound('sfx-coin');
+        }
+    }
+
+    function treasureUndoMove() {
+        if (treasureState.history.length === 0) return;
+        const prev = treasureState.history.pop();
+        treasureState.map = prev.map.map((row) => [...row]);
+        treasureState.player = { ...prev.player };
+        treasureDraw();
+        treasureCheckWin();
+    }
+
+    function treasureCheckWin() {
+        let done = 0;
+        for (let y = 0; y < TREASURE_ROWS; y += 1) {
+            for (let x = 0; x < TREASURE_COLS; x += 1) {
+                if (treasureState.map[y][x] === TREASURE_T.DONE) done += 1;
+            }
+        }
+        treasureState.done = done;
+        treasureUpdateUI();
+        if (done === treasureState.goals && done > 0) {
+            const win = document.getElementById('treasure-win');
+            if (win && win.classList.contains('hidden')) {
+                openTreasureWin();
+            }
+        }
+    }
+
+    function treasureDraw() {
+        if (!treasureCtx || !treasureCanvas) return;
+        treasureCtx.fillStyle = treasureTheme.bgColor || TREASURE_DEFAULT_THEME.bgColor;
+        treasureCtx.fillRect(0, 0, treasureCanvas.width, treasureCanvas.height);
+
+        for (let y = 0; y < TREASURE_ROWS; y += 1) {
+            for (let x = 0; x < TREASURE_COLS; x += 1) {
+                const tile = treasureState.map[y][x];
+                const px = x * TREASURE_TILE_SIZE;
+                const py = y * TREASURE_TILE_SIZE;
+                const floorColor = treasureTheme.colors?.floor || TREASURE_DEFAULT_THEME.colors.floor;
+                const wallColor = treasureTheme.colors?.wall || TREASURE_DEFAULT_THEME.colors.wall;
+                const doneColor = treasureTheme.colors?.done || TREASURE_DEFAULT_THEME.colors.done;
+
+                treasureCtx.fillStyle = tile === TREASURE_T.WALL ? wallColor : floorColor;
+                treasureCtx.fillRect(px, py, TREASURE_TILE_SIZE, TREASURE_TILE_SIZE);
+                if (tile === TREASURE_T.WALL) {
+                    treasureCtx.fillStyle = 'rgba(255, 255, 255, 0.12)';
+                    treasureCtx.fillRect(px, py, TREASURE_TILE_SIZE, 4);
+                }
+
+                let emoji = '';
+                if (tile === TREASURE_T.TARGET) emoji = treasureTheme.chars?.target || TREASURE_DEFAULT_THEME.chars.target;
+                if (tile === TREASURE_T.BOX) emoji = treasureTheme.chars?.box || TREASURE_DEFAULT_THEME.chars.box;
+                if (tile === TREASURE_T.DONE) {
+                    treasureCtx.fillStyle = doneColor;
+                    treasureCtx.fillRect(px, py, TREASURE_TILE_SIZE, TREASURE_TILE_SIZE);
+                    emoji = treasureTheme.chars?.done || TREASURE_DEFAULT_THEME.chars.done;
+                }
+                if (tile === TREASURE_T.WALL && treasureTheme.chars?.wall) {
+                    emoji = treasureTheme.chars.wall;
+                }
+
+                if (emoji) {
+                    treasureCtx.globalAlpha = 1;
+                    treasureCtx.shadowColor = 'rgba(0, 0, 0, 0.35)';
+                    treasureCtx.shadowBlur = 6;
+                    const objectFont = Math.round(TREASURE_TILE_SIZE * 0.75);
+                    treasureCtx.font = `${objectFont}px "Apple Color Emoji", "Noto Color Emoji", "Segoe UI Emoji", sans-serif`;
+                    treasureCtx.textAlign = 'center';
+                    treasureCtx.textBaseline = 'middle';
+                    treasureCtx.fillText(emoji, px + TREASURE_TILE_SIZE / 2, py + TREASURE_TILE_SIZE / 2 + 2);
+                    treasureCtx.shadowColor = 'transparent';
+                    treasureCtx.shadowBlur = 0;
+                }
+            }
+        }
+
+        const playerEmoji = TREASURE_DEFAULT_THEME.chars.player;
+        const playerCenterX = treasureState.player.x * TREASURE_TILE_SIZE + TREASURE_TILE_SIZE / 2;
+        const playerCenterY = treasureState.player.y * TREASURE_TILE_SIZE + TREASURE_TILE_SIZE / 2 + 2;
+        treasureCtx.globalAlpha = 1;
+        treasureCtx.globalCompositeOperation = 'source-over';
+        treasureCtx.fillStyle = '#ffffff';
+        treasureCtx.beginPath();
+        treasureCtx.arc(playerCenterX, playerCenterY - 1, TREASURE_TILE_SIZE * 0.45, 0, Math.PI * 2);
+        treasureCtx.fill();
+        treasureCtx.shadowColor = 'rgba(0, 0, 0, 0.7)';
+        treasureCtx.shadowBlur = 6;
+        const playerFont = Math.round(TREASURE_TILE_SIZE * 0.9);
+        treasureCtx.font = `${playerFont}px "Apple Color Emoji", "Noto Color Emoji", "Segoe UI Emoji", sans-serif`;
+        treasureCtx.textAlign = 'center';
+        treasureCtx.textBaseline = 'middle';
+        treasureCtx.fillText(playerEmoji, playerCenterX, playerCenterY);
+        treasureCtx.shadowColor = 'transparent';
+        treasureCtx.shadowBlur = 0;
+    }
+
+    function treasureUpdateUI() {
+        const level = document.getElementById('treasure-level');
+        if (level) level.innerText = treasureState.level;
+        const score = document.getElementById('treasure-score');
+        if (score) score.innerText = `${treasureState.done}/${treasureState.goals}`;
+        const progress = document.getElementById('treasure-progress');
+        if (progress) {
+            const pct = treasureState.goals > 0 ? (treasureState.done / treasureState.goals) * 100 : 0;
+            progress.style.width = `${pct}%`;
+        }
+        updateTreasureTicketUI();
+    }
+
+    function treasureApplyTheme(theme) {
+        const title = document.getElementById('treasure-title');
+        const story = document.getElementById('treasure-story');
+        if (title) title.innerText = theme?.name || TREASURE_DEFAULT_THEME.name;
+        if (story) story.innerText = theme?.story || TREASURE_DEFAULT_THEME.story;
+        const backdrop = document.getElementById('treasure-backdrop');
+        if (backdrop && theme?.bgColor) {
+            backdrop.style.backgroundColor = theme.bgColor;
+        }
+    }
+
+    function updateTreasureTicketUI() {
+        const el = document.getElementById('treasure-ticket-count');
+        if (!el) return;
+        el.innerText = gameState.treasureTickets || 0;
+    }
+
+    function consumeTreasureTicket(actionLabel) {
+        const current = gameState.treasureTickets || 0;
+        if (current <= 0) {
+            playSound('sfx-wrong');
+            alert(`需要藏寶券才能${actionLabel}！\n請到商店用 5 罐頭兌換一張。`);
+            return false;
+        }
+        gameState.treasureTickets = current - 1;
+        saveGame();
+        updateRoomUI();
+        updateTreasureTicketUI();
+        return true;
+    }
+
+    function treasureResetWinUI() {
+        const reward = document.getElementById('treasure-win-reward');
+        const spinBtn = document.getElementById('treasure-spin-btn');
+        const nextBtn = document.getElementById('treasure-next-btn');
+        const wheel = document.getElementById('treasure-wheel');
+        if (reward) reward.classList.add('hidden');
+        if (spinBtn) spinBtn.classList.remove('hidden');
+        if (nextBtn) nextBtn.classList.add('hidden');
+        if (wheel) wheel.style.transform = 'rotate(0deg)';
+        treasureWheelRotation = 0;
+        treasureSpinInProgress = false;
+    }
+
+    function openTreasureWin() {
+        const win = document.getElementById('treasure-win');
+        if (win) win.classList.remove('hidden');
+        treasureResetWinUI();
+        treasurePlaySfx('sfx-treasure-win', 'sfx-win');
+    }
+
+    function spinTreasureRoulette() {
+        if (treasureSpinInProgress) return;
+        treasureSpinInProgress = true;
+        const spinBtn = document.getElementById('treasure-spin-btn');
+        const nextBtn = document.getElementById('treasure-next-btn');
+        const rewardEl = document.getElementById('treasure-win-reward');
+        const wheel = document.getElementById('treasure-wheel');
+        if (!wheel) return;
+        if (spinBtn) spinBtn.classList.add('hidden');
+
+        const baseReward = 3;
+        const hitSpecial = Math.random() < 0.03;
+        const extraReward = hitSpecial ? 30 : treasureRandInt(0, 10);
+        const reward = baseReward + extraReward;
+        const targetIndex = TREASURE_ROULETTE_VALUES.indexOf(extraReward);
+        const segment = 360 / TREASURE_ROULETTE_VALUES.length;
+        const baseAngle = 360 - (targetIndex * segment + segment / 2);
+        const extraSpins = 360 * (3 + treasureRandInt(0, 2));
+        treasureWheelRotation = treasureWheelRotation + extraSpins + baseAngle;
+        wheel.style.transform = `rotate(${treasureWheelRotation}deg)`;
+
+        setTimeout(() => {
+            gameState.food += reward;
+            saveGame();
+            updateRoomUI();
+            if (rewardEl) {
+                rewardEl.innerText = `獲得 ${baseReward}+${extraReward} 罐頭！`;
+                rewardEl.classList.remove('hidden');
+            }
+            if (nextBtn) nextBtn.classList.remove('hidden');
+            treasureSpinInProgress = false;
+        }, 3200);
+    }
+
+    async function fetchTreasureTheme(key) {
+        const seeds = ['科幻', '魔法', '美食', '海底', '動物', '森林', '台灣夜市', '太空', '童話'];
+        const seed = seeds[Math.floor(Math.random() * seeds.length)];
+        const prompt = `
+Design a theme for a Sokoban puzzle game level.
+Seed keyword: "${seed}".
+Return JSON only:
+{
+  "name": "Level title (max 6 words)",
+  "story": "A short, cute story (max 20 words, Chinese)",
+  "bgColor": "#HexColor",
+  "colors": { "floor": "#Hex", "wall": "#Hex", "done": "rgba(...)" },
+  "chars": { "wall": "", "player": "🐈", "box": "📦", "target": "❌", "done": "🎁" }
+}`;
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${key}`;
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: [{ parts: [{ text: prompt }] }]
+                })
+            });
+            const data = await response.json();
+            if (data.error) return null;
+            const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+            const cleaned = rawText.replace(/```json|```/g, '').trim();
+            const parsed = JSON.parse(cleaned);
+            parsed.chars = { ...TREASURE_DEFAULT_THEME.chars, ...parsed.chars, player: TREASURE_DEFAULT_THEME.chars.player };
+            return parsed;
+        } catch (error) {
+            return null;
+        }
+    }
+
+    function treasureShowLoading(show) {
+        const mask = document.getElementById('treasure-mask');
+        if (!mask) return;
+        mask.classList.toggle('hidden', !show);
+    }
+
+    function treasureSetAiStatus(text) {
+        const el = document.getElementById('treasure-ai-status');
+        if (el) el.innerText = text;
+    }
+
+    function treasurePlaySfx(id, fallbackId) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.currentTime = 0;
+        const promise = el.play();
+        if (promise !== undefined) {
+            promise.catch(() => {
+                if (fallbackId) playSound(fallbackId);
+            });
+        }
+    }
+
+    function treasureIsOut(x, y) {
+        return x < 0 || x >= TREASURE_COLS || y < 0 || y >= TREASURE_ROWS;
+    }
+
+    function treasurePickFloor(map) {
+        while (true) {
+            const x = treasureRandInt(1, TREASURE_COLS - 2);
+            const y = treasureRandInt(1, TREASURE_ROWS - 2);
+            if (map[y][x] === TREASURE_T.FLOOR) return { x, y };
+        }
+    }
+
+    function treasureRandInt(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 
     function loadCard() {
@@ -4072,6 +5661,15 @@ ${userText ? '- 請針對主人說的話回應。' : ''}
             studyScene.classList.toggle('area-mode', isArea);
             studyScene.classList.toggle('clock-mode', isClock);
             studyScene.classList.toggle('math-mode', isMath && !isStory && !isArea);
+        }
+        const writingArea = document.getElementById('writing-area');
+        const shouldShowWriting = !isMath && !isStory && !isArea;
+        if (writingArea) {
+            writingArea.classList.toggle('hidden', !shouldShowWriting);
+            if (shouldShowWriting) {
+                initCanvas();
+                clearCanvas();
+            }
         }
         const questionText = isMath ? word.q : isStory ? "情境題" : isArea ? "面積題" : word.z;
         const answerText = isMath || isStory || isArea ? word.a : word.c;
