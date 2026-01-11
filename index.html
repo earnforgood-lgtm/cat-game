@@ -21,6 +21,8 @@
             --secondary: #FFBF69;
             --bg-color: #CBF3F0;
             --text: #2EC4B6;
+            --app-height: 100dvh;
+            --app-width: 100vw;
         }
 
         html,
@@ -34,8 +36,8 @@
             touch-action: none;
             -webkit-tap-highlight-color: transparent;
             user-select: none;
-            height: 100dvh;
-            width: 100%;
+            height: var(--app-height);
+            width: var(--app-width);
             position: fixed;
             margin: 0;
             overscroll-behavior: none;
@@ -870,9 +872,10 @@
             .bg-white\/90, .bg-white\/80 {
                 background: rgba(255, 255, 255, 0.95) !important;
             }
-            body {
-                transform: translateZ(0);
-                will-change: transform;
+            html, body {
+                position: relative;
+                height: var(--app-height);
+                width: var(--app-width);
             }
         }
     </style>
@@ -6271,6 +6274,14 @@ Return JSON only:
         refresh();
     }
 
+    function syncViewportSize() {
+        const vv = window.visualViewport;
+        const width = vv ? vv.width : window.innerWidth;
+        const height = vv ? vv.height : window.innerHeight;
+        document.documentElement.style.setProperty('--app-width', `${Math.round(width)}px`);
+        document.documentElement.style.setProperty('--app-height', `${Math.round(height)}px`);
+    }
+
     function speakCat(text) {
         if (!text || !synth) return;
         try {
@@ -6330,12 +6341,14 @@ Return JSON only:
     }
 
     // 確保 DOM 載入後才執行，避免找不到元素錯誤
-        document.addEventListener('DOMContentLoaded', () => {
-            loadGame();
-            setRandomBgm(false);
-            spawnRoomAtmosphere();
-            setupVoiceChatButton();
-            initCatVoice();
+    document.addEventListener('DOMContentLoaded', () => {
+        syncViewportSize();
+        loadGame();
+        setRandomBgm(false);
+        spawnRoomAtmosphere();
+        setupVoiceChatButton();
+        initCatVoice();
+
         const savedKey = localStorage.getItem('user_gemini_key');
         if (savedKey) {
             setAiStatus('AI：驗證中...', null);
@@ -6346,6 +6359,7 @@ Return JSON only:
         } else {
             setAiStatus('AI：尚未設定', null);
         }
+
         const bgm = document.getElementById('bgm');
         if (bgm) {
             bgm.addEventListener('ended', () => setRandomBgm(true));
@@ -6360,8 +6374,15 @@ Return JSON only:
                 }
             });
         }
+
         document.addEventListener('visibilitychange', handleVisibilityChange);
         window.addEventListener('resize', updateBackyardStageRect);
+        window.addEventListener('resize', syncViewportSize);
+        window.addEventListener('orientationchange', syncViewportSize);
+        if (window.visualViewport) {
+            window.visualViewport.addEventListener('resize', syncViewportSize);
+            window.visualViewport.addEventListener('scroll', syncViewportSize);
+        }
         window.addEventListener('pagehide', () => {
             const bgmEl = document.getElementById('bgm');
             if (bgmEl) bgmEl.pause();
