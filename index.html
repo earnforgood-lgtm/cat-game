@@ -40,6 +40,11 @@
             margin: 0;
             overscroll-behavior: none;
         }
+        *, *::before, *::after {
+            user-select: none;
+            -webkit-user-select: none;
+            -ms-user-select: none;
+        }
         .allow-scroll {
             touch-action: pan-y;
             overscroll-behavior: contain;
@@ -921,7 +926,7 @@
             100% { transform: translate(-50%, -30px) scale(0.9); opacity: 0; }
         }
         .combo-flare {
-            position: fixed;
+            position: absolute;
             inset: 0;
             background:
                 radial-gradient(circle at 20% 10%, rgba(251, 146, 60, 0.45), transparent 55%),
@@ -932,7 +937,7 @@
             background-size: 200% 200%;
             opacity: 0;
             pointer-events: none;
-            z-index: 30;
+            z-index: 0;
             transition: opacity 0.4s ease;
             mix-blend-mode: screen;
         }
@@ -1011,7 +1016,7 @@
             isolation: isolate;
         }
         #combo-flare {
-            z-index: 1;
+            z-index: 0;
         }
         #combo-flare,
         #combo-flare::before,
@@ -1019,11 +1024,9 @@
         #scene-study.combo-fever::before {
             pointer-events: none !important;
         }
-        #study-controls,
-        .study-card-wrap,
-        #writing-area {
+        #scene-study > * {
             position: relative;
-            z-index: 5;
+            z-index: 2;
         }
         #scene-study.combo-fever .combo-fill {
             background: linear-gradient(90deg, #f97316, #fb7185);
