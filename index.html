@@ -1158,6 +1158,16 @@
             <button onclick="checkForUpdate()" class="w-full btn-3d bg-slate-100 text-slate-600 text-sm font-bold py-2 rounded-xl border-b-4 border-slate-200 active:border-slate-100 mb-3">
                 🔄 檢查更新
             </button>
+            <div class="w-full text-left mb-3">
+                <div class="text-xs text-gray-500 mb-1">邀請碼兌換</div>
+                <div class="flex gap-2">
+                    <input type="text" id="invite-code" placeholder="輸入邀請碼" class="flex-1 p-2 border-2 border-gray-200 rounded-lg text-sm focus:border-orange-400 focus:outline-none">
+                    <button onclick="redeemInviteCode()" class="btn-3d px-3 py-2 bg-orange-400 text-white rounded-lg font-bold border-b-4 border-orange-600 text-sm">
+                        兌換
+                    </button>
+                </div>
+                <p id="invite-status" class="text-[11px] text-gray-400 mt-1"></p>
+            </div>
             <button onclick="openKeySettings()" class="text-gray-400 text-xs underline hover:text-orange-500 transition">
                 🔑 設定 AI 金鑰 (讓貓咪變聰明)
             </button>
@@ -4700,6 +4710,40 @@
         const el = document.getElementById('api-key-status');
         if (!el) return;
         el.innerText = text;
+    }
+
+    function setInviteStatus(text, ok) {
+        const el = document.getElementById('invite-status');
+        if (!el) return;
+        el.innerText = text;
+        if (ok === true) el.className = 'text-[11px] text-green-600 mt-1';
+        else if (ok === false) el.className = 'text-[11px] text-red-500 mt-1';
+        else el.className = 'text-[11px] text-gray-400 mt-1';
+    }
+
+    function redeemInviteCode() {
+        playClickSfx();
+        const input = document.getElementById('invite-code');
+        if (!input) return;
+        const code = input.value.trim();
+        if (!code) {
+            setInviteStatus('請先輸入邀請碼。', false);
+            return;
+        }
+        if (code !== '1070612') {
+            setInviteStatus('邀請碼錯誤。', false);
+            return;
+        }
+        if (localStorage.getItem('invite_1070612_redeemed') === '1') {
+            setInviteStatus('這組邀請碼已兌換過。', false);
+            return;
+        }
+        gameState.food = (gameState.food || 0) + 50;
+        localStorage.setItem('invite_1070612_redeemed', '1');
+        saveGame();
+        updateRoomUI();
+        setInviteStatus('兌換成功！已獲得 50 罐頭。', true);
+        input.value = '';
     }
 
     async function checkForUpdate() {
