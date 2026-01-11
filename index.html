@@ -1004,7 +1004,26 @@
                         radial-gradient(circle at 90% 90%, rgba(255, 100, 40, 0.25), transparent 70%);
             mix-blend-mode: screen;
             pointer-events: none;
+            z-index: 0;
             animation: combo-ground-glow 2.4s ease-in-out infinite;
+        }
+        #scene-study {
+            isolation: isolate;
+        }
+        #combo-flare {
+            z-index: 1;
+        }
+        #combo-flare,
+        #combo-flare::before,
+        #combo-flare::after,
+        #scene-study.combo-fever::before {
+            pointer-events: none !important;
+        }
+        #study-controls,
+        .study-card-wrap,
+        #writing-area {
+            position: relative;
+            z-index: 5;
         }
         #scene-study.combo-fever .combo-fill {
             background: linear-gradient(90deg, #f97316, #fb7185);
