@@ -2,7 +2,7 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>🐱 貓咪小學堂 </title>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#FF9F1C">
@@ -23,6 +23,7 @@
             --text: #2EC4B6;
         }
 
+        html,
         body {
             font-family: 'Zen Maru Gothic', 'Noto Sans TC', sans-serif;
             background-color: var(--bg-color);
@@ -30,10 +31,18 @@
             background-position: 0 0, 50px 50px;
             background-size: 100px 100px;
             overflow: hidden; /* 防止捲動 */
-            touch-action: manipulation;
+            touch-action: none;
             -webkit-tap-highlight-color: transparent;
             user-select: none;
             height: 100dvh;
+            width: 100%;
+            position: fixed;
+            margin: 0;
+            overscroll-behavior: none;
+        }
+        .allow-scroll {
+            touch-action: pan-y;
+            overscroll-behavior: contain;
         }
 
         /* 3D 按鈕效果 */
@@ -82,9 +91,14 @@
         .cat-angry { animation: shake 0.5s; }
         .cat-walk {
             position: relative;
-            left: 0;
-            transition: left 2.4s ease-in-out;
-            will-change: left;
+            --cat-x: 0px;
+            --cat-scale: 1;
+            transform: translate3d(var(--cat-x), 0, 0) scale(var(--cat-scale));
+            transition: transform 2.4s ease-in-out;
+            will-change: transform;
+        }
+        .cat-walk:active {
+            --cat-scale: 0.95;
         }
         .cat-float {
             position: relative;
@@ -128,6 +142,7 @@
             font-size: 2rem;
             z-index: 50;
             animation: emoji-pop 0.8s ease-out forwards;
+            will-change: transform, opacity;
         }
 
         /* Majic 小裝飾 */
@@ -246,6 +261,13 @@
             padding: 0.6rem;
             box-shadow: 0 16px 30px rgba(15, 23, 42, 0.25);
         }
+        #scene-backyard {
+            background-color: #dff6ff;
+            background-image: url('icons/out-2.png'), url('icons/out-1.png');
+            background-position: center bottom, center top;
+            background-size: cover, cover;
+            background-repeat: no-repeat, no-repeat;
+        }
         .treasure-dpad-btn {
             background: #f8fafc;
             border: 2px solid #cbd5e1;
@@ -362,13 +384,18 @@
             position: absolute;
             width: 64px;
             height: 64px;
-            transform: scaleX(var(--flip, 1));
-            transition: transform 2s linear, left 2s linear, top 2s linear;
+            left: 0;
+            top: 0;
+            --bx: 0px;
+            --by: 0px;
+            transform: translate3d(var(--bx), var(--by), 0) scaleX(var(--flip, 1));
+            transition: transform 2s linear;
             z-index: 10;
             pointer-events: none;
+            will-change: transform;
         }
         .backyard-cat-entity.eating {
-            transform: scaleX(var(--flip, 1)) scale(1.15) !important;
+            transform: translate3d(var(--bx), var(--by), 0) scaleX(var(--flip, 1)) scale(1.15) !important;
             filter: brightness(1.15);
             transition: transform 0.2s;
         }
@@ -822,6 +849,11 @@
     <audio id="sfx-chew" preload="auto" src="sound/chew.mp3"></audio>
     <audio id="sfx-coin" preload="auto" src="sound/coin.mp3"></audio>
     <audio id="sfx-clean" preload="auto" src="sound/clean.mp3"></audio>
+    <audio id="sfx-diamond" preload="auto" src="sound/diamond.mp3"></audio>
+    <audio id="sfx-pop" preload="auto" src="sound/pop.mp3"></audio>
+    <audio id="sfx-spin" preload="auto" src="sound/spin.mp3"></audio>
+    <audio id="sfx-don" preload="auto" src="sound/don-1.mp3"></audio>
+    <audio id="sfx-don-2" preload="auto" src="sound/don-2.mp3"></audio>
     <audio id="sfx-flip" preload="auto" src="https://assets.mixkit.co/sfx/download/mixkit-paper-slide-1530.wav"></audio>
     <audio id="sfx-win" preload="auto" src="sound/winner-game.mp3"></audio>
     <audio id="sfx-treasure-step" preload="auto" src="https://assets.mixkit.co/sfx/download/mixkit-player-jumping-in-a-video-game-2043.wav"></audio>
@@ -980,7 +1012,7 @@
 
         <!-- 貓咪互動區 -->
         <div id="cat-zone" class="flex-1 flex flex-col items-center justify-center relative min-h-0 z-10">
-            <div id="cat-container" class="relative cursor-pointer cat-walk active:scale-95 transition-transform duration-100" onclick="petCat(event)">
+            <div id="cat-container" class="relative cursor-pointer cat-walk" onclick="petCat(event)">
                 <div id="cat-float" class="cat-float cat-anim">
                     <div id="cat-body" class="cat-body">
                         <img id="cat-image" src="https://robohash.org/egg?set=set4&size=250x250" class="w-64 h-64 max-h-[40vh] object-contain drop-shadow-2xl" alt="Cat">
@@ -1053,7 +1085,7 @@
             <h2 class="text-2xl font-black text-center mb-4 text-gray-700 flex items-center justify-center gap-2 shrink-0">
                 <span>📚</span> 選擇課程
             </h2>
-            <div class="grid grid-cols-2 gap-3 overflow-y-auto p-1 flex-1" id="lesson-list">
+            <div class="grid grid-cols-2 gap-3 overflow-y-auto p-1 flex-1 allow-scroll" id="lesson-list">
                 <!-- JS 生成按鈕 -->
             </div>
             <button onclick="closeMenu()" class="mt-4 w-full py-3 bg-gray-400 hover:bg-gray-500 text-white rounded-xl font-bold btn-3d border-b-4 border-gray-600 shrink-0">返回房間</button>
@@ -1071,7 +1103,7 @@
                     🥫 <span id="shop-food-display">0</span>
                 </div>
             </div>
-            <div class="overflow-y-auto flex-1 p-1 space-y-3" id="shop-list">
+            <div class="overflow-y-auto flex-1 p-1 space-y-3 allow-scroll" id="shop-list">
                 <!-- JS 生成商品 -->
             </div>
             <button onclick="closeShop()" class="mt-4 w-full py-3 bg-gray-400 hover:bg-gray-500 text-white rounded-xl font-bold btn-3d border-b-4 border-gray-600 shrink-0">離開商店</button>
@@ -1088,7 +1120,7 @@
                 <button onclick="switchSynthesisTab('synth-tab-gene')" id="btn-synth-tab-gene" class="flex-1 py-2 rounded-md font-bold text-sm text-gray-400 hover:bg-white/50 transition">🪄 Majic工坊</button>
             </div>
 
-            <div id="synth-tab-craft" class="flex-1 min-h-0 flex flex-col overflow-y-auto pr-1">
+            <div id="synth-tab-craft" class="flex-1 min-h-0 flex flex-col overflow-y-auto pr-1 allow-scroll">
                 <div class="flex items-center justify-center gap-3 mb-3 bg-indigo-50 p-3 rounded-xl">
                     <div class="relative w-20 h-20 rounded-2xl bg-white border border-indigo-200 flex items-center justify-center text-3xl">
                         🐱
@@ -1106,11 +1138,11 @@
                 </div>
             </div>
 
-            <div id="synth-tab-collection" class="hidden flex-1 min-h-0 overflow-y-auto grid grid-cols-2 gap-3 p-1 content-start pr-1">
+            <div id="synth-tab-collection" class="hidden flex-1 min-h-0 overflow-y-auto grid grid-cols-2 gap-3 p-1 content-start pr-1 allow-scroll">
                 <!-- JS 生成收藏 -->
             </div>
 
-            <div id="synth-tab-gene" class="hidden flex-1 min-h-0 flex flex-col overflow-y-auto pr-1">
+            <div id="synth-tab-gene" class="hidden flex-1 min-h-0 flex flex-col overflow-y-auto pr-1 allow-scroll">
                 <div class="rounded-3xl bg-gradient-to-br from-slate-900 via-indigo-900 to-slate-950 text-white p-4 border border-white/10 shadow-[0_20px_60px_rgba(15,23,42,0.45)] mb-4">
                     <div class="flex items-start justify-between gap-3">
                         <div>
@@ -1218,7 +1250,7 @@
                     收集進度: <span id="catbook-progress">0/0</span>
                 </div>
             </div>
-            <div id="catbook-list" class="flex-1 min-h-0 overflow-y-auto grid grid-cols-3 gap-3 p-4 content-start bg-gray-50"></div>
+            <div id="catbook-list" class="flex-1 min-h-0 overflow-y-auto grid grid-cols-3 gap-3 p-4 content-start bg-gray-50 allow-scroll"></div>
             <div class="p-4 border-t-2 border-gray-100 bg-white">
                 <button onclick="closeCatBook()" class="w-full py-3 bg-gray-400 hover:bg-gray-500 text-white rounded-xl font-bold btn-3d border-b-4 border-gray-600 transition">關閉圖鑑</button>
             </div>
@@ -1226,7 +1258,7 @@
     </div>
 
     <!-- 藏寶小遊戲 -->
-    <div id="scene-treasure" class="hidden fixed inset-0 z-50 flex flex-col items-center justify-start p-4 pt-6 pb-6 text-white overflow-y-auto">
+    <div id="scene-treasure" class="hidden fixed inset-0 z-50 flex flex-col items-center justify-start p-4 pt-6 pb-6 text-white overflow-y-auto allow-scroll">
         <div id="treasure-backdrop" class="absolute inset-0 bg-slate-900/95 pointer-events-none"></div>
         <div class="treasure-scanline"></div>
         <div class="relative w-full max-w-md flex items-center justify-between mb-3 gap-2">
@@ -1310,30 +1342,41 @@
     </div>
 
     <!-- 貓咪後院 -->
-    <div id="scene-backyard" class="hidden fixed inset-0 z-50 bg-[#e0f7fa] overflow-hidden cursor-crosshair">
-        <div class="absolute bottom-0 w-full h-1/3 bg-[#a5d6a7] border-t-4 border-[#81c784]"></div>
-        <div class="absolute top-10 left-10 text-6xl opacity-20">🏡</div>
-        <div class="absolute top-20 right-20 text-4xl opacity-20">☁️</div>
-
-        <div class="absolute top-4 left-4 z-50 flex gap-3">
-            <button onclick="closeBackyard()" class="btn-3d px-4 py-2 bg-gray-500 text-white rounded-xl font-bold border-b-4 border-gray-700">
-                🚪 返回房間
-            </button>
-            <div class="bg-white/90 px-4 py-2 rounded-xl border-2 border-orange-200 flex items-center gap-2 font-bold text-orange-600">
-                <span>🥫 庫存:</span>
-                <span id="backyard-food-count">0</span>
+    <div id="scene-backyard" class="hidden fixed inset-0 z-50 overflow-hidden cursor-crosshair">
+        <div class="absolute top-4 left-4 z-50 flex flex-col gap-2">
+            <div class="flex flex-wrap gap-2 items-center">
+                <button onclick="closeBackyard()" class="btn-3d px-4 py-2 bg-gray-500 text-white rounded-xl font-bold border-b-4 border-gray-700">
+                    🚪 返回房間
+                </button>
+                <div class="bg-white/90 px-3 py-2 rounded-xl border-2 border-orange-200 flex items-center gap-2 font-bold text-orange-600">
+                    <span>🎟️ 飼料券:</span>
+                    <span id="backyard-ticket-count">0</span>
+                </div>
+                <div class="bg-white/90 px-3 py-2 rounded-xl border-2 border-orange-200 flex items-center gap-2 font-bold text-orange-600">
+                    <span>🥫 罐頭:</span>
+                    <span id="backyard-food-count">0</span>
+                </div>
+            </div>
+            <div class="bg-white/80 px-3 py-2 rounded-xl border border-orange-100 text-xs font-bold text-orange-700 shadow-sm w-[260px]">
+                <div class="flex justify-between mb-1">
+                    <span id="backyard-progress-text">餵飽進度 0/0</span>
+                    <span>滿就掉錢</span>
+                </div>
+                <div class="h-2 bg-orange-100 rounded-full overflow-hidden">
+                    <div id="backyard-progress-bar" class="h-full bg-orange-400 transition-all duration-300" style="width: 0%"></div>
+                </div>
             </div>
         </div>
 
         <div class="absolute bottom-4 left-1/2 -translate-x-1/2 z-50 text-gray-500 text-sm font-bold bg-white/60 px-4 py-1 rounded-full pointer-events-none">
-            👆 點擊空白處餵食 (消耗1) • 點擊金幣/便便回收
+            👆 點擊空白處餵食 (消耗飼料券) • 滿條才會掉錢
         </div>
 
         <div id="backyard-stage" class="absolute inset-0 w-full h-full" onclick="dropKibble(event)"></div>
     </div>
 
     <!-- 3. 戰鬥畫面 -->
-    <div id="scene-study" class="hidden fixed inset-0 bg-[#FFF3E0] z-40 flex flex-col items-center justify-start p-4 pt-5 pb-8 overflow-y-auto">
+    <div id="scene-study" class="hidden fixed inset-0 bg-[#FFF3E0] z-40 flex flex-col items-center justify-start p-4 pt-5 pb-8 overflow-y-auto allow-scroll">
         <div class="w-full max-w-md flex justify-between items-center mb-4 px-2">
             <div class="text-gray-500 font-bold">第 <span id="q-idx">1</span> 題</div>
             <button onclick="quitStudy()" class="text-gray-400 hover:text-red-500 font-bold px-3 py-1 rounded-lg hover:bg-red-50 transition">逃跑 🏳️</button>
@@ -1341,11 +1384,11 @@
         <div class="w-full max-w-md h-3 bg-gray-200 rounded-full mb-8 shadow-inner overflow-hidden">
             <div id="study-progress" class="h-full bg-blue-500 rounded-full transition-all duration-300" style="width: 0%"></div>
         </div>
-        <div id="study-speech" class="hidden mb-4 max-w-md w-full flex items-center gap-2">
-            <div class="w-10 h-10 rounded-full border-2 border-white shadow-md bg-white/80 flex items-center justify-center overflow-hidden">
+        <div id="study-speech" class="hidden fixed bottom-4 right-4 z-40 flex items-end gap-2">
+            <div class="w-10 h-10 rounded-full border-2 border-white shadow-md bg-white/90 flex items-center justify-center overflow-hidden">
                 <img id="study-cat-avatar" src="https://robohash.org/egg?set=set4&size=80x80" alt="Cat" class="w-full h-full object-cover">
             </div>
-            <div id="study-speech-text" class="flex-1 bg-white/80 text-gray-700 text-sm font-bold px-4 py-2 rounded-full shadow-sm border border-blue-100 text-center"></div>
+            <div id="study-speech-text" class="max-w-[60vw] bg-white/90 text-gray-700 text-sm font-bold px-3 py-2 rounded-2xl shadow-sm border border-blue-100"></div>
         </div>
         <div class="study-card-wrap perspective-1000 w-full max-w-xs h-96 cursor-pointer mb-8 relative group" onclick="flipCard()">
             <div id="tap-hint" class="absolute -right-4 top-1/2 z-10 animate-bounce bg-white/80 p-2 rounded-full shadow-lg pointer-events-none">👆</div>
@@ -1407,7 +1450,7 @@
 
         <div class="w-full max-w-md bg-white rounded-2xl p-4 shadow-2xl mt-4 border-4 border-red-500 relative">
             <div class="text-center">
-                <p class="text-gray-500 text-sm mb-1">請寫出這個字攻擊牠！</p>
+                <p class="text-gray-500 text-sm mb-1">請寫出這個字，喵～</p>
                 <h2 id="boss-q-zhuyin" class="text-6xl font-black text-gray-800 my-2"></h2>
                 <p id="boss-q-word" class="text-xl text-blue-600 font-bold"></p>
             </div>
@@ -1554,6 +1597,7 @@
         synthUnlocked: [0],
         synthCurrent: 0,
         synthHasNew: false,
+        backyardTickets: 0,
         unlockedCats: [0],
         currentCatIndex: 0,
         geneEyes: '🤩',
@@ -1664,6 +1708,8 @@
     const BACKYARD_POOP_CHANCE = 0.05;
     const BACKYARD_POOP_SICK_MS = 15000;
     const BACKYARD_CLEAN_RECOVER = 10;
+    const BACKYARD_DIAMOND_FOOD = 10;
+    const BACKYARD_MEAL_GOAL = 5;
     const CAT_SPEECH_COOLDOWN_MS = 12000;
     const VOICE_LONG_PRESS_MS = 550;
     const TREASURE_TILE_SIZE = 36;
@@ -1844,12 +1890,18 @@
     let treasureWheelRotation = 0;
     let treasureAudioPrimed = false;
     let backyardLoop = null;
+    let backyardLastTick = 0;
+    let backyardStageRect = null;
     let backyardCats = [];
     let backyardItems = [];
     let backyardPoops = [];
     let backyardDirtySince = null;
     let backyardSickFromPoop = false;
     let backyardSickNotified = false;
+    let backyardMealProgress = 0;
+    let backyardMealGoal = BACKYARD_MEAL_GOAL;
+    let backyardRewarded = false;
+    const particlePool = [];
     const TREASURE_ROULETTE_VALUES = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 30];
     let workSlotBaseReward = 0;
     let workSlotFinalReward = 0;
@@ -1875,9 +1927,16 @@
     function spawnParticles(x, y, emojis) {
         const count = 6;
         for (let i = 0; i < count; i += 1) {
-            const el = document.createElement('div');
+            const el = particlePool.pop() || (() => {
+                const node = document.createElement('div');
+                node.className = 'emoji-particle';
+                node.addEventListener('animationend', () => {
+                    if (node.parentNode) node.parentNode.removeChild(node);
+                    particlePool.push(node);
+                });
+                return node;
+            })();
             el.innerText = emojis[Math.floor(Math.random() * emojis.length)];
-            el.className = 'emoji-particle';
             el.style.left = `${x}px`;
             el.style.top = `${y}px`;
 
@@ -1891,8 +1950,10 @@
             el.style.setProperty('--ty', `${ty}px`);
             el.style.setProperty('--rot', `${rot}deg`);
 
+            el.style.animation = 'none';
+            void el.offsetHeight;
+            el.style.animation = '';
             document.body.appendChild(el);
-            setTimeout(() => el.remove(), 900);
         }
     }
 
@@ -2009,6 +2070,7 @@
         if (typeof gameState.mood !== 'number') gameState.mood = 100;
         if (typeof gameState.isSick !== 'boolean') gameState.isSick = false;
         if (typeof gameState.treasureTickets !== 'number') gameState.treasureTickets = 0;
+        if (typeof gameState.backyardTickets !== 'number') gameState.backyardTickets = 0;
         if (typeof gameState.lastLoginTime !== 'number') gameState.lastLoginTime = Date.now();
 
         calculateOfflineProgress();
@@ -2032,6 +2094,29 @@
         if (!BGM_LIST.length) return "";
         const idx = Math.floor(Math.random() * BGM_LIST.length);
         return BGM_LIST[idx];
+    }
+
+    function preloadImages(urls) {
+        if (!Array.isArray(urls) || !urls.length) return;
+        let idx = 0;
+        const loadNext = () => {
+            if (idx >= urls.length) return;
+            const img = new Image();
+            img.decoding = 'async';
+            img.onload = img.onerror = () => {
+                idx += 1;
+                scheduleNext();
+            };
+            img.src = urls[idx];
+        };
+        const scheduleNext = () => {
+            if ('requestIdleCallback' in window) {
+                requestIdleCallback(loadNext, { timeout: 200 });
+            } else {
+                setTimeout(loadNext, 80);
+            }
+        };
+        scheduleNext();
     }
 
     function pickRandom(list) {
@@ -2519,6 +2604,7 @@
         const picker = document.getElementById('decor-picker');
         const list = document.getElementById('decor-picker-list');
         if (!picker || !list) return;
+        playClickSfx();
         activeDecorSlot = slotIndex;
         list.innerHTML = '';
 
@@ -2562,6 +2648,7 @@
         const picker = document.getElementById('decor-picker');
         if (picker) picker.classList.add('hidden');
         activeDecorSlot = null;
+        playClickSfx();
     }
 
     function placeDecorAt(slotIndex, itemId) {
@@ -2621,6 +2708,10 @@
         } catch(e) {}
     }
 
+    function playClickSfx() {
+        playSound('sfx-don');
+    }
+
     function startCatWalk() {
         stopCatWalk();
         startOnlineDecay();
@@ -2650,7 +2741,7 @@
         const minShift = Math.min(60, Math.floor(zoneWidth * 0.2));
         const maxShift = Math.max(baseShift, minShift);
         const offset = randInt(-maxShift, maxShift);
-        cat.style.left = `${offset}px`;
+        cat.style.setProperty('--cat-x', `${offset}px`);
         if (catBody) {
             if (offset < -6) {
                 catBody.classList.add('facing-left');
@@ -2767,6 +2858,7 @@
         if (!germ) return;
         const rect = germ.getBoundingClientRect();
         germ.remove();
+        playSound('sfx-pop');
         bathRemaining = Math.max(0, bathRemaining - 1);
         updateBathRemaining();
         spawnParticles(rect.left + rect.width / 2, rect.top + rect.height / 2, ['💦', '🫧', '✨']);
@@ -2783,7 +2875,7 @@
     }
 
     function unlockAudioAndStart() {
-        // 嘗試解鎖所有音效
+        // 解除音訊鎖定，避免一次播放太多聲音
         const audios = [
             'bgm',
             'sfx-correct',
@@ -2793,6 +2885,11 @@
             'sfx-chew',
             'sfx-coin',
             'sfx-clean',
+            'sfx-diamond',
+            'sfx-pop',
+            'sfx-spin',
+            'sfx-don',
+            'sfx-don-2',
             'sfx-flip',
             'sfx-angry',
             'sfx-win',
@@ -2810,32 +2907,26 @@
             try {
                 const el = document.getElementById(id);
                 if(el) {
-                    if (id === 'bgm' && !el.src) setRandomBgm(true);
-                    el.muted = true;
-                    el.load();
-                    const playPromise = el.play();
-                    if (playPromise !== undefined) {
-                        playPromise.then(_ => {
-                            el.pause();
-                            el.currentTime = 0;
-                            el.muted = false;
-                            if(id === 'bgm' && gameState.musicOn) {
-                                el.volume = 0.2;
-                                el.play().catch(() => {});
-                            }
-                        }).catch(() => {
-                            el.muted = false;
-                        });
-                    } else {
-                        el.muted = false;
-                        if(id === 'bgm' && gameState.musicOn) {
+                    if (id === 'bgm') {
+                        if (!el.src) setRandomBgm(true);
+                        el.load();
+                        if (gameState.musicOn) {
                             el.volume = 0.2;
                             el.play().catch(() => {});
+                        } else {
+                            el.pause();
+                            el.currentTime = 0;
                         }
+                        return;
                     }
+                    el.pause();
+                    el.currentTime = 0;
+                    el.load();
                 }
             } catch(e) {}
         });
+
+        preloadImages(catSprites);
 
         // 解鎖語音
         try {
@@ -2973,12 +3064,13 @@
         const shop = document.getElementById('scene-shop');
         if (shop) shop.classList.remove('hidden');
         renderShop();
-        playSound('sfx-flip');
+        playClickSfx();
     }
 
     function closeShop() {
         const shop = document.getElementById('scene-shop');
         if (shop) shop.classList.add('hidden');
+        playClickSfx();
     }
 
     function renderShop() {
@@ -3454,25 +3546,27 @@
         resetCraftSlot();
         switchSynthesisTab('synth-tab-craft');
         renderSynthStyle(gameState.synthCurrent, 'synth-preview');
-        playSound('sfx-flip');
+        playClickSfx();
     }
 
     function closeSynthesis() {
         const panel = document.getElementById('scene-synthesis');
         if (panel) panel.classList.add('hidden');
         resetCraftSlot();
+        playClickSfx();
     }
 
     function openCatBook() {
         const panel = document.getElementById('scene-catbook');
         if (panel) panel.classList.remove('hidden');
         renderCatBook();
-        playSound('sfx-flip');
+        playClickSfx();
     }
 
     function closeCatBook() {
         const panel = document.getElementById('scene-catbook');
         if (panel) panel.classList.add('hidden');
+        playClickSfx();
     }
 
     function summonCat(index) {
@@ -3797,6 +3891,7 @@
     }
     
     function openMenu() {
+        playClickSfx();
         document.getElementById('scene-menu').classList.remove('hidden');
         const list = document.getElementById('lesson-list');
         list.innerHTML = '';
@@ -3832,6 +3927,7 @@
 
     function closeMenu() {
         document.getElementById('scene-menu').classList.add('hidden');
+        playClickSfx();
     }
 
     function startLevel(key) {
@@ -4089,6 +4185,7 @@
         const modal = document.getElementById('scene-key-settings');
         const input = document.getElementById('input-api-key');
         if (!modal || !input) return;
+        playClickSfx();
         const savedKey = localStorage.getItem('user_gemini_key');
         if (savedKey) input.value = savedKey;
         setApiStatus('');
@@ -4098,6 +4195,7 @@
     function closeKeySettings() {
         const modal = document.getElementById('scene-key-settings');
         if (modal) modal.classList.add('hidden');
+        playClickSfx();
     }
 
     function saveApiKey() {
@@ -4356,6 +4454,7 @@ ${userText ? '- 請針對主人說的話回應。' : ''}
         const modal = document.getElementById('scene-chat-input');
         const input = document.getElementById('input-chat-text');
         if (!modal || !input) return;
+        playClickSfx();
         input.value = '';
         modal.classList.remove('hidden');
         setTimeout(() => input.focus(), 50);
@@ -4365,6 +4464,7 @@ ${userText ? '- 請針對主人說的話回應。' : ''}
         const modal = document.getElementById('scene-chat-input');
         if (!modal) return;
         modal.classList.add('hidden');
+        playClickSfx();
     }
 
     function submitChatInput() {
@@ -4665,6 +4765,7 @@ ${userText ? '- 請針對主人說的話回應。' : ''}
     function spinWorkSlot() {
         if (workSlotSpinning) return;
         workSlotSpinning = true;
+        playSound('sfx-spin');
 
         const reels = [
             document.getElementById('slot-reel-1'),
@@ -4792,6 +4893,7 @@ ${userText ? '- 請針對主人說的話回應。' : ''}
     function claimWorkSlot() {
         const scene = document.getElementById('scene-slot');
         if (scene) scene.classList.add('hidden');
+        playSound('sfx-don-2');
         const reward = workSlotFinalReward || workSlotBaseReward;
         applyWorkReward(reward, workSlotEvent);
     }
@@ -4840,13 +4942,16 @@ ${userText ? '- 請針對主人說的話回應。' : ''}
         backyardDirtySince = null;
         backyardSickFromPoop = false;
         backyardSickNotified = false;
+        backyardMealProgress = 0;
+        backyardMealGoal = BACKYARD_MEAL_GOAL;
+        backyardRewarded = false;
 
+        updateBackyardStageRect();
         initBackyardCats();
         updateBackyardUI();
 
-        if (backyardLoop) clearInterval(backyardLoop);
-        backyardLoop = setInterval(updateBackyardState, BACKYARD_TICK_MS);
-        playSound('sfx-flip');
+        startBackyardLoop();
+        playClickSfx();
     }
 
     function closeBackyard() {
@@ -4856,10 +4961,7 @@ ${userText ? '- 請針對主人說的話回應。' : ''}
         scene.classList.add('hidden');
         room.classList.remove('hidden');
 
-        if (backyardLoop) {
-            clearInterval(backyardLoop);
-            backyardLoop = null;
-        }
+        stopBackyardLoop();
 
         const stage = document.getElementById('backyard-stage');
         if (stage) stage.innerHTML = '';
@@ -4872,9 +4974,54 @@ ${userText ? '- 請針對主人說的話回應。' : ''}
         updateRoomUI();
     }
 
+    function updateBackyardStageRect() {
+        const stage = document.getElementById('backyard-stage');
+        if (!stage) return;
+        backyardStageRect = stage.getBoundingClientRect();
+        backyardCats.forEach((cat) => applyBackyardCatTransform(cat));
+    }
+
+    function startBackyardLoop() {
+        stopBackyardLoop();
+        backyardLastTick = 0;
+        const loop = (timestamp) => {
+            if (!backyardLoop) return;
+            if (!backyardLastTick) backyardLastTick = timestamp;
+            if (timestamp - backyardLastTick >= BACKYARD_TICK_MS) {
+                updateBackyardState();
+                backyardLastTick = timestamp;
+            }
+            backyardLoop = requestAnimationFrame(loop);
+        };
+        backyardLoop = requestAnimationFrame(loop);
+    }
+
+    function stopBackyardLoop() {
+        if (!backyardLoop) return;
+        cancelAnimationFrame(backyardLoop);
+        backyardLoop = null;
+    }
+
     function updateBackyardUI() {
         const count = document.getElementById('backyard-food-count');
         if (count) count.innerText = gameState.food;
+        const tickets = document.getElementById('backyard-ticket-count');
+        if (tickets) tickets.innerText = gameState.backyardTickets || 0;
+        updateBackyardProgressUI();
+    }
+
+    function updateBackyardProgressUI() {
+        const text = document.getElementById('backyard-progress-text');
+        const bar = document.getElementById('backyard-progress-bar');
+        const goal = backyardMealGoal || BACKYARD_MEAL_GOAL;
+        const progress = Math.min(backyardMealProgress, goal);
+        const pct = goal > 0 ? (progress / goal) * 100 : 0;
+        if (bar) bar.style.width = `${pct}%`;
+        if (text) {
+            text.innerText = backyardRewarded
+                ? '已經餵飽，今天休息'
+                : `餵飽進度 ${progress}/${goal}`;
+        }
     }
 
     function initBackyardCats() {
@@ -4883,6 +5030,7 @@ ${userText ? '- 請針對主人說的話回應。' : ''}
         stage.innerHTML = '';
         backyardCats = [];
 
+        updateBackyardStageRect();
         const pool = Array.isArray(gameState.unlockedCats) ? shuffle(gameState.unlockedCats) : [0];
         const maxCats = Math.max(1, Math.min(BACKYARD_MAX_CATS, pool.length || 1));
         const catsToShow = pool.slice(0, maxCats);
@@ -4894,18 +5042,18 @@ ${userText ? '- 請針對主人說的話回應。' : ''}
 
             const x = randInt(10, 85);
             const y = randInt(20, 75);
-            el.style.left = `${x}%`;
-            el.style.top = `${y}%`;
             el.style.setProperty('--flip', Math.random() > 0.5 ? 1 : -1);
 
             stage.appendChild(el);
-            backyardCats.push({
+            const cat = {
                 el,
                 x,
                 y,
                 state: 'idle',
                 busyUntil: 0
-            });
+            };
+            backyardCats.push(cat);
+            backyardMoveCat(cat, x, y);
         });
     }
 
@@ -4914,13 +5062,18 @@ ${userText ? '- 請針對主人說的話回應。' : ''}
         if (!stage) return;
         if (e.target && e.target !== stage && e.target.closest('.backyard-item')) return;
 
-        if (gameState.food < 1) {
+        if (backyardRewarded || backyardMealProgress >= backyardMealGoal) {
             playSound('sfx-wrong');
-            alert('罐頭不足！');
             return;
         }
 
-        gameState.food -= 1;
+        if ((gameState.backyardTickets || 0) < 1) {
+            playSound('sfx-wrong');
+            alert('飼料券不足！\n答題答對才會獲得飼料券喔。');
+            return;
+        }
+
+        gameState.backyardTickets -= 1;
         saveGame();
         updateBackyardUI();
         updateRoomUI();
@@ -4984,8 +5137,12 @@ ${userText ? '- 請針對主人說的話回應。' : ''}
                     cat.el.classList.add('eating');
                     setTimeout(() => cat.el.classList.remove('eating'), 500);
 
-                    if (!backyardSickFromPoop) {
-                        spawnBackyardReward(cat.x, cat.y);
+                    if (!backyardSickFromPoop && !backyardRewarded) {
+                        backyardMealProgress = Math.min(backyardMealGoal, backyardMealProgress + 1);
+                        updateBackyardProgressUI();
+                        if (backyardMealProgress >= backyardMealGoal) {
+                            triggerBackyardReward(cat.x, cat.y);
+                        }
                     }
                     playSound('sfx-chew');
                 }, Math.max(300, BACKYARD_MOVE_MS - 200));
@@ -5010,9 +5167,22 @@ ${userText ? '- 請針對主人說的話回應。' : ''}
         const dir = x >= cat.x ? 1 : -1;
         cat.x = x;
         cat.y = y;
-        cat.el.style.left = `${x}%`;
-        cat.el.style.top = `${y}%`;
+        applyBackyardCatTransform(cat);
         cat.el.style.setProperty('--flip', dir);
+    }
+
+    function applyBackyardCatTransform(cat) {
+        if (!cat?.el) return;
+        if (!backyardStageRect) {
+            const stage = document.getElementById('backyard-stage');
+            if (stage) backyardStageRect = stage.getBoundingClientRect();
+        }
+        const width = backyardStageRect?.width || 1;
+        const height = backyardStageRect?.height || 1;
+        const px = (cat.x / 100) * width;
+        const py = (cat.y / 100) * height;
+        cat.el.style.setProperty('--bx', `${px}px`);
+        cat.el.style.setProperty('--by', `${py}px`);
     }
 
     function updateBackyardDirtyStatus(now = Date.now()) {
@@ -5055,6 +5225,7 @@ ${userText ? '- 請針對主人說的話回應。' : ''}
             el.dataset.type = 'material';
             el.dataset.materialId = material?.id || '';
             el.dataset.materialIcon = material?.icon || '💎';
+            el.dataset.amount = String(BACKYARD_DIAMOND_FOOD);
         } else if (roll < 0.3) {
             el.innerText = '💰';
             el.dataset.type = 'food';
@@ -5076,6 +5247,22 @@ ${userText ? '- 請針對主人說的話回應。' : ''}
         setTimeout(() => {
             if (el.parentNode) el.remove();
         }, 10000);
+    }
+
+    function triggerBackyardReward(x, y) {
+        if (backyardRewarded) return;
+        backyardRewarded = true;
+        updateBackyardProgressUI();
+
+        const bursts = 4;
+        for (let i = 0; i < bursts; i += 1) {
+            const dx = randInt(-12, 12);
+            const dy = randInt(6, 14);
+            const nx = Math.max(6, Math.min(94, x + dx));
+            const ny = Math.max(12, Math.min(88, y + dy));
+            spawnBackyardReward(nx, ny);
+        }
+        playSound('sfx-coin');
     }
 
     function spawnBackyardPoop(x, y) {
@@ -5126,12 +5313,15 @@ ${userText ? '- 請針對主人說的話回應。' : ''}
         } else if (type === 'material') {
             const materialId = el.dataset.materialId;
             if (materialId) gameState.materialInventory.push(materialId);
+            const amount = parseInt(el.dataset.amount || String(BACKYARD_DIAMOND_FOOD), 10);
+            if (amount > 0) gameState.food += amount;
             saveGame();
+            updateBackyardUI();
             updateRoomUI();
-            playSound('sfx-levelup');
+            playSound('sfx-diamond');
             const rect = el.getBoundingClientRect();
             const icon = el.dataset.materialIcon || '💎';
-            spawnParticles(rect.left + rect.width / 2, rect.top + rect.height / 2, [icon, '✨', '💎']);
+            spawnParticles(rect.left + rect.width / 2, rect.top + rect.height / 2, [icon, '🥫', '✨']);
         }
 
         el.style.transition = 'all 0.4s ease';
@@ -5151,6 +5341,7 @@ ${userText ? '- 請針對主人說的話回應。' : ''}
             alert('需要藏寶券才能開啟藏寶模式！\n請到商店用 5 罐頭兌換一張。');
             return;
         }
+        playClickSfx();
         scene.classList.remove('hidden');
         treasureActive = true;
         primeTreasureAudio();
@@ -5166,6 +5357,7 @@ ${userText ? '- 請針對主人說的話回應。' : ''}
         if (!scene) return;
         scene.classList.add('hidden');
         treasureActive = false;
+        playClickSfx();
     }
 
     function initTreasureGame() {
@@ -5755,6 +5947,8 @@ Return JSON only:
 
         if (isCorrect) {
             playSound('sfx-correct');
+            gameState.backyardTickets = (gameState.backyardTickets || 0) + 1;
+            saveGame();
             requestCatSpeech('answer-correct', { subject: currentWord?.type || 'word' });
             currentCardIndex++;
             setTimeout(() => {
@@ -5789,16 +5983,27 @@ Return JSON only:
     const synth = window.speechSynthesis;
     function getCatVoice() {
         if (!synth) return null;
-        if (catVoice) return catVoice;
         const voices = synth.getVoices();
-        if (!voices || voices.length === 0) return null;
+        if (!voices || voices.length === 0) return catVoice;
         const zhVoices = voices.filter((voice) => voice.lang && voice.lang.startsWith('zh'));
-        const preferred = zhVoices.find((voice) => /zh-tw/i.test(voice.lang) && /(mei|sin|ting|siri|yushu|xiaoxiao|zhiyu)/i.test(voice.name))
+        const preferred = zhVoices.find((voice) => /zh-tw/i.test(voice.lang) && /(mei[-\s]?jia|siri|taiwan)/i.test(voice.name))
             || zhVoices.find((voice) => /zh-tw/i.test(voice.lang))
             || zhVoices[0]
             || voices[0];
         catVoice = preferred;
         return catVoice;
+    }
+
+    function initCatVoice() {
+        if (!synth) return;
+        const refresh = () => {
+            catVoice = null;
+            getCatVoice();
+        };
+        if (typeof synth.onvoiceschanged !== 'undefined') {
+            synth.onvoiceschanged = refresh;
+        }
+        refresh();
     }
 
     function speakCat(text) {
@@ -5807,8 +6012,8 @@ Return JSON only:
             if (synth.speaking) synth.cancel();
             const utter = new SpeechSynthesisUtterance(text);
             utter.lang = 'zh-TW';
-            utter.rate = 1.7;
-            utter.pitch = 1.8;
+            utter.rate = 1.3;
+            utter.pitch = 1.4;
             const voice = getCatVoice();
             if (voice) utter.voice = voice;
             synth.speak(utter);
@@ -5860,11 +6065,12 @@ Return JSON only:
     }
 
     // 確保 DOM 載入後才執行，避免找不到元素錯誤
-    document.addEventListener('DOMContentLoaded', () => {
-        loadGame();
-        setRandomBgm(false);
-        spawnRoomAtmosphere();
-        setupVoiceChatButton();
+        document.addEventListener('DOMContentLoaded', () => {
+            loadGame();
+            setRandomBgm(false);
+            spawnRoomAtmosphere();
+            setupVoiceChatButton();
+            initCatVoice();
         const savedKey = localStorage.getItem('user_gemini_key');
         if (savedKey) {
             setAiStatus('AI：驗證中...', null);
@@ -5890,6 +6096,7 @@ Return JSON only:
             });
         }
         document.addEventListener('visibilitychange', handleVisibilityChange);
+        window.addEventListener('resize', updateBackyardStageRect);
         window.addEventListener('pagehide', () => {
             const bgmEl = document.getElementById('bgm');
             if (bgmEl) bgmEl.pause();
@@ -5900,6 +6107,13 @@ Return JSON only:
             navigator.serviceWorker.register('service-worker.js').catch(() => {});
         }
     });
+
+    document.addEventListener('touchmove', (event) => {
+        if (event.target && event.target.closest && event.target.closest('.allow-scroll')) {
+            return;
+        }
+        event.preventDefault();
+    }, { passive: false });
 
 </script>
 </body>
