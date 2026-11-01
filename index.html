@@ -2156,6 +2156,8 @@
             gameState.synthUnlocked.push(gameState.synthCurrent);
         }
         if (gameState.musicOn === undefined) gameState.musicOn = true;
+        if (typeof gameState.food !== 'number' || !isFinite(gameState.food)) gameState.food = 0;
+        if (typeof gameState.exp !== 'number' || !isFinite(gameState.exp)) gameState.exp = 0;
         if (typeof gameState.satiety !== 'number') gameState.satiety = 100;
         if (typeof gameState.cleanliness !== 'number') gameState.cleanliness = 100;
         if (typeof gameState.mood !== 'number') gameState.mood = 100;
@@ -2630,7 +2632,14 @@
     }
 
     function saveGame() {
-        localStorage.setItem('catGameSave', JSON.stringify(gameState));
+        ['food', 'exp', 'satiety', 'mood', 'cleanliness'].forEach((k) => {
+            if (typeof gameState[k] !== 'number' || !isFinite(gameState[k])) gameState[k] = k === 'food' || k === 'exp' ? 0 : 100;
+        });
+        try {
+            localStorage.setItem('catGameSave', JSON.stringify(gameState));
+        } catch (err) {
+            console.warn('save failed', err);
+        }
         updateRoomUI();
     }
 
@@ -2972,6 +2981,7 @@
                 gameState.cleanliness = Math.min(CLEAN_POOP_MAX, gameState.cleanliness + CLEAN_POOP_RECOVER);
             }
             gameState.mood = Math.min(100, gameState.mood + 5);
+            tryRecoverSick();
             checkNeedsSpeech('clean');
             saveGame();
         } else {
@@ -3050,6 +3060,7 @@
 
     function finishBath() {
         gameState.cleanliness = 100;
+        tryRecoverSick();
         checkNeedsSpeech('clean');
         saveGame();
         closeBath();
@@ -3199,11 +3210,16 @@
         setTimeout(() => icon.remove(), 1000);
     }
 
-    function feedCat(e) {
-        if (gameState.isSick) {
-            alert("貓咪生病了，吃不下東西！💊\n請先去商店買藥水。");
-            return;
+    // 自然康復：吃飽、洗乾淨後就算沒買藥也能慢慢好起來，避免生病永久卡死
+    function tryRecoverSick() {
+        if (!gameState.isSick) return;
+        if (typeof backyardSickFromPoop !== 'undefined' && backyardSickFromPoop) return;
+        if (gameState.satiety >= 40 && gameState.cleanliness >= 40) {
+            gameState.isSick = false;
         }
+    }
+
+    function feedCat(e) {
         if (gameState.satiety >= 100) {
             showCatSpeech("我飽了～嗝！");
             return;
@@ -3216,6 +3232,7 @@
         gameState.food--;
         gameState.satiety = Math.min(100, gameState.satiety + 20);
         gameState.exp += 1;
+        tryRecoverSick();
         checkNeedsSpeech('feed');
         playSound('sfx-chew');
 
@@ -4116,23 +4133,10 @@
     }
 
     function startLevel(key) {
-        if (gameState.isSick) {
-            const medicineItem = shopItems.find((item) => item.id === 'item-medicine');
-            const medicinePrice = medicineItem ? medicineItem.price : 50;
-            if (gameState.food >= medicinePrice) {
-                playSound('sfx-wrong');
-                alert("貓咪生病了！😷\n它沒辦法陪你讀書。\n請去商店買「萬能藥水」治好它！");
-                return;
-            }
-            alert("貓咪生病了，但罐頭不夠買藥水。\n先去打工賺藥水錢吧！");
-        }
-        if (gameState.satiety < 10) {
-            if (gameState.food > 0) {
-                playSound('sfx-wrong');
-                alert("貓咪肚子餓扁了... 🐟\n請先餵它吃東西！");
-                return;
-            }
-            alert("貓咪很餓但罐頭不足。\n先去打工賺罐頭吧！");
+        // 打工是賺罐頭的唯一來源，絕不能被生病/飢餓擋住，否則會卡死
+        if (!lessons[key]) return;
+        if (gameState.isSick || gameState.satiety < 10) {
+            showCatSpeech('我不太舒服...但還是陪你打工賺罐頭 💦');
         }
 
         resetComboState();
