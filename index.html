@@ -1510,11 +1510,13 @@
                 <div class="absolute inset-0 pointer-events-none opacity-20"
                      style="background: linear-gradient(45deg, transparent 49%, #ef4444 49%, #ef4444 51%, transparent 51%), linear-gradient(-45deg, transparent 49%, #ef4444 49%, #ef4444 51%, transparent 51%), linear-gradient(90deg, transparent 49%, #ef4444 49%, #ef4444 51%, transparent 51%), linear-gradient(0deg, transparent 49%, #ef4444 49%, #ef4444 51%, transparent 51%);">
                 </div>
-                <canvas id="write-canvas" width="280" height="280"></canvas>
+                <div id="trace-layer" class="absolute inset-0 hidden items-center justify-center pointer-events-none select-none" style="font-family:'BiauKai','Kaiti TC','DFKai-SB','標楷體',serif;font-size:230px;line-height:1;color:rgba(100,116,139,0.28);"></div>
+                <canvas id="write-canvas" width="280" height="280" style="position:relative;z-index:1;"></canvas>
             </div>
             <div class="flex gap-2 mt-2">
                 <button onclick="clearCanvas()" class="px-3 py-1 bg-gray-200 rounded text-sm">清除</button>
                 <button onclick="togglePenColor()" class="px-3 py-1 bg-black text-white rounded text-sm" id="pen-btn">筆色: 黑</button>
+                <button onclick="toggleTrace()" id="trace-btn" class="px-3 py-1 bg-sky-500 text-white rounded text-sm">✏️ 描紅</button>
             </div>
         </div>
         <div id="study-controls" class="hidden flex gap-4 w-full max-w-md animate-[fadeIn_0.5s_ease-out]">
@@ -1655,6 +1657,7 @@
         "QS": { title: "🧩 語詞大師", category: "國語闖關", mode: "quiz", quizSpec: { kind: "word", count: 10 }, count: 10, words: Array(10).fill(null) },
         "QR": { title: "🔍 閱讀小偵探", category: "國語闖關", mode: "quiz", quizSpec: { kind: "read", count: 10 }, count: 10, words: Array(10).fill(null) },
         "QD": { title: "🕵️ 字謎與部首", category: "國語闖關", mode: "quiz", quizSpec: { kind: "riddle", count: 6 }, count: 6, words: Array(6).fill(null) },
+        "W": { title: "📕 錯題本複習", category: "國語", mode: "mistakes", count: 10, words: Array(10).fill(null) },
         "R": { title: "全範圍隨機 (10題)", category: "國語", mode: "random10", count: 10, words: Array(10).fill(null) },
         "M": { title: "數學題 (10題)", category: "數學", mode: "math10", count: 10, words: Array(10).fill(null) },
         "T": { title: "時鐘題 (10題)", category: "數學", mode: "clock10", count: 10, words: Array(10).fill(null) },
@@ -2347,8 +2350,10 @@
     }
 
     function buildRandomWords(count) {
-        const pool = shuffle(getAllWords());
-        return pool.slice(0, count).map((word) => ({ ...word }));
+        const due = shuffle(getDueMistakes()).slice(0, 3).map((e) => ({ ...e.word }));
+        const dueChars = new Set(due.map((w) => w.c));
+        const pool = shuffle(getAllWords()).filter((w) => !dueChars.has(w.c));
+        return [...due, ...pool].slice(0, count).map((word) => ({ ...word }));
     }
 
     function randInt(min, max) {
@@ -4136,6 +4141,67 @@
         writeCtx.clearRect(0, 0, writeCanvas.width / ratio, writeCanvas.height / ratio);
     }
 
+
+    // --- 描紅 ---
+    let traceOn = false;
+    function renderTrace(word) {
+        const layer = document.getElementById('trace-layer');
+        const btn = document.getElementById('trace-btn');
+        if (!layer || !btn) return;
+        const ch = word && word.c && !word.type ? word.c : '';
+        btn.classList.toggle('hidden', !ch);
+        // 寫錯重練的字自動開啟描紅
+        if (ch && word._retry) traceOn = true;
+        const show = traceOn && !!ch;
+        layer.innerText = show ? ch : '';
+        layer.classList.toggle('hidden', !show);
+        layer.classList.toggle('flex', show);
+        btn.innerText = traceOn ? '✏️ 描紅:開' : '✏️ 描紅';
+    }
+    function toggleTrace() {
+        traceOn = !traceOn;
+        renderTrace(studyQueue[currentCardIndex]);
+    }
+
+    // --- 錯題本 (間隔複習) ---
+    const MISTAKE_INTERVAL_DAYS = [1, 2, 4];
+    function getMistakes() {
+        if (!gameState.mistakes || typeof gameState.mistakes !== 'object') gameState.mistakes = {};
+        return gameState.mistakes;
+    }
+    function recordMistake(word) {
+        if (!word || !word.c || word.type) return;
+        const book = getMistakes();
+        const entry = book[word.c] || { word: { c: word.c, z: word.z, r: word.r, w: word.w }, streak: 0, wrong: 0 };
+        entry.wrong += 1;
+        entry.streak = 0;
+        entry.due = Date.now();
+        book[word.c] = entry;
+        saveGame();
+    }
+    function recordMistakeCorrect(word) {
+        if (!word || !word.c || word.type || word._retry) return;
+        const entry = getMistakes()[word.c];
+        if (!entry) return;
+        entry.streak += 1;
+        if (entry.streak >= MISTAKE_INTERVAL_DAYS.length) {
+            delete getMistakes()[word.c];
+        } else {
+            entry.due = Date.now() + MISTAKE_INTERVAL_DAYS[entry.streak - 1] * 86400000;
+        }
+        saveGame();
+    }
+    function getDueMistakes() {
+        const now = Date.now();
+        return Object.values(getMistakes()).filter((e) => e.due <= now);
+    }
+    function buildMistakeSet(count) {
+        const book = Object.values(getMistakes());
+        const due = shuffle(getDueMistakes());
+        const rest = shuffle(book.filter((e) => !due.includes(e)));
+        return [...due, ...rest].slice(0, count).map((e) => ({ ...e.word }));
+    }
+
     function togglePenColor() {
         penIsBlack = !penIsBlack;
         if (writeCtx) {
@@ -4173,7 +4239,8 @@
             list.appendChild(header);
 
             items.forEach(({ key, lesson }) => {
-                const count = lesson.count || (lesson.words ? lesson.words.length : 0);
+                let count = lesson.count || (lesson.words ? lesson.words.length : 0);
+                if (lesson.mode === 'mistakes') count = Object.keys(getMistakes()).length;
                 const unit = lesson.mode ? '題' : '字';
                 const btn = document.createElement('button');
                 btn.className = "btn-3d p-4 bg-yellow-100 rounded-xl font-bold hover:bg-yellow-200 border-b-4 border-yellow-300 text-lg flex items-center justify-between";
@@ -4211,6 +4278,13 @@
             studyQueue = buildAreaQuestions(10);
         } else if (lesson && lesson.mode === "mix10") {
             studyQueue = buildMixedQuestions(10);
+        } else if (lesson && lesson.mode === "mistakes") {
+            studyQueue = buildMistakeSet(10);
+            if (!studyQueue.length) {
+                document.getElementById('scene-menu').classList.add('hidden');
+                alert('錯題本是空的，太棒了！🎉');
+                return;
+            }
         } else if (lesson && lesson.mode === "quiz") {
             studyQueue = buildQuizSet(lesson.quizSpec);
         } else {
@@ -6231,6 +6305,7 @@ Return JSON only:
                 clearCanvas();
             }
         }
+        renderTrace(word);
         const questionText = isMath ? word.q : isStory ? "情境題" : isArea ? "面積題" : word.z;
         const answerText = isMath || isStory || isArea ? word.a : word.c;
         const radicalText = isMath || isStory || isArea ? "數學題" : word.r;
@@ -6407,6 +6482,7 @@ Return JSON only:
         if (isCorrect) {
             playSound('sfx-correct');
             gameState.backyardTickets = (gameState.backyardTickets || 0) + 1;
+            recordMistakeCorrect(currentWord);
             saveGame();
             handleComboCorrect();
             requestCatSpeech('answer-correct', { subject: 'quiz' });
@@ -6448,7 +6524,8 @@ Return JSON only:
             handleComboWrong();
             requestCatSpeech('answer-wrong', { subject: currentWord?.type || 'word' });
             const word = currentWord;
-            studyQueue.push(word);
+            recordMistake(word);
+            studyQueue.push({ ...word, _retry: true });
             
             setTimeout(() => {
                 document.getElementById('study-card').classList.remove('card-flipped');
