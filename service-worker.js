@@ -1,8 +1,9 @@
-const CACHE_NAME = 'cat-game-v2';
+const CACHE_NAME = 'cat-game-v3';
 const CORE_ASSETS = [
   './',
   'index.html',
   'cat-game.html',
+  'quiz-bank.js',
   'manifest.json',
   'icons/icon-180.png',
   'icons/icon-192.png',
