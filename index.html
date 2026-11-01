@@ -1889,6 +1889,26 @@
     let onlineDecayTimer = null;
     let activeDecorSlot = null;
 
+    // --- 角色圖備援：外部圖片載入失敗時改用本地 emoji 圖，避免破圖 ---
+    const SPRITE_FALLBACK_EMOJI = [
+        ['egg', '🥚'], ['baby', '🐱'], ['monster', '👹'], ['demon', '😈'], ['ghost', '👻'],
+        ['angel', '😇'], ['god', '🌟'], ['king', '👑'], ['queen', '👸'], ['fire', '🔥'],
+        ['earth', '🌍'], ['crystal', '💎'], ['golden', '🏆'], ['wizard', '🧙'], ['ninja', '🥷']
+    ];
+    function spriteFallbackSrc(url) {
+        const match = SPRITE_FALLBACK_EMOJI.find(([key]) => url.includes(key));
+        const emoji = match ? match[1] : '🐈';
+        const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="250" height="250" viewBox="0 0 100 100"><text x="50" y="50" font-size="72" text-anchor="middle" dominant-baseline="central">${emoji}</text></svg>`;
+        return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+    }
+    document.addEventListener('error', (e) => {
+        const img = e.target;
+        if (!img || img.tagName !== 'IMG') return;
+        const src = img.getAttribute('src') || '';
+        if (!src.includes('robohash.org')) return;
+        img.src = spriteFallbackSrc(src);
+    }, true);
+
     const catSprites = [
         "https://robohash.org/egg?set=set4&size=250x250", 
         "https://robohash.org/baby_kitten?set=set4&size=250x250", 
