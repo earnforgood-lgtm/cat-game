@@ -6146,7 +6146,7 @@ Return JSON only:
         const isStory = word.type === "story";
         const isArea = word.type === "area";
         const isClock = isMath && word.visual === "clock";
-        const shouldShowWriting = !isMath && !isStory && !isArea;
+        const shouldShowWriting = true; // 全部題型都用手寫作答，不使用鍵盤
         const studyScene = document.getElementById('scene-study');
         if (studyScene) {
             studyScene.classList.toggle('story-mode', isStory);
