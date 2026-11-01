@@ -832,6 +832,20 @@
             overscroll-behavior: contain;
             -webkit-overflow-scrolling: touch;
         }
+        #scene-study.quiz-mode .study-card-wrap,
+        #scene-study.quiz-mode #writing-area,
+        #scene-study.quiz-mode #study-controls { display: none !important; }
+        .quiz-opt {
+            width: 100%; padding: 14px 16px; border-radius: 18px; background: #fff;
+            border: 3px solid #bfdbfe; border-bottom-width: 6px; font-size: 1.35rem; font-weight: 800;
+            color: #1f2937; text-align: left; transition: transform .1s, background .15s;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .quiz-opt:active { transform: scale(0.97); }
+        .quiz-opt.picked { background: #dbeafe; border-color: #3b82f6; }
+        .quiz-opt.right { background: #bbf7d0; border-color: #22c55e; }
+        .quiz-opt.wrong { background: #fecaca; border-color: #ef4444; animation: quizShake .35s; }
+        @keyframes quizShake { 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
         #scene-study.writing-mode .study-card-wrap {
             height: 20rem;
             margin-bottom: 1.25rem;
@@ -1460,6 +1474,13 @@
             </div>
             <div id="study-speech-text" class="max-w-[60vw] bg-white/90 text-gray-700 text-sm font-bold px-3 py-2 rounded-2xl shadow-sm border border-blue-100"></div>
         </div>
+        <div id="quiz-area" class="hidden w-full max-w-md flex flex-col items-center mb-6">
+            <div id="quiz-tag" class="text-xs font-black text-white bg-orange-400 px-3 py-1 rounded-full mb-3 shadow"></div>
+            <div id="quiz-stem" class="w-full bg-white border-4 border-blue-200 rounded-3xl p-5 text-2xl font-black text-gray-800 leading-relaxed text-center shadow-lg mb-4 whitespace-pre-line"></div>
+            <div id="quiz-options" class="grid gap-3 w-full"></div>
+            <button id="quiz-submit" onclick="submitQuizMulti()" class="hidden mt-4 w-full py-4 bg-blue-500 text-white rounded-2xl font-black text-xl border-b-4 border-blue-700 active:scale-95">確定答案</button>
+            <div id="quiz-feedback" class="mt-4 min-h-[2rem] text-lg font-black text-center"></div>
+        </div>
         <div class="study-card-wrap perspective-1000 w-full max-w-xs h-96 cursor-pointer mb-8 relative group" onclick="flipCard()">
             <div id="tap-hint" class="absolute -right-4 top-1/2 z-10 animate-bounce bg-white/80 p-2 rounded-full shadow-lg pointer-events-none">👆</div>
             <div id="study-card" class="card-inner relative w-full h-full transform-style-3d shadow-xl rounded-3xl transition-all duration-500">
@@ -1587,6 +1608,7 @@
         <div class="text-6xl animate-pulse">😻</div>
     </div>
 
+<script src="quiz-bank.js"></script>
 <script>
     // --- 0. 資料庫 ---
     const lessons = {
@@ -1622,6 +1644,17 @@
             {c:"桿",z:"ㄍㄢˇ",r:"木部",w:"筆桿"}, {c:"刨",z:"ㄆㄠˊ",r:"刀部",w:"刨木板"}, {c:"烤",z:"ㄎㄠˇ",r:"火部",w:"烘烤"}, {c:"脆",z:"ㄘㄨㄟˋ",r:"肉部",w:"脆脆的"},
             {c:"蠟",z:"ㄌㄚˋ",r:"虫部",w:"蠟油"}, {c:"浸",z:"ㄐㄧㄣˋ",r:"水部",w:"浸入"}
         ]},
+        "Q1": { title: "第一課 闖關", category: "國語闖關", mode: "quiz", quizSpec: { lesson: 1, count: 10 }, count: 10, words: Array(10).fill(null) },
+        "Q2": { title: "第二課 闖關", category: "國語闖關", mode: "quiz", quizSpec: { lesson: 2, count: 10 }, count: 10, words: Array(10).fill(null) },
+        "Q3": { title: "第三課 闖關", category: "國語闖關", mode: "quiz", quizSpec: { lesson: 3, count: 10 }, count: 10, words: Array(10).fill(null) },
+        "Q4": { title: "第四課 闖關", category: "國語闖關", mode: "quiz", quizSpec: { lesson: 4, count: 10 }, count: 10, words: Array(10).fill(null) },
+        "Q5": { title: "第五課 闖關", category: "國語闖關", mode: "quiz", quizSpec: { lesson: 5, count: 10 }, count: 10, words: Array(10).fill(null) },
+        "Q6": { title: "第六課 闖關", category: "國語闖關", mode: "quiz", quizSpec: { lesson: 6, count: 10 }, count: 10, words: Array(10).fill(null) },
+        "QV": { title: "🔤 生字選字王", category: "國語闖關", mode: "quiz", quizSpec: { kind: "vocab", count: 10 }, count: 10, words: Array(10).fill(null) },
+        "QP": { title: "🎭 破音字特訓", category: "國語闖關", mode: "quiz", quizSpec: { kind: "poly", count: 8 }, count: 8, words: Array(8).fill(null) },
+        "QS": { title: "🧩 語詞大師", category: "國語闖關", mode: "quiz", quizSpec: { kind: "word", count: 10 }, count: 10, words: Array(10).fill(null) },
+        "QR": { title: "🔍 閱讀小偵探", category: "國語闖關", mode: "quiz", quizSpec: { kind: "read", count: 10 }, count: 10, words: Array(10).fill(null) },
+        "QD": { title: "🕵️ 字謎與部首", category: "國語闖關", mode: "quiz", quizSpec: { kind: "riddle", count: 6 }, count: 6, words: Array(6).fill(null) },
         "R": { title: "全範圍隨機 (10題)", category: "國語", mode: "random10", count: 10, words: Array(10).fill(null) },
         "M": { title: "數學題 (10題)", category: "數學", mode: "math10", count: 10, words: Array(10).fill(null) },
         "T": { title: "時鐘題 (10題)", category: "數學", mode: "clock10", count: 10, words: Array(10).fill(null) },
@@ -4071,7 +4104,7 @@
         const list = document.getElementById('lesson-list');
         list.innerHTML = '';
         
-        const categories = ['國語', '數學', '總複習'];
+        const categories = ['國語', '國語闖關', '數學', '總複習'];
         const byCategory = {};
         Object.keys(lessons).forEach((key) => {
             const lesson = lessons[key];
@@ -4140,6 +4173,8 @@
             studyQueue = buildAreaQuestions(10);
         } else if (lesson && lesson.mode === "mix10") {
             studyQueue = buildMixedQuestions(10);
+        } else if (lesson && lesson.mode === "quiz") {
+            studyQueue = buildQuizSet(lesson.quizSpec);
         } else {
             studyQueue = [...lesson.words].sort(() => Math.random() - 0.5);
         }
@@ -4208,7 +4243,8 @@
         bossPending = false;
         prepareBossStats();
 
-        const basePool = studyQueue.length ? [...studyQueue] : buildRandomWords(10);
+        const quizFree = studyQueue.filter((q) => q.type !== 'quiz');
+        const basePool = quizFree.length ? quizFree : buildRandomWords(10);
         const extraPool = buildRandomWords(8);
         bossQuestions = shuffle([...basePool, ...extraPool]);
 
@@ -6121,6 +6157,14 @@ Return JSON only:
 
         const word = studyQueue[currentCardIndex];
         const cardInner = document.getElementById('study-card');
+        const quizArea = document.getElementById('quiz-area');
+        const sceneEl = document.getElementById('scene-study');
+        if (word.type === 'quiz') {
+            loadQuizCard(word);
+            return;
+        }
+        if (quizArea) quizArea.classList.add('hidden');
+        if (sceneEl) sceneEl.classList.remove('quiz-mode');
         
         cardInner.classList.remove('card-flipped');
         document.getElementById('study-controls').classList.add('hidden');
@@ -6193,6 +6237,155 @@ Return JSON only:
             const answerText = isMath || isStory || isArea ? word.a : word.c;
             const speakText = isArea ? `${answerText}格。${word.w}` : `${answerText}。${word.w}`;
             speak(speakText);
+        }
+    }
+
+    // --- 選擇題闖關 ---
+    const QUIZ_TAGS = { word: '🧩 語詞', read: '🔍 閱讀小偵探', riddle: '🕵️ 字謎與部首', poly: '🎭 破音字', vocab: '🔤 生字' };
+    let quizLocked = false;
+    let quizPicked = new Set();
+    let quizOrder = [];
+
+    function buildVocabChoice(word, pool) {
+        const others = pool.filter((w) => w.c !== word.c && w.z !== word.z);
+        const sameChar = pool.filter((w) => w.c === word.c && w.z !== word.z);
+        if (Math.random() < 0.5 || others.length < 3) {
+            // 看注音選國字
+            const chars = [...new Set(others.map((w) => w.c))];
+            const opts = [word.c, ...shuffle(chars).slice(0, 3)];
+            return {
+                type: 'quiz', kind: 'mc', tag: 'vocab', options: opts, answer: 0,
+                stem: `「${word.w.split(word.c).join('＿')}」\n＿ 要怎麼寫？(${word.z})`,
+                explain: `${word.c}（${word.w}）`
+            };
+        }
+        // 看國字選注音
+        const zs = [word.z, ...sameChar.map((w) => w.z)];
+        const rest = shuffle([...new Set(others.map((w) => w.z))]).filter((z) => !zs.includes(z));
+        const opts = [...zs, ...rest].slice(0, Math.max(4, zs.length));
+        return {
+            type: 'quiz', kind: 'mc', tag: 'vocab', options: opts, answer: 0,
+            stem: `「${word.w}」的「${word.c}」怎麼念？`,
+            explain: `${word.c} 讀作 ${word.z}`
+        };
+    }
+
+    function quizFromBank(item) {
+        return { type: 'quiz', kind: item.kind, tag: item.cat, options: item.options, answer: item.answer, stem: item.stem, explain: item.explain || '' };
+    }
+
+    function buildQuizSet(spec) {
+        const bank = (typeof QUIZ_BANK !== 'undefined' ? QUIZ_BANK : []);
+        const allVocab = getAllWords();
+        const count = spec.count || 10;
+        let list = [];
+        if (spec.lesson) {
+            const own = shuffle(bank.filter((b) => b.lesson === spec.lesson));
+            const take = own.slice(0, Math.min(own.length, Math.ceil(count * 0.6)));
+            list = take.map(quizFromBank);
+            const lessonWords = (lessons[String(spec.lesson)] || {}).words || [];
+            const pool = lessonWords.length >= 4 ? [...lessonWords, ...allVocab] : allVocab;
+            const need = count - list.length;
+            shuffle(lessonWords).slice(0, need).forEach((w) => list.push(buildVocabChoice(w, pool)));
+            if (list.length < count) {
+                shuffle(own.slice(take.length)).slice(0, count - list.length).forEach((b) => list.push(quizFromBank(b)));
+            }
+        } else if (spec.kind === 'vocab') {
+            list = shuffle(allVocab).slice(0, count).map((w) => buildVocabChoice(w, allVocab));
+        } else {
+            list = shuffle(bank.filter((b) => b.cat === spec.kind)).slice(0, count).map(quizFromBank);
+        }
+        return shuffle(list);
+    }
+
+    function loadQuizCard(item) {
+        const scene = document.getElementById('scene-study');
+        ['story-mode', 'area-mode', 'clock-mode', 'math-mode', 'writing-mode'].forEach((c) => scene.classList.remove(c));
+        scene.classList.add('quiz-mode');
+        document.getElementById('writing-area').classList.add('hidden');
+        document.getElementById('study-controls').classList.add('hidden');
+        document.getElementById('tap-hint').classList.add('hidden');
+        document.getElementById('q-idx').innerText = currentCardIndex + 1;
+        document.getElementById('study-progress').style.width = `${(currentCardIndex / studyQueue.length) * 100}%`;
+
+        document.getElementById('quiz-area').classList.remove('hidden');
+        document.getElementById('quiz-tag').innerText = QUIZ_TAGS[item.tag] || '📝 題目';
+        document.getElementById('quiz-stem').innerText = item.stem;
+        document.getElementById('quiz-feedback').innerText = '';
+        document.getElementById('quiz-feedback').className = 'mt-4 min-h-[2rem] text-lg font-black text-center';
+        const isMulti = item.kind === 'multi';
+        document.getElementById('quiz-submit').classList.toggle('hidden', !isMulti);
+
+        quizLocked = false;
+        quizPicked = new Set();
+        quizOrder = shuffle(item.options.map((_, i) => i));
+        const box = document.getElementById('quiz-options');
+        box.innerHTML = '';
+        quizOrder.forEach((origIdx) => {
+            const btn = document.createElement('button');
+            btn.className = 'quiz-opt';
+            btn.dataset.idx = origIdx;
+            btn.innerText = item.options[origIdx];
+            btn.onclick = () => onQuizOption(origIdx);
+            box.appendChild(btn);
+        });
+        speak(item.stem.replace(/＿+/g, '空格').replace(/\n/g, '。'));
+    }
+
+    function onQuizOption(idx) {
+        if (quizLocked) return;
+        const item = studyQueue[currentCardIndex];
+        const btn = document.querySelector(`#quiz-options .quiz-opt[data-idx="${idx}"]`);
+        if (item.kind === 'multi') {
+            if (quizPicked.has(idx)) { quizPicked.delete(idx); btn.classList.remove('picked'); }
+            else { quizPicked.add(idx); btn.classList.add('picked'); }
+            return;
+        }
+        quizLocked = true;
+        finishQuizAnswer(idx === item.answer, new Set([idx]));
+    }
+
+    function submitQuizMulti() {
+        if (quizLocked) return;
+        const item = studyQueue[currentCardIndex];
+        if (quizPicked.size === 0) return;
+        quizLocked = true;
+        const want = new Set(item.answer);
+        const ok = want.size === quizPicked.size && [...want].every((i) => quizPicked.has(i));
+        finishQuizAnswer(ok, quizPicked);
+    }
+
+    function finishQuizAnswer(isCorrect, picked) {
+        const item = studyQueue[currentCardIndex];
+        const rightSet = new Set(item.kind === 'multi' ? item.answer : [item.answer]);
+        document.querySelectorAll('#quiz-options .quiz-opt').forEach((b) => {
+            const i = Number(b.dataset.idx);
+            b.classList.remove('picked');
+            if (rightSet.has(i)) b.classList.add('right');
+            else if (picked.has(i)) b.classList.add('wrong');
+        });
+        document.getElementById('quiz-submit').classList.add('hidden');
+        const fb = document.getElementById('quiz-feedback');
+        if (isCorrect) {
+            playSound('sfx-correct');
+            gameState.backyardTickets = (gameState.backyardTickets || 0) + 1;
+            saveGame();
+            handleComboCorrect();
+            requestCatSpeech('answer-correct', { subject: 'quiz' });
+            fb.innerText = '✅ 答對了！' + (item.explain ? `\n${item.explain}` : '');
+            fb.classList.add('text-green-600');
+            currentCardIndex++;
+            setTimeout(loadCard, 1000);
+        } else {
+            playSound('sfx-wrong');
+            handleComboWrong();
+            requestCatSpeech('answer-wrong', { subject: 'quiz' });
+            const rightText = [...rightSet].map((i) => item.options[i]).join('、');
+            fb.innerText = `❌ 正確答案：${rightText}` + (item.explain && item.explain !== `答案:${rightText}` ? `\n${item.explain}` : '');
+            fb.classList.add('text-red-500');
+            studyQueue.push(item);
+            currentCardIndex++;
+            setTimeout(loadCard, 2200);
         }
     }
 
