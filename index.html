@@ -1890,31 +1890,25 @@
     let activeDecorSlot = null;
 
     const catSprites = [
-        "images/cats/egg.svg", 
-        "images/cats/baby_kitten.svg", 
-        "images/cats/playful_cat.svg", 
-        "images/cats/smart_cat.svg", 
-        "images/cats/ninja_cat.svg", 
-        "images/cats/wizard_cat.svg",
-        "images/cats/king_cat.svg",
-        "images/cats/queen_cat.svg",
-        "images/cats/angel_cat.svg",
-        "images/cats/demon_cat.svg",
-        "images/cats/space_cat.svg",
-        "images/cats/robot_cat.svg",
-        "images/cats/ghost_cat.svg",
-        "images/cats/super_cat.svg",
-        "images/cats/mega_cat.svg",
-        "images/cats/ultra_cat.svg",
-        "images/cats/rainbow_cat.svg",
-        "images/cats/golden_cat.svg",
-        "images/cats/crystal_cat.svg",
-        "images/cats/shadow_cat.svg",
-        "images/cats/fire_cat.svg",
-        "images/cats/water_cat.svg",
-        "images/cats/earth_cat.svg",
-        "images/cats/wind_cat.svg",
-        "images/cats/god_cat.svg"
+        "images/cats/egg.svg",
+        "images/cats/baby_kitten.svg",
+        "images/cats/c01.webp",
+        "images/cats/c02.webp",
+        "images/cats/c03.webp",
+        "images/cats/c04.webp",
+        "images/cats/c05.webp",
+        "images/cats/c06.webp",
+        "images/cats/c07.webp",
+        "images/cats/c08.webp",
+        "images/cats/c09.webp",
+        "images/cats/c10.webp",
+        "images/cats/c11.webp",
+        "images/cats/c12.webp",
+        "images/cats/c13.webp",
+        "images/cats/c14.webp",
+        "images/cats/c15.webp",
+        "images/cats/c16.webp",
+        "images/cats/c17.webp"
     ];
 
     const TREASURE_T = { FLOOR: 0, WALL: 1, BOX: 2, TARGET: 3, DONE: 4 };
@@ -4363,7 +4357,8 @@
         document.getElementById('scene-study').classList.add('hidden');
         document.getElementById('scene-boss').classList.remove('hidden');
 
-        document.getElementById('boss-image').src = `images/monsters/m${randInt(1, 14)}.svg`;
+        const bossNo = randInt(1, 15);
+        document.getElementById('boss-image').src = bossNo === 15 ? 'images/monsters/m15.webp' : `images/monsters/m${bossNo}.svg`;
 
         updateBossUI();
         loadBossQuestion();
