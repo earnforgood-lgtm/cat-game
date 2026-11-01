@@ -1,0 +1,2 @@
+Character art is composed from Twemoji graphics (c) Twitter, Inc and other contributors, licensed CC-BY 4.0: https://creativecommons.org/licenses/by/4.0/
+Source: https://github.com/twitter/twemoji

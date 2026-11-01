@@ -1090,7 +1090,7 @@
             <div id="cat-container" class="relative cursor-pointer cat-walk" onclick="petCat(event)">
                 <div id="cat-float" class="cat-float cat-anim">
                     <div id="cat-body" class="cat-body">
-                        <img id="cat-image" src="https://robohash.org/egg?set=set4&size=250x250" class="w-64 h-64 max-h-[40vh] object-contain drop-shadow-2xl" alt="Cat">
+                        <img id="cat-image" src="images/cats/egg.svg" class="w-64 h-64 max-h-[40vh] object-contain drop-shadow-2xl" alt="Cat">
                         <div id="synth-stack" class="synth-stack"></div>
                         <div id="gene-overlay" class="gene-overlay hidden">
                             <div class="gene-fusion-stage">
@@ -1470,7 +1470,7 @@
         </div>
         <div id="study-speech" class="hidden fixed bottom-4 right-4 z-40 flex items-end gap-2">
             <div class="w-10 h-10 rounded-full border-2 border-white shadow-md bg-white/90 flex items-center justify-center overflow-hidden">
-                <img id="study-cat-avatar" src="https://robohash.org/egg?set=set4&size=80x80" alt="Cat" class="w-full h-full object-cover">
+                <img id="study-cat-avatar" src="images/cats/egg.svg" alt="Cat" class="w-full h-full object-cover">
             </div>
             <div id="study-speech-text" class="max-w-[60vw] bg-white/90 text-gray-700 text-sm font-bold px-3 py-2 rounded-2xl shadow-sm border border-blue-100"></div>
         </div>
@@ -1537,7 +1537,7 @@
         </div>
 
         <div class="flex-1 flex flex-col items-center justify-center relative w-full">
-            <img id="boss-image" src="https://robohash.org/monster?set=set2&size=300x300" class="w-64 h-64 drop-shadow-[0_0_15px_rgba(255,0,0,0.8)] object-contain transition-transform">
+            <img id="boss-image" src="images/monsters/m1.svg" class="w-64 h-64 drop-shadow-[0_0_15px_rgba(255,0,0,0.8)] object-contain transition-transform">
             <div id="boss-effect" class="absolute text-6xl font-bold transition-all opacity-0" style="top:20%;"></div>
         </div>
 
@@ -1889,52 +1889,32 @@
     let onlineDecayTimer = null;
     let activeDecorSlot = null;
 
-    // --- 角色圖備援：外部圖片載入失敗時改用本地 emoji 圖，避免破圖 ---
-    const SPRITE_FALLBACK_EMOJI = [
-        ['egg', '🥚'], ['baby', '🐱'], ['monster', '👹'], ['demon', '😈'], ['ghost', '👻'],
-        ['angel', '😇'], ['god', '🌟'], ['king', '👑'], ['queen', '👸'], ['fire', '🔥'],
-        ['earth', '🌍'], ['crystal', '💎'], ['golden', '🏆'], ['wizard', '🧙'], ['ninja', '🥷']
-    ];
-    function spriteFallbackSrc(url) {
-        const match = SPRITE_FALLBACK_EMOJI.find(([key]) => url.includes(key));
-        const emoji = match ? match[1] : '🐈';
-        const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="250" height="250" viewBox="0 0 100 100"><text x="50" y="50" font-size="72" text-anchor="middle" dominant-baseline="central">${emoji}</text></svg>`;
-        return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
-    }
-    document.addEventListener('error', (e) => {
-        const img = e.target;
-        if (!img || img.tagName !== 'IMG') return;
-        const src = img.getAttribute('src') || '';
-        if (!src.includes('robohash.org')) return;
-        img.src = spriteFallbackSrc(src);
-    }, true);
-
     const catSprites = [
-        "https://robohash.org/egg?set=set4&size=250x250", 
-        "https://robohash.org/baby_kitten?set=set4&size=250x250", 
-        "https://robohash.org/playful_cat?set=set4&size=250x250", 
-        "https://robohash.org/smart_cat?set=set4&size=250x250", 
-        "https://robohash.org/ninja_cat?set=set4&size=250x250", 
-        "https://robohash.org/wizard_cat?set=set4&size=250x250",
-        "https://robohash.org/king_cat?set=set4&size=250x250",
-        "https://robohash.org/queen_cat?set=set4&size=250x250",
-        "https://robohash.org/angel_cat?set=set4&size=250x250",
-        "https://robohash.org/demon_cat?set=set4&size=250x250",
-        "https://robohash.org/space_cat?set=set4&size=250x250",
-        "https://robohash.org/robot_cat?set=set4&size=250x250",
-        "https://robohash.org/ghost_cat?set=set4&size=250x250",
-        "https://robohash.org/super_cat?set=set4&size=250x250",
-        "https://robohash.org/mega_cat?set=set4&size=250x250",
-        "https://robohash.org/ultra_cat?set=set4&size=250x250",
-        "https://robohash.org/rainbow_cat?set=set4&size=250x250",
-        "https://robohash.org/golden_cat?set=set4&size=250x250",
-        "https://robohash.org/crystal_cat?set=set4&size=250x250",
-        "https://robohash.org/shadow_cat?set=set4&size=250x250",
-        "https://robohash.org/fire_cat?set=set4&size=250x250",
-        "https://robohash.org/water_cat?set=set4&size=250x250",
-        "https://robohash.org/earth_cat?set=set4&size=250x250",
-        "https://robohash.org/wind_cat?set=set4&size=250x250",
-        "https://robohash.org/god_cat?set=set4&size=250x250"
+        "images/cats/egg.svg", 
+        "images/cats/baby_kitten.svg", 
+        "images/cats/playful_cat.svg", 
+        "images/cats/smart_cat.svg", 
+        "images/cats/ninja_cat.svg", 
+        "images/cats/wizard_cat.svg",
+        "images/cats/king_cat.svg",
+        "images/cats/queen_cat.svg",
+        "images/cats/angel_cat.svg",
+        "images/cats/demon_cat.svg",
+        "images/cats/space_cat.svg",
+        "images/cats/robot_cat.svg",
+        "images/cats/ghost_cat.svg",
+        "images/cats/super_cat.svg",
+        "images/cats/mega_cat.svg",
+        "images/cats/ultra_cat.svg",
+        "images/cats/rainbow_cat.svg",
+        "images/cats/golden_cat.svg",
+        "images/cats/crystal_cat.svg",
+        "images/cats/shadow_cat.svg",
+        "images/cats/fire_cat.svg",
+        "images/cats/water_cat.svg",
+        "images/cats/earth_cat.svg",
+        "images/cats/wind_cat.svg",
+        "images/cats/god_cat.svg"
     ];
 
     const TREASURE_T = { FLOOR: 0, WALL: 1, BOX: 2, TARGET: 3, DONE: 4 };
@@ -4383,8 +4363,7 @@
         document.getElementById('scene-study').classList.add('hidden');
         document.getElementById('scene-boss').classList.remove('hidden');
 
-        const randomSeed = Math.floor(Math.random() * 10000);
-        document.getElementById('boss-image').src = `https://robohash.org/${randomSeed}?set=set2&size=300x300`;
+        document.getElementById('boss-image').src = `images/monsters/m${randInt(1, 14)}.svg`;
 
         updateBossUI();
         loadBossQuestion();
