@@ -1316,6 +1316,16 @@
         </div>
     </div>
 
+    <!-- 抽貓結果 -->
+    <div id="gacha-result" class="hidden fixed inset-0 z-[70] flex flex-col items-center justify-center p-4 bg-black/75">
+        <div class="bg-white rounded-3xl border-4 border-pink-300 p-6 w-full max-w-xs flex flex-col items-center text-center shadow-2xl">
+            <div id="gacha-rarity" class="mb-2"></div>
+            <img id="gacha-img" src="" alt="" class="w-48 h-48 object-contain drop-shadow-lg">
+            <p id="gacha-msg" class="mt-3 font-bold text-gray-700"></p>
+            <button onclick="closeGachaResult()" class="mt-4 w-full py-3 bg-pink-500 text-white rounded-xl font-black btn-3d border-b-4 border-pink-700">好耶！</button>
+        </div>
+    </div>
+
     <!-- 貓咪圖鑑 -->
     <div id="scene-catbook" class="hidden fixed inset-0 z-50 flex flex-col items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
         <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl border-4 border-amber-200 flex flex-col max-h-[85dvh] overflow-hidden">
@@ -1326,7 +1336,8 @@
                 </div>
             </div>
             <div id="catbook-list" class="flex-1 min-h-0 overflow-y-auto grid grid-cols-3 gap-3 p-4 content-start bg-gray-50 allow-scroll"></div>
-            <div class="p-4 border-t-2 border-gray-100 bg-white">
+            <div class="p-4 border-t-2 border-gray-100 bg-white flex flex-col gap-2">
+                <button id="gacha-btn" onclick="pullGacha()" class="w-full py-3 bg-pink-500 hover:bg-pink-600 text-white rounded-xl font-black btn-3d border-b-4 border-pink-700 transition">🎰 抽貓</button>
                 <button onclick="closeCatBook()" class="w-full py-3 bg-gray-400 hover:bg-gray-500 text-white rounded-xl font-bold btn-3d border-b-4 border-gray-600 transition">關閉圖鑑</button>
             </div>
         </div>
@@ -1688,6 +1699,7 @@
         isSick: false,
         lastLoginTime: Date.now(),
         treasureTickets: 0,
+        gachaTickets: 0,
         inventory: [],
         materialInventory: [],
         synthUnlocked: [0],
@@ -1908,8 +1920,94 @@
         "images/cats/c14.webp",
         "images/cats/c15.webp",
         "images/cats/c16.webp",
-        "images/cats/c17.webp"
+        "images/cats/c17.webp",
+        "images/cats/n01.webp",
+        "images/cats/n02.webp",
+        "images/cats/n03.webp",
+        "images/cats/n04.webp",
+        "images/cats/n05.webp",
+        "images/cats/n06.webp",
+        "images/cats/n07.webp",
+        "images/cats/n08.webp",
+        "images/cats/n09.webp",
+        "images/cats/n10.webp",
+        "images/cats/n11.webp",
+        "images/cats/n12.webp",
+        "images/cats/n13.webp",
+        "images/cats/n14.webp",
+        "images/cats/n15.webp",
+        "images/cats/n16.webp",
+        "images/cats/n17.webp",
+        "images/cats/n18.webp"
     ];
+
+    // 稀有度：0-1 起始貓，2-18 特殊貓(低機率)，19 之後 普通貓(高機率)
+    const CAT_SPECIAL_START = 2;
+    const CAT_NORMAL_START = 19;
+    const GACHA_COST = 30;
+    const GACHA_SPECIAL_RATE = 0.1;
+    const GACHA_DUP_REFUND = { normal: 10, special: 30 };
+    function getCatRarity(i) {
+        if (i < CAT_SPECIAL_START) return 'starter';
+        return i < CAT_NORMAL_START ? 'special' : 'normal';
+    }
+    function rollGachaCat() {
+        const wantSpecial = Math.random() < GACHA_SPECIAL_RATE;
+        const start = wantSpecial ? CAT_SPECIAL_START : CAT_NORMAL_START;
+        const end = wantSpecial ? CAT_NORMAL_START : catSprites.length;
+        return start + Math.floor(Math.random() * (end - start));
+    }
+    function pullGacha() {
+        const useTicket = (gameState.gachaTickets || 0) > 0;
+        if (!useTicket && gameState.food < GACHA_COST) {
+            playSound('sfx-wrong');
+            showCatSpeech(`罐頭不夠，抽一次要 ${GACHA_COST} 罐頭喔！`);
+            return;
+        }
+        if (useTicket) gameState.gachaTickets -= 1;
+        else gameState.food -= GACHA_COST;
+
+        const idx = rollGachaCat();
+        const rarity = getCatRarity(idx);
+        const isNew = !gameState.unlockedCats.includes(idx);
+        let refund = 0;
+        if (isNew) {
+            gameState.unlockedCats.push(idx);
+            gameState.currentCatIndex = idx;
+        } else {
+            refund = GACHA_DUP_REFUND[rarity] || 0;
+            gameState.food += refund;
+        }
+        saveGame();
+        updateRoomUI();
+        showGachaResult(idx, rarity, isNew, refund);
+        renderCatBook();
+    }
+    function showGachaResult(idx, rarity, isNew, refund) {
+        const box = document.getElementById('gacha-result');
+        if (!box) return;
+        const special = rarity === 'special';
+        document.getElementById('gacha-img').src = catSprites[idx];
+        document.getElementById('gacha-rarity').innerText = special ? '✨ 特殊貓 ✨' : '普通貓';
+        document.getElementById('gacha-rarity').className = special
+            ? 'text-2xl font-black text-purple-500 animate-pulse' : 'text-xl font-black text-amber-500';
+        document.getElementById('gacha-msg').innerText = isNew
+            ? '新夥伴加入！已經幫你換上了 🎉'
+            : `已經有了，換成 ${refund} 罐頭 🥫`;
+        box.classList.remove('hidden');
+        playSound(special ? 'sfx-levelup' : 'sfx-win');
+    }
+    function closeGachaResult() {
+        const box = document.getElementById('gacha-result');
+        if (box) box.classList.add('hidden');
+        updateGachaButton();
+    }
+    function updateGachaButton() {
+        const btn = document.getElementById('gacha-btn');
+        if (!btn) return;
+        const t = gameState.gachaTickets || 0;
+        btn.innerText = t > 0 ? `🎰 抽貓（免費券 ${t} 張）` : `🎰 抽貓（${GACHA_COST} 🥫）`;
+    }
 
     const TREASURE_T = { FLOOR: 0, WALL: 1, BOX: 2, TARGET: 3, DONE: 4 };
     const TREASURE_DEFAULT_THEME = {
@@ -2183,18 +2281,16 @@
         if (typeof gameState.mood !== 'number') gameState.mood = 100;
         if (typeof gameState.isSick !== 'boolean') gameState.isSick = false;
         if (typeof gameState.treasureTickets !== 'number') gameState.treasureTickets = 0;
+        if (typeof gameState.gachaTickets !== 'number') gameState.gachaTickets = 0;
         if (typeof gameState.backyardTickets !== 'number') gameState.backyardTickets = 0;
         if (typeof gameState.lastLoginTime !== 'number') gameState.lastLoginTime = Date.now();
 
         calculateOfflineProgress();
 
         gameState.level = Math.max(1, Math.floor(gameState.exp / EXP_PER_LEVEL) + 1);
-        const levelIndex = clampCatIndex(gameState.level - 1);
-        for (let i = 0; i <= levelIndex; i += 1) {
-            if (!gameState.unlockedCats.includes(i)) gameState.unlockedCats.push(i);
-        }
+        if (!gameState.unlockedCats.includes(0)) gameState.unlockedCats.push(0);
         if (!gameState.unlockedCats.includes(gameState.currentCatIndex)) {
-            gameState.currentCatIndex = levelIndex;
+            gameState.currentCatIndex = 0;
         }
         gameState.currentCatIndex = clampCatIndex(gameState.currentCatIndex);
         updateRoomUI();
@@ -2745,12 +2841,8 @@
             }
         }
 
-        const levelIndex = clampCatIndex(gameState.level - 1);
-        if (!gameState.unlockedCats.includes(levelIndex)) {
-            unlockCatSkin(levelIndex, false);
-        }
         const currentIndex = clampCatIndex(
-            typeof gameState.currentCatIndex === 'number' ? gameState.currentCatIndex : levelIndex
+            typeof gameState.currentCatIndex === 'number' ? gameState.currentCatIndex : 0
         );
         if (catImg) catImg.src = catSprites[currentIndex];
         const studyAvatar = document.getElementById('study-cat-avatar');
@@ -3301,7 +3393,9 @@
 
         if (calculatedLevel > gameState.level) {
             gameState.level = calculatedLevel;
-            unlockCatSkin(calculatedLevel - 1, true);
+            gameState.gachaTickets = (gameState.gachaTickets || 0) + 1;
+            updateGachaButton();
+            showCatSpeech('升級了！送你一張免費抽貓券 🎟️');
             showLevelUp();
         }
 
@@ -3842,6 +3936,7 @@
         if (!list || !progress) return;
         list.innerHTML = '';
 
+        updateGachaButton();
         const total = catSprites.length;
         const unlocked = gameState.unlockedCats.length;
         progress.innerText = `${unlocked}/${total}`;
@@ -3866,7 +3961,7 @@
                 card.innerHTML = `
                     ${badge}
                     <img src="${catSprites[i]}" alt="Cat ${i + 1}" class="w-16 h-16 object-contain drop-shadow-sm" loading="lazy">
-                    <div class="text-[10px] font-bold text-center text-gray-600 mt-1">Lv.${i + 1}</div>
+                    <div class="text-[10px] font-bold text-center mt-1 ${getCatRarity(i) === 'special' ? 'text-purple-500' : 'text-gray-600'}">${getCatRarity(i) === 'special' ? '✨特殊' : getCatRarity(i) === 'normal' ? '普通' : '初始'}</div>
                 `;
                 card.onclick = () => {
                     summonCat(i);
@@ -3875,7 +3970,7 @@
             } else {
                 card.innerHTML = `
                     <div class="text-2xl grayscale mb-1">🔒</div>
-                    <div class="text-[10px] font-bold text-gray-400">???</div>
+                    <div class="text-[10px] font-bold text-gray-400">${getCatRarity(i) === 'special' ? '✨特殊' : '???'}</div>
                 `;
             }
             list.appendChild(card);
