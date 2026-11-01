@@ -2358,44 +2358,60 @@
     function buildStoryQuestions(count) {
         const templates = shuffle([
             () => {
-                const price = randInt(6, 15);
-                const qty = randInt(2, 9);
+                const price = randInt(12, 48);
+                const qty = randInt(3, 9);
                 return {
-                    story: `媽媽買菜，每顆蘋果 ${price} 元，買了 ${qty} 顆，一共多少元？`,
+                    story: `媽媽買水果，每顆 ${price} 元，買了 ${qty} 顆，一共多少元？`,
                     answer: String(price * qty)
                 };
             },
             () => {
-                const kids = randInt(2, 8);
-                const per = randInt(2, Math.min(8, Math.floor(50 / kids)));
-                const candies = kids * per;
+                const kids = randInt(3, 9);
+                const per = randInt(3, 9);
                 return {
-                    story: `有 ${candies} 顆糖果，平均分給 ${kids} 個小朋友，每人幾顆？`,
+                    story: `有 ${kids * per} 顆糖果，平均分給 ${kids} 個小朋友，每人幾顆？`,
                     answer: String(per)
                 };
             },
             () => {
-                const total = randInt(20, 50);
-                const used = randInt(6, total - 6);
+                const total = randInt(500, 900);
+                const used = randInt(120, total - 100);
                 return {
-                    story: `小明有 ${total} 元，買文具花了 ${used} 元，還剩多少元？`,
+                    story: `小明有 ${total} 元，買書花了 ${used} 元，還剩多少元？`,
                     answer: String(total - used)
                 };
             },
             () => {
-                const a = randInt(6, 25);
-                const b = randInt(6, 25);
+                const a = randInt(120, 480);
+                const b = randInt(120, 480);
                 return {
-                    story: `籃子裡有 ${a} 顆橘子，又放進 ${b} 顆，一共有幾顆？`,
+                    story: `圖書館有故事書 ${a} 本、科學書 ${b} 本，一共有幾本？`,
                     answer: String(a + b)
                 };
             },
             () => {
-                const per = randInt(2, 9);
-                const days = randInt(2, 7);
+                const per = randInt(12, 35);
+                const days = randInt(3, 9);
                 return {
-                    story: `每天讀 ${per} 頁，連續讀 ${days} 天，一共讀了幾頁？`,
+                    story: `每天走 ${per} 分鐘的路，連續走 ${days} 天，一共走了幾分鐘？`,
                     answer: String(per * days)
+                };
+            },
+            () => {
+                const groups = randInt(3, 8);
+                const per = randInt(4, 9);
+                const extra = randInt(1, groups * per - 1);
+                return {
+                    story: `${groups * per + extra} 個蛋糕，每 ${groups} 個裝一盒，最多裝滿幾盒？`,
+                    answer: String(Math.floor((groups * per + extra) / groups))
+                };
+            },
+            () => {
+                const km = randInt(2, 9);
+                const m = randInt(1, 9) * 100;
+                return {
+                    story: `爸爸騎車 ${km} 公里又 ${m} 公尺，合起來是幾公尺？`,
+                    answer: String(km * 1000 + m)
                 };
             }
         ]);
@@ -2414,27 +2430,26 @@
     }
 
     function buildBasicMathQuestion() {
-        const useMultiply = Math.random() < 0.5;
-        if (useMultiply) {
-            const a = randInt(2, 9);
-            const b = randInt(2, 9);
-            return {
-                type: "math",
-                q: `${a} × ${b}`,
-                a: String(a * b),
-                r: "數學題",
-                w: `${a} × ${b} = ${a * b}`
-            };
+        const kind = pickRandom(['mul99', 'mul2x1', 'div', 'add3', 'sub3']);
+        const mk = (q, ans) => ({ type: "math", q, a: String(ans), r: "數學題", w: `${q} = ${ans}` });
+        if (kind === 'mul99') {
+            const a = randInt(2, 9), b = randInt(2, 9);
+            return mk(`${a} × ${b}`, a * b);
         }
-        const a = randInt(6, 44);
-        const b = randInt(6, 50 - a);
-        return {
-            type: "math",
-            q: `${a} + ${b}`,
-            a: String(a + b),
-            r: "數學題",
-            w: `${a} + ${b} = ${a + b}`
-        };
+        if (kind === 'mul2x1') {
+            const a = randInt(11, 99), b = randInt(2, 9);
+            return mk(`${a} × ${b}`, a * b);
+        }
+        if (kind === 'div') {
+            const b = randInt(2, 9), c = randInt(2, 9);
+            return mk(`${b * c} ÷ ${b}`, c);
+        }
+        if (kind === 'add3') {
+            const a = randInt(120, 640), b = randInt(120, 999 - a);
+            return mk(`${a} + ${b}`, a + b);
+        }
+        const a = randInt(300, 999), b = randInt(100, a - 50);
+        return mk(`${a} - ${b}`, a - b);
     }
 
     function buildMultiQuestion() {
@@ -2447,7 +2462,7 @@
             { emoji: "🍡", name: "丸子", mult: 3, unit: "顆" }
         ];
         const theme = pickRandom(themes);
-        const groups = randInt(2, 9);
+        const groups = randInt(3, 9);
         const answer = groups * theme.mult;
         return {
             type: "math",
@@ -2461,8 +2476,7 @@
 
     function buildTimeQuestion() {
         const h = randInt(1, 12);
-        const m = randInt(0, 11) * 5;
-        const minuteText = m === 0 ? "整點" : `${m}分`;
+        const m = randInt(0, 59);
         return {
             type: "math",
             q: "看時鐘回答",
@@ -2472,6 +2486,25 @@
             w: `時間是 ${h}點${m}分`,
             visual: "clock",
             time: { h, m }
+        };
+    }
+
+    function buildElapsedQuestion() {
+        const h = randInt(7, 11);
+        const m = randInt(0, 5) * 10;
+        const addH = randInt(0, 2);
+        const addM = randInt(1, 5) * 10 + (addH === 0 ? 0 : 0);
+        const total = h * 60 + m + addH * 60 + addM;
+        const eh = Math.floor(total / 60), em = total % 60;
+        const pad = (n) => String(n).padStart(2, '0');
+        const dur = addH ? `${addH} 小時 ${addM} 分鐘` : `${addM} 分鐘`;
+        return {
+            type: "math",
+            q: "時間計算",
+            a: `${eh}:${pad(em)}`,
+            r: "數學題",
+            h: `現在是 ${h}:${pad(m)}，過了 ${dur} 是幾點幾分？（例如 9:30）`,
+            w: `${h}:${pad(m)} + ${dur} = ${eh}:${pad(em)}`
         };
     }
 
@@ -2486,9 +2519,9 @@
     function buildStep2Question() {
         const useBus = Math.random() < 0.5;
         if (useBus) {
-            const start = randInt(10, 24);
-            const down = randInt(1, 6);
-            const up = randInt(2, 8);
+            const start = randInt(120, 260);
+            const down = randInt(15, 80);
+            const up = randInt(20, 90);
             const answer = start - down + up;
             return {
                 type: "math",
@@ -2499,9 +2532,9 @@
                 w: `${start} - ${down} + ${up} = ${answer}`
             };
         }
-        const base = randInt(10, 20);
-        const add1 = randInt(2, 6);
-        const add2 = randInt(2, 6);
+        const base = randInt(100, 250);
+        const add1 = randInt(20, 90);
+        const add2 = randInt(20, 90);
         const answer = base + add1 + add2;
         return {
             type: "math",
@@ -2519,8 +2552,9 @@
         const generators = [
             buildBasicMathQuestion,
             buildBasicMathQuestion,
+            buildBasicMathQuestion,
             buildMultiQuestion,
-            buildTimeQuestion,
+            buildElapsedQuestion,
             buildStep2Question
         ];
         for (let i = storyCount; i < count; i += 1) {
@@ -2534,8 +2568,8 @@
         const questions = [];
         const variants = ['count', 'diff', 'sum'];
         const makeGrid = () => {
-            const cols = randInt(2, 6);
-            const rows = randInt(2, 6);
+            const cols = randInt(3, 8);
+            const rows = randInt(3, 8);
             return { cols, rows, total: cols * rows };
         };
         for (let i = 0; i < count; i += 1) {
