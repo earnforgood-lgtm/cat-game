@@ -832,6 +832,20 @@
             overscroll-behavior: contain;
             -webkit-overflow-scrolling: touch;
         }
+        #scene-study.quiz-mode .study-card-wrap,
+        #scene-study.quiz-mode #writing-area,
+        #scene-study.quiz-mode #study-controls { display: none !important; }
+        .quiz-opt {
+            width: 100%; padding: 14px 16px; border-radius: 18px; background: #fff;
+            border: 3px solid #bfdbfe; border-bottom-width: 6px; font-size: 1.35rem; font-weight: 800;
+            color: #1f2937; text-align: left; transition: transform .1s, background .15s;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .quiz-opt:active { transform: scale(0.97); }
+        .quiz-opt.picked { background: #dbeafe; border-color: #3b82f6; }
+        .quiz-opt.right { background: #bbf7d0; border-color: #22c55e; }
+        .quiz-opt.wrong { background: #fecaca; border-color: #ef4444; animation: quizShake .35s; }
+        @keyframes quizShake { 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
         #scene-study.writing-mode .study-card-wrap {
             height: 20rem;
             margin-bottom: 1.25rem;
@@ -1076,7 +1090,7 @@
             <div id="cat-container" class="relative cursor-pointer cat-walk" onclick="petCat(event)">
                 <div id="cat-float" class="cat-float cat-anim">
                     <div id="cat-body" class="cat-body">
-                        <img id="cat-image" src="https://robohash.org/egg?set=set4&size=250x250" class="w-64 h-64 max-h-[40vh] object-contain drop-shadow-2xl" alt="Cat">
+                        <img id="cat-image" src="images/cats/egg.svg" class="w-64 h-64 max-h-[40vh] object-contain drop-shadow-2xl" alt="Cat">
                         <div id="synth-stack" class="synth-stack"></div>
                         <div id="gene-overlay" class="gene-overlay hidden">
                             <div class="gene-fusion-stage">
@@ -1302,6 +1316,16 @@
         </div>
     </div>
 
+    <!-- 抽貓結果 -->
+    <div id="gacha-result" class="hidden fixed inset-0 z-[70] flex flex-col items-center justify-center p-4 bg-black/75">
+        <div class="bg-white rounded-3xl border-4 border-pink-300 p-6 w-full max-w-xs flex flex-col items-center text-center shadow-2xl">
+            <div id="gacha-rarity" class="mb-2"></div>
+            <img id="gacha-img" src="" alt="" class="w-48 h-48 object-contain drop-shadow-lg">
+            <p id="gacha-msg" class="mt-3 font-bold text-gray-700"></p>
+            <button onclick="closeGachaResult()" class="mt-4 w-full py-3 bg-pink-500 text-white rounded-xl font-black btn-3d border-b-4 border-pink-700">好耶！</button>
+        </div>
+    </div>
+
     <!-- 貓咪圖鑑 -->
     <div id="scene-catbook" class="hidden fixed inset-0 z-50 flex flex-col items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
         <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl border-4 border-amber-200 flex flex-col max-h-[85dvh] overflow-hidden">
@@ -1312,7 +1336,8 @@
                 </div>
             </div>
             <div id="catbook-list" class="flex-1 min-h-0 overflow-y-auto grid grid-cols-3 gap-3 p-4 content-start bg-gray-50 allow-scroll"></div>
-            <div class="p-4 border-t-2 border-gray-100 bg-white">
+            <div class="p-4 border-t-2 border-gray-100 bg-white flex flex-col gap-2">
+                <button id="gacha-btn" onclick="pullGacha()" class="w-full py-3 bg-pink-500 hover:bg-pink-600 text-white rounded-xl font-black btn-3d border-b-4 border-pink-700 transition">🎰 抽貓</button>
                 <button onclick="closeCatBook()" class="w-full py-3 bg-gray-400 hover:bg-gray-500 text-white rounded-xl font-bold btn-3d border-b-4 border-gray-600 transition">關閉圖鑑</button>
             </div>
         </div>
@@ -1456,9 +1481,16 @@
         </div>
         <div id="study-speech" class="hidden fixed bottom-4 right-4 z-40 flex items-end gap-2">
             <div class="w-10 h-10 rounded-full border-2 border-white shadow-md bg-white/90 flex items-center justify-center overflow-hidden">
-                <img id="study-cat-avatar" src="https://robohash.org/egg?set=set4&size=80x80" alt="Cat" class="w-full h-full object-cover">
+                <img id="study-cat-avatar" src="images/cats/egg.svg" alt="Cat" class="w-full h-full object-cover">
             </div>
             <div id="study-speech-text" class="max-w-[60vw] bg-white/90 text-gray-700 text-sm font-bold px-3 py-2 rounded-2xl shadow-sm border border-blue-100"></div>
+        </div>
+        <div id="quiz-area" class="hidden w-full max-w-md flex flex-col items-center mb-6">
+            <div id="quiz-tag" class="text-xs font-black text-white bg-orange-400 px-3 py-1 rounded-full mb-3 shadow"></div>
+            <div id="quiz-stem" class="w-full bg-white border-4 border-blue-200 rounded-3xl p-5 text-2xl font-black text-gray-800 leading-relaxed text-center shadow-lg mb-4 whitespace-pre-line"></div>
+            <div id="quiz-options" class="grid gap-3 w-full"></div>
+            <button id="quiz-submit" onclick="submitQuizMulti()" class="hidden mt-4 w-full py-4 bg-blue-500 text-white rounded-2xl font-black text-xl border-b-4 border-blue-700 active:scale-95">確定答案</button>
+            <div id="quiz-feedback" class="mt-4 min-h-[2rem] text-lg font-black text-center"></div>
         </div>
         <div class="study-card-wrap perspective-1000 w-full max-w-xs h-96 cursor-pointer mb-8 relative group" onclick="flipCard()">
             <div id="tap-hint" class="absolute -right-4 top-1/2 z-10 animate-bounce bg-white/80 p-2 rounded-full shadow-lg pointer-events-none">👆</div>
@@ -1489,11 +1521,13 @@
                 <div class="absolute inset-0 pointer-events-none opacity-20"
                      style="background: linear-gradient(45deg, transparent 49%, #ef4444 49%, #ef4444 51%, transparent 51%), linear-gradient(-45deg, transparent 49%, #ef4444 49%, #ef4444 51%, transparent 51%), linear-gradient(90deg, transparent 49%, #ef4444 49%, #ef4444 51%, transparent 51%), linear-gradient(0deg, transparent 49%, #ef4444 49%, #ef4444 51%, transparent 51%);">
                 </div>
-                <canvas id="write-canvas" width="280" height="280"></canvas>
+                <div id="trace-layer" class="absolute inset-0 hidden items-center justify-center pointer-events-none select-none" style="font-family:'BiauKai','Kaiti TC','DFKai-SB','標楷體',serif;font-size:230px;line-height:1;color:rgba(100,116,139,0.28);"></div>
+                <canvas id="write-canvas" width="280" height="280" style="position:relative;z-index:1;"></canvas>
             </div>
             <div class="flex gap-2 mt-2">
                 <button onclick="clearCanvas()" class="px-3 py-1 bg-gray-200 rounded text-sm">清除</button>
                 <button onclick="togglePenColor()" class="px-3 py-1 bg-black text-white rounded text-sm" id="pen-btn">筆色: 黑</button>
+                <button onclick="toggleTrace()" id="trace-btn" class="px-3 py-1 bg-sky-500 text-white rounded text-sm">✏️ 描紅</button>
             </div>
         </div>
         <div id="study-controls" class="hidden flex gap-4 w-full max-w-md animate-[fadeIn_0.5s_ease-out]">
@@ -1514,7 +1548,7 @@
         </div>
 
         <div class="flex-1 flex flex-col items-center justify-center relative w-full">
-            <img id="boss-image" src="https://robohash.org/monster?set=set2&size=300x300" class="w-64 h-64 drop-shadow-[0_0_15px_rgba(255,0,0,0.8)] object-contain transition-transform">
+            <img id="boss-image" src="images/monsters/m1.svg" class="w-64 h-64 drop-shadow-[0_0_15px_rgba(255,0,0,0.8)] object-contain transition-transform">
             <div id="boss-effect" class="absolute text-6xl font-bold transition-all opacity-0" style="top:20%;"></div>
         </div>
 
@@ -1587,51 +1621,55 @@
         <div class="text-6xl animate-pulse">😻</div>
     </div>
 
+<script src="quiz-bank.js"></script>
+<script src="quiz-words.js"></script>
 <script>
     // --- 0. 資料庫 ---
     const lessons = {
-        "7": { title: "第七課", category: "國語", words: [
-            {c:"樣",z:"ㄧㄤˋ",r:"木部",w:"樣子"}, {c:"食",z:"ㄕˊ",r:"食部",w:"食品"}, {c:"郊",z:"ㄐㄧㄠ",r:"邑部",w:"郊外"}, {c:"活",z:"ㄏㄨㄛˊ",r:"水部",w:"生活"},
-            {c:"奇",z:"ㄑㄧˊ",r:"大部",w:"奇怪"}, {c:"筒",z:"ㄊㄨㄥˇ",r:"竹部",w:"竹筒"}, {c:"香",z:"ㄒㄧㄤ",r:"香部",w:"香水"}, {c:"味",z:"ㄨㄟˋ",r:"口部",w:"味道"},
-            {c:"便",z:"ㄅㄧㄢˋ",r:"人部",w:"方便"}, {c:"當",z:"ㄉㄤ",r:"田部",w:"便當"}, {c:"盒",z:"ㄏㄜˊ",r:"皿部",w:"盒子"}, {c:"客",z:"ㄎㄜˋ",r:"宀部",w:"客人"},
-            {c:"清",z:"ㄑㄧㄥ",r:"水部",w:"清水"}, {c:"節",z:"ㄐㄧㄝˊ",r:"竹部",w:"節日"}, {c:"保",z:"ㄅㄠˇ",r:"人部",w:"保護"}, {c:"平",z:"ㄆㄧㄥˊ",r:"干部",w:"平安"},
-            {c:"安",z:"ㄢ",r:"宀部",w:"安全"}, {c:"南",z:"ㄋㄢˊ",r:"十部",w:"南方"}
+        "1": { title: "第一課 時間是什麼", category: "國語", words: [
+            {c:"樂",z:"ㄌㄜˋ",r:"木部",w:"快樂"}, {c:"樂",z:"ㄩㄝˋ",r:"木部",w:"音樂"}, {c:"蝸",z:"ㄍㄨㄚ",r:"虫部",w:"蝸牛"}, {c:"牛",z:"ㄋㄧㄡˊ",r:"牛部",w:"蝸牛"},
+            {c:"彈",z:"ㄊㄢˊ",r:"弓部",w:"彈奏"}, {c:"牠",z:"ㄊㄚ",r:"牛部",w:"牠"}, {c:"吞",z:"ㄊㄨㄣ",r:"口部",w:"吞下"}, {c:"奔",z:"ㄅㄣ",r:"大部",w:"奔跑"},
+            {c:"寸",z:"ㄘㄨㄣˋ",r:"寸部",w:"一寸"}, {c:"簧",z:"ㄏㄨㄤˊ",r:"竹部",w:"彈簧"}, {c:"悲",z:"ㄅㄟ",r:"心部",w:"悲傷"}
         ]},
-        "8": { title: "第八課", category: "國語", words: [
-            {c:"介",z:"ㄐㄧㄝˋ",r:"人部",w:"介紹"}, {c:"園",z:"ㄩㄢˊ",r:"囗部",w:"公園"}, {c:"形",z:"ㄒㄧㄥˊ",r:"彡部",w:"形狀"}, {c:"白",z:"ㄅㄞˊ",r:"白部",w:"白色"},
-            {c:"紙",z:"ㄓˇ",r:"糸部",w:"白紙"}, {c:"米",z:"ㄇㄧˇ",r:"米部",w:"白米"}, {c:"變",z:"ㄅㄧㄢˋ",r:"言部",w:"改變"}, {c:"軟",z:"ㄖㄨㄢˇ",r:"車部",w:"柔軟"},
-            {c:"搶",z:"ㄑㄧㄤˇ",r:"手部",w:"搶走"}, {c:"材",z:"ㄘㄞˊ",r:"木部",w:"材料"}, {c:"蝦",z:"ㄒㄧㄚ",r:"虫部",w:"蝦子"}, {c:"線",z:"ㄒㄧㄢˋ",r:"糸部",w:"毛線"},
-            {c:"各",z:"ㄍㄜˋ",r:"口部",w:"各種"}, {c:"種",z:"ㄓㄨㄥˇ",r:"禾部",w:"種子"}, {c:"菜",z:"ㄘㄞˋ",r:"艸部",w:"青菜"}, {c:"聽",z:"ㄊㄧㄥ",r:"耳部",w:"聽見"},
-            {c:"更",z:"ㄍㄥˋ",r:"曰部",w:"更加"}, {c:"接",z:"ㄐㄧㄝ",r:"手部",w:"接受"}
+        "2": { title: "第二課 妙用便利貼", category: "國語", words: [
+            {c:"鐘",z:"ㄓㄨㄥ",r:"金部",w:"鐘聲"}, {c:"睡",z:"ㄕㄨㄟˋ",r:"目部",w:"睡過頭"}, {c:"準",z:"ㄓㄨㄣˇ",r:"水部",w:"準時"}, {c:"條",z:"ㄊㄧㄠˊ",r:"木部",w:"回條"},
+            {c:"排",z:"ㄆㄞˊ",r:"手部",w:"排隊"}, {c:"序",z:"ㄒㄩˋ",r:"广部",w:"秩序"}, {c:"貼",z:"ㄊㄧㄝ",r:"貝部",w:"便利貼"}, {c:"而",z:"ㄦˊ",r:"而部",w:"而且"},
+            {c:"且",z:"ㄑㄧㄝˇ",r:"一部",w:"而且"}, {c:"醒",z:"ㄒㄧㄥˇ",r:"酉部",w:"提醒"}, {c:"使",z:"ㄕˇ",r:"人部",w:"天使"}, {c:"顯",z:"ㄒㄧㄢˇ",r:"頁部",w:"明顯"}
         ]},
-        "9": { title: "第九課", category: "國語", words: [
-            {c:"黃",z:"ㄏㄨㄤˊ",r:"黃部",w:"黃色"}, {c:"沖",z:"ㄔㄨㄥ",r:"水部",w:"沖洗"}, {c:"澡",z:"ㄗㄠˇ",r:"水部",w:"洗澡"}, {c:"蘿",z:"ㄌㄨㄛˊ",r:"艸部",w:"蘿蔔"},
-            {c:"蔔",z:"ㄅㄛ˙",r:"艸部",w:"蘿蔔"}, {c:"哪",z:"ㄋㄚˇ",r:"口部",w:"哪裡"}, {c:"粒",z:"ㄌㄧˋ",r:"米部",w:"米粒"}, {c:"熱",z:"ㄖㄜˋ",r:"火部",w:"熱鬧"},
-            {c:"浴",z:"ㄩˋ",r:"水部",w:"浴室"}, {c:"蒸",z:"ㄓㄥ",r:"火部",w:"蒸氣"}, {c:"胖",z:"ㄆㄤˋ",r:"肉部",w:"肥胖"}, {c:"名",z:"ㄇㄧㄥˊ",r:"口部",w:"名字"},
-            {c:"苔",z:"ㄊㄞˊ",r:"艸部",w:"青苔"}, {c:"蛋",z:"ㄉㄢˋ",r:"虫部",w:"雞蛋"}, {c:"蔬",z:"ㄕㄨ",r:"艸部",w:"蔬菜"}, {c:"通",z:"ㄊㄨㄥ",r:"辵部",w:"通過"},
-            {c:"細",z:"ㄒㄧˋ",r:"糸部",w:"細小"}
+        "3": { title: "第三課 提早五分鐘", category: "國語", words: [
+            {c:"統",z:"ㄊㄨㄥˇ",r:"糸部",w:"統計"}, {c:"票",z:"ㄆㄧㄠˋ",r:"示部",w:"車票"}, {c:"角",z:"ㄐㄧㄠˇ",r:"角部",w:"三角板"}, {c:"業",z:"ㄧㄝˋ",r:"木部",w:"作業"},
+            {c:"本",z:"ㄅㄣˇ",r:"木部",w:"作業本"}, {c:"此",z:"ㄘˇ",r:"止部",w:"從此"}, {c:"覺",z:"ㄐㄩㄝˊ",r:"見部",w:"覺得"}, {c:"得",z:"ㄉㄜ˙",r:"彳部",w:"覺得"},
+            {c:"覺",z:"ㄐㄧㄠˋ",r:"見部",w:"睡覺"}, {c:"得",z:"ㄉㄟˇ",r:"彳部",w:"我得先整理"}, {c:"理",z:"ㄌㄧˇ",r:"玉部",w:"整理"}, {c:"具",z:"ㄐㄩˋ",r:"八部",w:"文具"},
+            {c:"備",z:"ㄅㄟˋ",r:"人部",w:"準備"}, {c:"該",z:"ㄍㄞ",r:"言部",w:"應該"}, {c:"餘",z:"ㄩˊ",r:"食部",w:"有餘"}, {c:"喊",z:"ㄏㄢˇ",r:"口部",w:"大喊大叫"}
         ]},
-        "10": { title: "第十課", category: "國語", words: [
-            {c:"減",z:"ㄐㄧㄢˇ",r:"水部",w:"減少"}, {c:"表",z:"ㄅㄧㄠˇ",r:"衣部",w:"課表"}, {c:"讀",z:"ㄉㄨˊ",r:"言部",w:"讀書"}, {c:"認",z:"ㄖㄣˋ",r:"言部",w:"認識"},
-            {c:"識",z:"ㄕˋ",r:"言部",w:"知識"}, {c:"謎",z:"ㄇㄧˊ",r:"言部",w:"謎題"}, {c:"答",z:"ㄉㄚˊ",r:"竹部",w:"回答"}, {c:"搖",z:"ㄧㄠˊ",r:"手部",w:"搖頭"},
-            {c:"百",z:"ㄅㄞˇ",r:"白部",w:"一百"}, {c:"嘴",z:"ㄗㄨㄟˇ",r:"口部",w:"嘴巴"}, {c:"哥",z:"ㄍㄜ",r:"口部",w:"哥哥"}, {c:"數",z:"ㄕㄨˋ",r:"攵部",w:"數學"},
-            {c:"題",z:"ㄊㄧˊ",r:"頁部",w:"題目"}, {c:"趕",z:"ㄍㄢˇ",r:"走部",w:"趕快"}, {c:"突",z:"ㄊㄨˊ",r:"穴部",w:"突然"}, {c:"異",z:"ㄧˋ",r:"田部",w:"奇異"},
-            {c:"口",z:"ㄎㄡˇ",r:"口部",w:"口袋"}, {c:"對",z:"ㄉㄨㄟˋ",r:"寸部",w:"對錯"}
+        "4": { title: "第四課 水滾了", category: "國語", words: [
+            {c:"撿",z:"ㄐㄧㄢˇ",r:"手部",w:"撿柴"}, {c:"柴",z:"ㄔㄞˊ",r:"木部",w:"撿柴"}, {c:"背",z:"ㄅㄟ",r:"肉部",w:"背著(動詞)"}, {c:"背",z:"ㄅㄟˋ",r:"肉部",w:"背上(名詞)"},
+            {c:"鍋",z:"ㄍㄨㄛ",r:"金部",w:"鍋子"}, {c:"沸",z:"ㄈㄟˋ",r:"水部",w:"沸騰"}, {c:"騰",z:"ㄊㄥˊ",r:"馬部",w:"沸騰"}, {c:"湯",z:"ㄊㄤ",r:"水部",w:"湯"},
+            {c:"冒",z:"ㄇㄠˋ",r:"冂部",w:"冒泡"}, {c:"鈴",z:"ㄌㄧㄥˊ",r:"金部",w:"鈴鼓"}, {c:"堂",z:"ㄊㄤˊ",r:"土部",w:"食堂"}, {c:"解",z:"ㄐㄧㄝˇ",r:"角部",w:"解決"}
         ]},
-        "11": { title: "第十一課", category: "國語", words: [
-            {c:"怪",z:"ㄍㄨㄞˋ",r:"心部",w:"奇怪"}, {c:"門",z:"ㄇㄣˊ",r:"門部",w:"大門"}, {c:"扇",z:"ㄕㄢˋ",r:"戶部",w:"電扇"}, {c:"立",z:"ㄌㄧˋ",r:"立部",w:"起立"},
-            {c:"刻",z:"ㄎㄜˋ",r:"刀部",w:"立刻"}, {c:"閒",z:"ㄒㄧㄢˊ",r:"門部",w:"空閒"}, {c:"馬",z:"ㄇㄚˇ",r:"馬部",w:"馬路"}, {c:"闖",z:"ㄔㄨㄤˇ",r:"門部",w:"闖關"},
-            {c:"耳",z:"ㄦˇ",r:"耳部",w:"耳朵"}, {c:"主",z:"ㄓㄨˇ",r:"丶部",w:"主人"}, {c:"播",z:"ㄅㄛ",r:"手部",w:"廣播"}, {c:"報",z:"ㄅㄠˋ",r:"土部",w:"報告"},
-            {c:"力",z:"ㄌㄧˋ",r:"力部",w:"力氣"}, {c:"竟",z:"ㄐㄧㄥˋ",r:"立部",w:"竟然"}, {c:"巴",z:"ㄅㄚ",r:"巳部",w:"尾巴"}, {c:"東",z:"ㄉㄨㄥ",r:"木部",w:"東西"},
-            {c:"西",z:"ㄒㄧ",r:"襾部",w:"西瓜"}, {c:"底",z:"ㄉㄧˇ",r:"廣部",w:"底下"}
+        "5": { title: "第五課 發明小天使", category: "國語", words: [
+            {c:"撐",z:"ㄔㄥ",r:"手部",w:"撐傘"}, {c:"淋",z:"ㄌㄧㄣˊ",r:"水部",w:"淋雨"}, {c:"遮",z:"ㄓㄜ",r:"辵部",w:"遮陽傘"}, {c:"綁",z:"ㄅㄤˇ",r:"糸部",w:"綁緊"},
+            {c:"望",z:"ㄨㄤˋ",r:"月部",w:"張望"}
         ]},
-        "12": { title: "第十二課", category: "國語", words: [
-            {c:"念",z:"ㄋㄧㄢˋ",r:"心部",w:"思念"}, {c:"曲",z:"ㄑㄩˇ",r:"曰部",w:"歌曲"}, {c:"項",z:"ㄒㄧㄤˋ",r:"頁部",w:"項目"}, {c:"浮",z:"ㄈㄨˊ",r:"水部",w:"浮力"},
-            {c:"掌",z:"ㄓㄤˇ",r:"手部",w:"手掌"}, {c:"撥",z:"ㄅㄛ",r:"手部",w:"撥開"}, {c:"波",z:"ㄅㄛ",r:"水部",w:"波浪"}, {c:"詩",z:"ㄕ",r:"言部",w:"詩人"},
-            {c:"作",z:"ㄗㄨㄛˋ",r:"人部",w:"作業"}, {c:"首",z:"ㄕㄡˇ",r:"首部",w:"首先"}, {c:"指",z:"ㄓˇ",r:"手部",w:"手指"}, {c:"伸",z:"ㄕㄣ",r:"人部",w:"伸手"},
-            {c:"脖",z:"ㄅㄛˊ",r:"肉部",w:"脖子"}, {c:"身",z:"ㄕㄣ",r:"身部",w:"身體"}, {c:"體",z:"ㄊㄧˇ",r:"骨部",w:"體育"}, {c:"隻",z:"ㄓ",r:"隹部",w:"一隻"},
-            {c:"倒",z:"ㄉㄠˇ",r:"人部",w:"跌倒"}, {c:"肚",z:"ㄉㄨˋ",r:"肉部",w:"肚子"}
+        "6": { title: "第六課 小鉛筆大學問", category: "國語", words: [
+            {c:"部",z:"ㄅㄨˋ",r:"邑部",w:"按部就班"}, {c:"墨",z:"ㄇㄛˋ",r:"土部",w:"石墨"}, {c:"製",z:"ㄓˋ",r:"衣部",w:"製成"}, {c:"芯",z:"ㄒㄧㄣ",r:"艸部",w:"筆芯"},
+            {c:"斷",z:"ㄉㄨㄢˋ",r:"斤部",w:"斷裂"}, {c:"另",z:"ㄌㄧㄥˋ",r:"口部",w:"另外"}, {c:"機",z:"ㄐㄧ",r:"木部",w:"機器"}, {c:"器",z:"ㄑㄧˋ",r:"口部",w:"機器"},
+            {c:"入",z:"ㄖㄨˋ",r:"入部",w:"放入"}, {c:"凹",z:"ㄠ",r:"凵部",w:"凹槽"}, {c:"槽",z:"ㄘㄠˊ",r:"木部",w:"凹槽"}, {c:"治",z:"ㄓˋ",r:"水部",w:"三明治"},
+            {c:"桿",z:"ㄍㄢˇ",r:"木部",w:"筆桿"}, {c:"刨",z:"ㄆㄠˊ",r:"刀部",w:"刨木板"}, {c:"烤",z:"ㄎㄠˇ",r:"火部",w:"烘烤"}, {c:"脆",z:"ㄘㄨㄟˋ",r:"肉部",w:"脆脆的"},
+            {c:"蠟",z:"ㄌㄚˋ",r:"虫部",w:"蠟油"}, {c:"浸",z:"ㄐㄧㄣˋ",r:"水部",w:"浸入"}
         ]},
+        "Q1": { title: "第一課 闖關", category: "國語闖關", mode: "quiz", quizSpec: { lesson: 1, count: 10 }, count: 10, words: Array(10).fill(null) },
+        "Q2": { title: "第二課 闖關", category: "國語闖關", mode: "quiz", quizSpec: { lesson: 2, count: 10 }, count: 10, words: Array(10).fill(null) },
+        "Q3": { title: "第三課 闖關", category: "國語闖關", mode: "quiz", quizSpec: { lesson: 3, count: 10 }, count: 10, words: Array(10).fill(null) },
+        "Q4": { title: "第四課 闖關", category: "國語闖關", mode: "quiz", quizSpec: { lesson: 4, count: 10 }, count: 10, words: Array(10).fill(null) },
+        "Q5": { title: "第五課 闖關", category: "國語闖關", mode: "quiz", quizSpec: { lesson: 5, count: 10 }, count: 10, words: Array(10).fill(null) },
+        "Q6": { title: "第六課 闖關", category: "國語闖關", mode: "quiz", quizSpec: { lesson: 6, count: 10 }, count: 10, words: Array(10).fill(null) },
+        "QV": { title: "🔤 生字選字王", category: "國語闖關", mode: "quiz", quizSpec: { kind: "vocab", count: 10 }, count: 10, words: Array(10).fill(null) },
+        "QP": { title: "🎭 破音字特訓", category: "國語闖關", mode: "quiz", quizSpec: { kind: "poly", count: 8 }, count: 8, words: Array(8).fill(null) },
+        "QS": { title: "🧩 語詞大師", category: "國語闖關", mode: "quiz", quizSpec: { kind: "word", count: 10 }, count: 10, words: Array(10).fill(null) },
+        "QR": { title: "🔍 閱讀小偵探", category: "國語闖關", mode: "quiz", quizSpec: { kind: "read", count: 10 }, count: 10, words: Array(10).fill(null) },
+        "QD": { title: "🕵️ 字謎與部首", category: "國語闖關", mode: "quiz", quizSpec: { kind: "riddle", count: 6 }, count: 6, words: Array(6).fill(null) },
+        "W": { title: "📕 錯題本複習", category: "國語", mode: "mistakes", count: 10, words: Array(10).fill(null) },
         "R": { title: "全範圍隨機 (10題)", category: "國語", mode: "random10", count: 10, words: Array(10).fill(null) },
         "M": { title: "數學題 (10題)", category: "數學", mode: "math10", count: 10, words: Array(10).fill(null) },
         "T": { title: "時鐘題 (10題)", category: "數學", mode: "clock10", count: 10, words: Array(10).fill(null) },
@@ -1662,6 +1700,7 @@
         isSick: false,
         lastLoginTime: Date.now(),
         treasureTickets: 0,
+        gachaTickets: 0,
         inventory: [],
         materialInventory: [],
         synthUnlocked: [0],
@@ -1864,32 +1903,112 @@
     let activeDecorSlot = null;
 
     const catSprites = [
-        "https://robohash.org/egg?set=set4&size=250x250", 
-        "https://robohash.org/baby_kitten?set=set4&size=250x250", 
-        "https://robohash.org/playful_cat?set=set4&size=250x250", 
-        "https://robohash.org/smart_cat?set=set4&size=250x250", 
-        "https://robohash.org/ninja_cat?set=set4&size=250x250", 
-        "https://robohash.org/wizard_cat?set=set4&size=250x250",
-        "https://robohash.org/king_cat?set=set4&size=250x250",
-        "https://robohash.org/queen_cat?set=set4&size=250x250",
-        "https://robohash.org/angel_cat?set=set4&size=250x250",
-        "https://robohash.org/demon_cat?set=set4&size=250x250",
-        "https://robohash.org/space_cat?set=set4&size=250x250",
-        "https://robohash.org/robot_cat?set=set4&size=250x250",
-        "https://robohash.org/ghost_cat?set=set4&size=250x250",
-        "https://robohash.org/super_cat?set=set4&size=250x250",
-        "https://robohash.org/mega_cat?set=set4&size=250x250",
-        "https://robohash.org/ultra_cat?set=set4&size=250x250",
-        "https://robohash.org/rainbow_cat?set=set4&size=250x250",
-        "https://robohash.org/golden_cat?set=set4&size=250x250",
-        "https://robohash.org/crystal_cat?set=set4&size=250x250",
-        "https://robohash.org/shadow_cat?set=set4&size=250x250",
-        "https://robohash.org/fire_cat?set=set4&size=250x250",
-        "https://robohash.org/water_cat?set=set4&size=250x250",
-        "https://robohash.org/earth_cat?set=set4&size=250x250",
-        "https://robohash.org/wind_cat?set=set4&size=250x250",
-        "https://robohash.org/god_cat?set=set4&size=250x250"
+        "images/cats/egg.svg",
+        "images/cats/baby_kitten.svg",
+        "images/cats/c01.webp",
+        "images/cats/c02.webp",
+        "images/cats/c03.webp",
+        "images/cats/c04.webp",
+        "images/cats/c05.webp",
+        "images/cats/c06.webp",
+        "images/cats/c07.webp",
+        "images/cats/c08.webp",
+        "images/cats/c09.webp",
+        "images/cats/c10.webp",
+        "images/cats/c11.webp",
+        "images/cats/c12.webp",
+        "images/cats/c13.webp",
+        "images/cats/c14.webp",
+        "images/cats/c15.webp",
+        "images/cats/c16.webp",
+        "images/cats/c17.webp",
+        "images/cats/n01.webp",
+        "images/cats/n02.webp",
+        "images/cats/n03.webp",
+        "images/cats/n04.webp",
+        "images/cats/n05.webp",
+        "images/cats/n06.webp",
+        "images/cats/n07.webp",
+        "images/cats/n08.webp",
+        "images/cats/n09.webp",
+        "images/cats/n10.webp",
+        "images/cats/n11.webp",
+        "images/cats/n12.webp",
+        "images/cats/n13.webp",
+        "images/cats/n14.webp",
+        "images/cats/n15.webp",
+        "images/cats/n16.webp",
+        "images/cats/n17.webp",
+        "images/cats/n18.webp"
     ];
+
+    // 稀有度：0-1 起始貓，2-18 特殊貓(低機率)，19 之後 普通貓(高機率)
+    const CAT_SPECIAL_START = 2;
+    const CAT_NORMAL_START = 19;
+    const GACHA_COST = 30;
+    const GACHA_SPECIAL_RATE = 0.1;
+    const GACHA_DUP_REFUND = { normal: 10, special: 30 };
+    function getCatRarity(i) {
+        if (i < CAT_SPECIAL_START) return 'starter';
+        return i < CAT_NORMAL_START ? 'special' : 'normal';
+    }
+    function rollGachaCat() {
+        const wantSpecial = Math.random() < GACHA_SPECIAL_RATE;
+        const start = wantSpecial ? CAT_SPECIAL_START : CAT_NORMAL_START;
+        const end = wantSpecial ? CAT_NORMAL_START : catSprites.length;
+        return start + Math.floor(Math.random() * (end - start));
+    }
+    function pullGacha() {
+        const useTicket = (gameState.gachaTickets || 0) > 0;
+        if (!useTicket && gameState.food < GACHA_COST) {
+            playSound('sfx-wrong');
+            showCatSpeech(`罐頭不夠，抽一次要 ${GACHA_COST} 罐頭喔！`);
+            return;
+        }
+        if (useTicket) gameState.gachaTickets -= 1;
+        else gameState.food -= GACHA_COST;
+
+        const idx = rollGachaCat();
+        const rarity = getCatRarity(idx);
+        const isNew = !gameState.unlockedCats.includes(idx);
+        let refund = 0;
+        if (isNew) {
+            gameState.unlockedCats.push(idx);
+            gameState.currentCatIndex = idx;
+        } else {
+            refund = GACHA_DUP_REFUND[rarity] || 0;
+            gameState.food += refund;
+        }
+        saveGame();
+        updateRoomUI();
+        showGachaResult(idx, rarity, isNew, refund);
+        renderCatBook();
+    }
+    function showGachaResult(idx, rarity, isNew, refund) {
+        const box = document.getElementById('gacha-result');
+        if (!box) return;
+        const special = rarity === 'special';
+        document.getElementById('gacha-img').src = catSprites[idx];
+        document.getElementById('gacha-rarity').innerText = special ? '✨ 特殊貓 ✨' : '普通貓';
+        document.getElementById('gacha-rarity').className = special
+            ? 'text-2xl font-black text-purple-500 animate-pulse' : 'text-xl font-black text-amber-500';
+        document.getElementById('gacha-msg').innerText = isNew
+            ? '新夥伴加入！已經幫你換上了 🎉'
+            : `已經有了，換成 ${refund} 罐頭 🥫`;
+        box.classList.remove('hidden');
+        playSound(special ? 'sfx-levelup' : 'sfx-win');
+    }
+    function closeGachaResult() {
+        const box = document.getElementById('gacha-result');
+        if (box) box.classList.add('hidden');
+        updateGachaButton();
+    }
+    function updateGachaButton() {
+        const btn = document.getElementById('gacha-btn');
+        if (!btn) return;
+        const t = gameState.gachaTickets || 0;
+        btn.innerText = t > 0 ? `🎰 抽貓（免費券 ${t} 張）` : `🎰 抽貓（${GACHA_COST} 🥫）`;
+    }
 
     const TREASURE_T = { FLOOR: 0, WALL: 1, BOX: 2, TARGET: 3, DONE: 4 };
     const TREASURE_DEFAULT_THEME = {
@@ -2156,23 +2275,23 @@
             gameState.synthUnlocked.push(gameState.synthCurrent);
         }
         if (gameState.musicOn === undefined) gameState.musicOn = true;
+        if (typeof gameState.food !== 'number' || !isFinite(gameState.food)) gameState.food = 0;
+        if (typeof gameState.exp !== 'number' || !isFinite(gameState.exp)) gameState.exp = 0;
         if (typeof gameState.satiety !== 'number') gameState.satiety = 100;
         if (typeof gameState.cleanliness !== 'number') gameState.cleanliness = 100;
         if (typeof gameState.mood !== 'number') gameState.mood = 100;
         if (typeof gameState.isSick !== 'boolean') gameState.isSick = false;
         if (typeof gameState.treasureTickets !== 'number') gameState.treasureTickets = 0;
+        if (typeof gameState.gachaTickets !== 'number') gameState.gachaTickets = 0;
         if (typeof gameState.backyardTickets !== 'number') gameState.backyardTickets = 0;
         if (typeof gameState.lastLoginTime !== 'number') gameState.lastLoginTime = Date.now();
 
         calculateOfflineProgress();
 
         gameState.level = Math.max(1, Math.floor(gameState.exp / EXP_PER_LEVEL) + 1);
-        const levelIndex = clampCatIndex(gameState.level - 1);
-        for (let i = 0; i <= levelIndex; i += 1) {
-            if (!gameState.unlockedCats.includes(i)) gameState.unlockedCats.push(i);
-        }
+        if (!gameState.unlockedCats.includes(0)) gameState.unlockedCats.push(0);
         if (!gameState.unlockedCats.includes(gameState.currentCatIndex)) {
-            gameState.currentCatIndex = levelIndex;
+            gameState.currentCatIndex = 0;
         }
         gameState.currentCatIndex = clampCatIndex(gameState.currentCatIndex);
         updateRoomUI();
@@ -2322,8 +2441,10 @@
     }
 
     function buildRandomWords(count) {
-        const pool = shuffle(getAllWords());
-        return pool.slice(0, count).map((word) => ({ ...word }));
+        const due = shuffle(getDueMistakes()).slice(0, 3).map((e) => ({ ...e.word }));
+        const dueChars = new Set(due.map((w) => w.c));
+        const pool = shuffle(getAllWords()).filter((w) => !dueChars.has(w.c));
+        return [...due, ...pool].slice(0, count).map((word) => ({ ...word }));
     }
 
     function randInt(min, max) {
@@ -2333,44 +2454,60 @@
     function buildStoryQuestions(count) {
         const templates = shuffle([
             () => {
-                const price = randInt(6, 15);
-                const qty = randInt(2, 9);
+                const price = randInt(12, 48);
+                const qty = randInt(3, 9);
                 return {
-                    story: `媽媽買菜，每顆蘋果 ${price} 元，買了 ${qty} 顆，一共多少元？`,
+                    story: `媽媽買水果，每顆 ${price} 元，買了 ${qty} 顆，一共多少元？`,
                     answer: String(price * qty)
                 };
             },
             () => {
-                const kids = randInt(2, 8);
-                const per = randInt(2, Math.min(8, Math.floor(50 / kids)));
-                const candies = kids * per;
+                const kids = randInt(3, 9);
+                const per = randInt(3, 9);
                 return {
-                    story: `有 ${candies} 顆糖果，平均分給 ${kids} 個小朋友，每人幾顆？`,
+                    story: `有 ${kids * per} 顆糖果，平均分給 ${kids} 個小朋友，每人幾顆？`,
                     answer: String(per)
                 };
             },
             () => {
-                const total = randInt(20, 50);
-                const used = randInt(6, total - 6);
+                const total = randInt(500, 900);
+                const used = randInt(120, total - 100);
                 return {
-                    story: `小明有 ${total} 元，買文具花了 ${used} 元，還剩多少元？`,
+                    story: `小明有 ${total} 元，買書花了 ${used} 元，還剩多少元？`,
                     answer: String(total - used)
                 };
             },
             () => {
-                const a = randInt(6, 25);
-                const b = randInt(6, 25);
+                const a = randInt(120, 480);
+                const b = randInt(120, 480);
                 return {
-                    story: `籃子裡有 ${a} 顆橘子，又放進 ${b} 顆，一共有幾顆？`,
+                    story: `圖書館有故事書 ${a} 本、科學書 ${b} 本，一共有幾本？`,
                     answer: String(a + b)
                 };
             },
             () => {
-                const per = randInt(2, 9);
-                const days = randInt(2, 7);
+                const per = randInt(12, 35);
+                const days = randInt(3, 9);
                 return {
-                    story: `每天讀 ${per} 頁，連續讀 ${days} 天，一共讀了幾頁？`,
+                    story: `每天走 ${per} 分鐘的路，連續走 ${days} 天，一共走了幾分鐘？`,
                     answer: String(per * days)
+                };
+            },
+            () => {
+                const groups = randInt(3, 8);
+                const per = randInt(4, 9);
+                const extra = randInt(1, groups * per - 1);
+                return {
+                    story: `${groups * per + extra} 個蛋糕，每 ${groups} 個裝一盒，最多裝滿幾盒？`,
+                    answer: String(Math.floor((groups * per + extra) / groups))
+                };
+            },
+            () => {
+                const km = randInt(2, 9);
+                const m = randInt(1, 9) * 100;
+                return {
+                    story: `爸爸騎車 ${km} 公里又 ${m} 公尺，合起來是幾公尺？`,
+                    answer: String(km * 1000 + m)
                 };
             }
         ]);
@@ -2389,27 +2526,26 @@
     }
 
     function buildBasicMathQuestion() {
-        const useMultiply = Math.random() < 0.5;
-        if (useMultiply) {
-            const a = randInt(2, 9);
-            const b = randInt(2, 9);
-            return {
-                type: "math",
-                q: `${a} × ${b}`,
-                a: String(a * b),
-                r: "數學題",
-                w: `${a} × ${b} = ${a * b}`
-            };
+        const kind = pickRandom(['mul99', 'mul2x1', 'div', 'add3', 'sub3']);
+        const mk = (q, ans) => ({ type: "math", q, a: String(ans), r: "數學題", w: `${q} = ${ans}` });
+        if (kind === 'mul99') {
+            const a = randInt(2, 9), b = randInt(2, 9);
+            return mk(`${a} × ${b}`, a * b);
         }
-        const a = randInt(6, 44);
-        const b = randInt(6, 50 - a);
-        return {
-            type: "math",
-            q: `${a} + ${b}`,
-            a: String(a + b),
-            r: "數學題",
-            w: `${a} + ${b} = ${a + b}`
-        };
+        if (kind === 'mul2x1') {
+            const a = randInt(11, 99), b = randInt(2, 9);
+            return mk(`${a} × ${b}`, a * b);
+        }
+        if (kind === 'div') {
+            const b = randInt(2, 9), c = randInt(2, 9);
+            return mk(`${b * c} ÷ ${b}`, c);
+        }
+        if (kind === 'add3') {
+            const a = randInt(120, 640), b = randInt(120, 999 - a);
+            return mk(`${a} + ${b}`, a + b);
+        }
+        const a = randInt(300, 999), b = randInt(100, a - 50);
+        return mk(`${a} - ${b}`, a - b);
     }
 
     function buildMultiQuestion() {
@@ -2422,7 +2558,7 @@
             { emoji: "🍡", name: "丸子", mult: 3, unit: "顆" }
         ];
         const theme = pickRandom(themes);
-        const groups = randInt(2, 9);
+        const groups = randInt(3, 9);
         const answer = groups * theme.mult;
         return {
             type: "math",
@@ -2436,8 +2572,7 @@
 
     function buildTimeQuestion() {
         const h = randInt(1, 12);
-        const m = randInt(0, 11) * 5;
-        const minuteText = m === 0 ? "整點" : `${m}分`;
+        const m = randInt(0, 59);
         return {
             type: "math",
             q: "看時鐘回答",
@@ -2447,6 +2582,25 @@
             w: `時間是 ${h}點${m}分`,
             visual: "clock",
             time: { h, m }
+        };
+    }
+
+    function buildElapsedQuestion() {
+        const h = randInt(7, 11);
+        const m = randInt(0, 5) * 10;
+        const addH = randInt(0, 2);
+        const addM = randInt(1, 5) * 10 + (addH === 0 ? 0 : 0);
+        const total = h * 60 + m + addH * 60 + addM;
+        const eh = Math.floor(total / 60), em = total % 60;
+        const pad = (n) => String(n).padStart(2, '0');
+        const dur = addH ? `${addH} 小時 ${addM} 分鐘` : `${addM} 分鐘`;
+        return {
+            type: "math",
+            q: "時間計算",
+            a: `${eh}:${pad(em)}`,
+            r: "數學題",
+            h: `現在是 ${h}:${pad(m)}，過了 ${dur} 是幾點幾分？（例如 9:30）`,
+            w: `${h}:${pad(m)} + ${dur} = ${eh}:${pad(em)}`
         };
     }
 
@@ -2461,9 +2615,9 @@
     function buildStep2Question() {
         const useBus = Math.random() < 0.5;
         if (useBus) {
-            const start = randInt(10, 24);
-            const down = randInt(1, 6);
-            const up = randInt(2, 8);
+            const start = randInt(120, 260);
+            const down = randInt(15, 80);
+            const up = randInt(20, 90);
             const answer = start - down + up;
             return {
                 type: "math",
@@ -2474,9 +2628,9 @@
                 w: `${start} - ${down} + ${up} = ${answer}`
             };
         }
-        const base = randInt(10, 20);
-        const add1 = randInt(2, 6);
-        const add2 = randInt(2, 6);
+        const base = randInt(100, 250);
+        const add1 = randInt(20, 90);
+        const add2 = randInt(20, 90);
         const answer = base + add1 + add2;
         return {
             type: "math",
@@ -2494,8 +2648,9 @@
         const generators = [
             buildBasicMathQuestion,
             buildBasicMathQuestion,
+            buildBasicMathQuestion,
             buildMultiQuestion,
-            buildTimeQuestion,
+            buildElapsedQuestion,
             buildStep2Question
         ];
         for (let i = storyCount; i < count; i += 1) {
@@ -2509,8 +2664,8 @@
         const questions = [];
         const variants = ['count', 'diff', 'sum'];
         const makeGrid = () => {
-            const cols = randInt(2, 6);
-            const rows = randInt(2, 6);
+            const cols = randInt(3, 8);
+            const rows = randInt(3, 8);
             return { cols, rows, total: cols * rows };
         };
         for (let i = 0; i < count; i += 1) {
@@ -2630,7 +2785,14 @@
     }
 
     function saveGame() {
-        localStorage.setItem('catGameSave', JSON.stringify(gameState));
+        ['food', 'exp', 'satiety', 'mood', 'cleanliness'].forEach((k) => {
+            if (typeof gameState[k] !== 'number' || !isFinite(gameState[k])) gameState[k] = k === 'food' || k === 'exp' ? 0 : 100;
+        });
+        try {
+            localStorage.setItem('catGameSave', JSON.stringify(gameState));
+        } catch (err) {
+            console.warn('save failed', err);
+        }
         updateRoomUI();
     }
 
@@ -2680,12 +2842,8 @@
             }
         }
 
-        const levelIndex = clampCatIndex(gameState.level - 1);
-        if (!gameState.unlockedCats.includes(levelIndex)) {
-            unlockCatSkin(levelIndex, false);
-        }
         const currentIndex = clampCatIndex(
-            typeof gameState.currentCatIndex === 'number' ? gameState.currentCatIndex : levelIndex
+            typeof gameState.currentCatIndex === 'number' ? gameState.currentCatIndex : 0
         );
         if (catImg) catImg.src = catSprites[currentIndex];
         const studyAvatar = document.getElementById('study-cat-avatar');
@@ -2972,6 +3130,7 @@
                 gameState.cleanliness = Math.min(CLEAN_POOP_MAX, gameState.cleanliness + CLEAN_POOP_RECOVER);
             }
             gameState.mood = Math.min(100, gameState.mood + 5);
+            tryRecoverSick();
             checkNeedsSpeech('clean');
             saveGame();
         } else {
@@ -3050,6 +3209,7 @@
 
     function finishBath() {
         gameState.cleanliness = 100;
+        tryRecoverSick();
         checkNeedsSpeech('clean');
         saveGame();
         closeBath();
@@ -3199,11 +3359,16 @@
         setTimeout(() => icon.remove(), 1000);
     }
 
-    function feedCat(e) {
-        if (gameState.isSick) {
-            alert("貓咪生病了，吃不下東西！💊\n請先去商店買藥水。");
-            return;
+    // 自然康復：吃飽、洗乾淨後就算沒買藥也能慢慢好起來，避免生病永久卡死
+    function tryRecoverSick() {
+        if (!gameState.isSick) return;
+        if (typeof backyardSickFromPoop !== 'undefined' && backyardSickFromPoop) return;
+        if (gameState.satiety >= 40 && gameState.cleanliness >= 40) {
+            gameState.isSick = false;
         }
+    }
+
+    function feedCat(e) {
         if (gameState.satiety >= 100) {
             showCatSpeech("我飽了～嗝！");
             return;
@@ -3216,6 +3381,7 @@
         gameState.food--;
         gameState.satiety = Math.min(100, gameState.satiety + 20);
         gameState.exp += 1;
+        tryRecoverSick();
         checkNeedsSpeech('feed');
         playSound('sfx-chew');
 
@@ -3228,7 +3394,9 @@
 
         if (calculatedLevel > gameState.level) {
             gameState.level = calculatedLevel;
-            unlockCatSkin(calculatedLevel - 1, true);
+            gameState.gachaTickets = (gameState.gachaTickets || 0) + 1;
+            updateGachaButton();
+            showCatSpeech('升級了！送你一張免費抽貓券 🎟️');
             showLevelUp();
         }
 
@@ -3769,6 +3937,7 @@
         if (!list || !progress) return;
         list.innerHTML = '';
 
+        updateGachaButton();
         const total = catSprites.length;
         const unlocked = gameState.unlockedCats.length;
         progress.innerText = `${unlocked}/${total}`;
@@ -3793,7 +3962,7 @@
                 card.innerHTML = `
                     ${badge}
                     <img src="${catSprites[i]}" alt="Cat ${i + 1}" class="w-16 h-16 object-contain drop-shadow-sm" loading="lazy">
-                    <div class="text-[10px] font-bold text-center text-gray-600 mt-1">Lv.${i + 1}</div>
+                    <div class="text-[10px] font-bold text-center mt-1 ${getCatRarity(i) === 'special' ? 'text-purple-500' : 'text-gray-600'}">${getCatRarity(i) === 'special' ? '✨特殊' : getCatRarity(i) === 'normal' ? '普通' : '初始'}</div>
                 `;
                 card.onclick = () => {
                     summonCat(i);
@@ -3802,7 +3971,7 @@
             } else {
                 card.innerHTML = `
                     <div class="text-2xl grayscale mb-1">🔒</div>
-                    <div class="text-[10px] font-bold text-gray-400">???</div>
+                    <div class="text-[10px] font-bold text-gray-400">${getCatRarity(i) === 'special' ? '✨特殊' : '???'}</div>
                 `;
             }
             list.appendChild(card);
@@ -4062,6 +4231,67 @@
         writeCtx.clearRect(0, 0, writeCanvas.width / ratio, writeCanvas.height / ratio);
     }
 
+
+    // --- 描紅 ---
+    let traceOn = false;
+    function renderTrace(word) {
+        const layer = document.getElementById('trace-layer');
+        const btn = document.getElementById('trace-btn');
+        if (!layer || !btn) return;
+        const ch = word && word.c && !word.type ? word.c : '';
+        btn.classList.toggle('hidden', !ch);
+        // 寫錯重練的字自動開啟描紅
+        if (ch && word._retry) traceOn = true;
+        const show = traceOn && !!ch;
+        layer.innerText = show ? ch : '';
+        layer.classList.toggle('hidden', !show);
+        layer.classList.toggle('flex', show);
+        btn.innerText = traceOn ? '✏️ 描紅:開' : '✏️ 描紅';
+    }
+    function toggleTrace() {
+        traceOn = !traceOn;
+        renderTrace(studyQueue[currentCardIndex]);
+    }
+
+    // --- 錯題本 (間隔複習) ---
+    const MISTAKE_INTERVAL_DAYS = [1, 2, 4];
+    function getMistakes() {
+        if (!gameState.mistakes || typeof gameState.mistakes !== 'object') gameState.mistakes = {};
+        return gameState.mistakes;
+    }
+    function recordMistake(word) {
+        if (!word || !word.c || word.type) return;
+        const book = getMistakes();
+        const entry = book[word.c] || { word: { c: word.c, z: word.z, r: word.r, w: word.w }, streak: 0, wrong: 0 };
+        entry.wrong += 1;
+        entry.streak = 0;
+        entry.due = Date.now();
+        book[word.c] = entry;
+        saveGame();
+    }
+    function recordMistakeCorrect(word) {
+        if (!word || !word.c || word.type || word._retry) return;
+        const entry = getMistakes()[word.c];
+        if (!entry) return;
+        entry.streak += 1;
+        if (entry.streak >= MISTAKE_INTERVAL_DAYS.length) {
+            delete getMistakes()[word.c];
+        } else {
+            entry.due = Date.now() + MISTAKE_INTERVAL_DAYS[entry.streak - 1] * 86400000;
+        }
+        saveGame();
+    }
+    function getDueMistakes() {
+        const now = Date.now();
+        return Object.values(getMistakes()).filter((e) => e.due <= now);
+    }
+    function buildMistakeSet(count) {
+        const book = Object.values(getMistakes());
+        const due = shuffle(getDueMistakes());
+        const rest = shuffle(book.filter((e) => !due.includes(e)));
+        return [...due, ...rest].slice(0, count).map((e) => ({ ...e.word }));
+    }
+
     function togglePenColor() {
         penIsBlack = !penIsBlack;
         if (writeCtx) {
@@ -4081,7 +4311,7 @@
         const list = document.getElementById('lesson-list');
         list.innerHTML = '';
         
-        const categories = ['國語', '數學', '總複習'];
+        const categories = ['國語', '國語闖關', '數學', '總複習'];
         const byCategory = {};
         Object.keys(lessons).forEach((key) => {
             const lesson = lessons[key];
@@ -4099,7 +4329,8 @@
             list.appendChild(header);
 
             items.forEach(({ key, lesson }) => {
-                const count = lesson.count || (lesson.words ? lesson.words.length : 0);
+                let count = lesson.count || (lesson.words ? lesson.words.length : 0);
+                if (lesson.mode === 'mistakes') count = Object.keys(getMistakes()).length;
                 const unit = lesson.mode ? '題' : '字';
                 const btn = document.createElement('button');
                 btn.className = "btn-3d p-4 bg-yellow-100 rounded-xl font-bold hover:bg-yellow-200 border-b-4 border-yellow-300 text-lg flex items-center justify-between";
@@ -4116,23 +4347,10 @@
     }
 
     function startLevel(key) {
-        if (gameState.isSick) {
-            const medicineItem = shopItems.find((item) => item.id === 'item-medicine');
-            const medicinePrice = medicineItem ? medicineItem.price : 50;
-            if (gameState.food >= medicinePrice) {
-                playSound('sfx-wrong');
-                alert("貓咪生病了！😷\n它沒辦法陪你讀書。\n請去商店買「萬能藥水」治好它！");
-                return;
-            }
-            alert("貓咪生病了，但罐頭不夠買藥水。\n先去打工賺藥水錢吧！");
-        }
-        if (gameState.satiety < 10) {
-            if (gameState.food > 0) {
-                playSound('sfx-wrong');
-                alert("貓咪肚子餓扁了... 🐟\n請先餵它吃東西！");
-                return;
-            }
-            alert("貓咪很餓但罐頭不足。\n先去打工賺罐頭吧！");
+        // 打工是賺罐頭的唯一來源，絕不能被生病/飢餓擋住，否則會卡死
+        if (!lessons[key]) return;
+        if (gameState.isSick || gameState.satiety < 10) {
+            showCatSpeech('我不太舒服...但還是陪你打工賺罐頭 💦');
         }
 
         resetComboState();
@@ -4150,6 +4368,15 @@
             studyQueue = buildAreaQuestions(10);
         } else if (lesson && lesson.mode === "mix10") {
             studyQueue = buildMixedQuestions(10);
+        } else if (lesson && lesson.mode === "mistakes") {
+            studyQueue = buildMistakeSet(10);
+            if (!studyQueue.length) {
+                document.getElementById('scene-menu').classList.add('hidden');
+                alert('錯題本是空的，太棒了！🎉');
+                return;
+            }
+        } else if (lesson && lesson.mode === "quiz") {
+            studyQueue = buildQuizSet(lesson.quizSpec);
         } else {
             studyQueue = [...lesson.words].sort(() => Math.random() - 0.5);
         }
@@ -4218,15 +4445,16 @@
         bossPending = false;
         prepareBossStats();
 
-        const basePool = studyQueue.length ? [...studyQueue] : buildRandomWords(10);
+        const quizFree = studyQueue.filter((q) => q.type !== 'quiz');
+        const basePool = quizFree.length ? quizFree : buildRandomWords(10);
         const extraPool = buildRandomWords(8);
         bossQuestions = shuffle([...basePool, ...extraPool]);
 
         document.getElementById('scene-study').classList.add('hidden');
         document.getElementById('scene-boss').classList.remove('hidden');
 
-        const randomSeed = Math.floor(Math.random() * 10000);
-        document.getElementById('boss-image').src = `https://robohash.org/${randomSeed}?set=set2&size=300x300`;
+        const bossNo = randInt(1, 15);
+        document.getElementById('boss-image').src = bossNo === 15 ? 'images/monsters/m15.webp' : `images/monsters/m${bossNo}.svg`;
 
         updateBossUI();
         loadBossQuestion();
@@ -6131,6 +6359,14 @@ Return JSON only:
 
         const word = studyQueue[currentCardIndex];
         const cardInner = document.getElementById('study-card');
+        const quizArea = document.getElementById('quiz-area');
+        const sceneEl = document.getElementById('scene-study');
+        if (word.type === 'quiz') {
+            loadQuizCard(word);
+            return;
+        }
+        if (quizArea) quizArea.classList.add('hidden');
+        if (sceneEl) sceneEl.classList.remove('quiz-mode');
         
         cardInner.classList.remove('card-flipped');
         document.getElementById('study-controls').classList.add('hidden');
@@ -6142,7 +6378,7 @@ Return JSON only:
         const isStory = word.type === "story";
         const isArea = word.type === "area";
         const isClock = isMath && word.visual === "clock";
-        const shouldShowWriting = !isMath && !isStory && !isArea;
+        const shouldShowWriting = true; // 全部題型都用手寫作答，不使用鍵盤
         const studyScene = document.getElementById('scene-study');
         if (studyScene) {
             studyScene.classList.toggle('story-mode', isStory);
@@ -6159,6 +6395,7 @@ Return JSON only:
                 clearCanvas();
             }
         }
+        renderTrace(word);
         const questionText = isMath ? word.q : isStory ? "情境題" : isArea ? "面積題" : word.z;
         const answerText = isMath || isStory || isArea ? word.a : word.c;
         const radicalText = isMath || isStory || isArea ? "數學題" : word.r;
@@ -6206,6 +6443,156 @@ Return JSON only:
         }
     }
 
+    // --- 選擇題闖關 ---
+    const QUIZ_TAGS = { word: '🧩 語詞', read: '🔍 閱讀小偵探', riddle: '🕵️ 字謎與部首', poly: '🎭 破音字', vocab: '🔤 生字' };
+    let quizLocked = false;
+    let quizPicked = new Set();
+    let quizOrder = [];
+
+    function buildVocabChoice(word, pool) {
+        const others = pool.filter((w) => w.c !== word.c && w.z !== word.z);
+        const sameChar = pool.filter((w) => w.c === word.c && w.z !== word.z);
+        if (Math.random() < 0.5 || others.length < 3) {
+            // 看注音選國字
+            const chars = [...new Set(others.map((w) => w.c))];
+            const opts = [word.c, ...shuffle(chars).slice(0, 3)];
+            return {
+                type: 'quiz', kind: 'mc', tag: 'vocab', options: opts, answer: 0,
+                stem: `「${word.w.split(word.c).join('＿')}」\n＿ 要怎麼寫？(${word.z})`,
+                explain: `${word.c}（${word.w}）`
+            };
+        }
+        // 看國字選注音
+        const zs = [word.z, ...sameChar.map((w) => w.z)];
+        const rest = shuffle([...new Set(others.map((w) => w.z))]).filter((z) => !zs.includes(z));
+        const opts = [...zs, ...rest].slice(0, Math.max(4, zs.length));
+        return {
+            type: 'quiz', kind: 'mc', tag: 'vocab', options: opts, answer: 0,
+            stem: `「${word.w}」的「${word.c}」怎麼念？`,
+            explain: `${word.c} 讀作 ${word.z}`
+        };
+    }
+
+    function quizFromBank(item) {
+        return { type: 'quiz', kind: item.kind, tag: item.cat, options: item.options, answer: item.answer, stem: item.stem, explain: item.explain || '' };
+    }
+
+    function buildQuizSet(spec) {
+        const bank = (typeof QUIZ_BANK !== 'undefined' ? QUIZ_BANK : []);
+        const allVocab = getAllWords();
+        const count = spec.count || 10;
+        let list = [];
+        if (spec.lesson) {
+            const own = shuffle(bank.filter((b) => b.lesson === spec.lesson));
+            const take = own.slice(0, Math.min(own.length, Math.ceil(count * 0.6)));
+            list = take.map(quizFromBank);
+            const lessonWords = (lessons[String(spec.lesson)] || {}).words || [];
+            const pool = lessonWords.length >= 4 ? [...lessonWords, ...allVocab] : allVocab;
+            const need = count - list.length;
+            shuffle(lessonWords).slice(0, need).forEach((w) => list.push(buildVocabChoice(w, pool)));
+            if (list.length < count) {
+                shuffle(own.slice(take.length)).slice(0, count - list.length).forEach((b) => list.push(quizFromBank(b)));
+            }
+        } else if (spec.kind === 'vocab') {
+            list = shuffle(allVocab).slice(0, count).map((w) => buildVocabChoice(w, allVocab));
+        } else {
+            list = shuffle(bank.filter((b) => b.cat === spec.kind)).slice(0, count).map(quizFromBank);
+        }
+        return shuffle(list);
+    }
+
+    function loadQuizCard(item) {
+        const scene = document.getElementById('scene-study');
+        ['story-mode', 'area-mode', 'clock-mode', 'math-mode', 'writing-mode'].forEach((c) => scene.classList.remove(c));
+        scene.classList.add('quiz-mode');
+        document.getElementById('writing-area').classList.add('hidden');
+        document.getElementById('study-controls').classList.add('hidden');
+        document.getElementById('tap-hint').classList.add('hidden');
+        document.getElementById('q-idx').innerText = currentCardIndex + 1;
+        document.getElementById('study-progress').style.width = `${(currentCardIndex / studyQueue.length) * 100}%`;
+
+        document.getElementById('quiz-area').classList.remove('hidden');
+        document.getElementById('quiz-tag').innerText = QUIZ_TAGS[item.tag] || '📝 題目';
+        document.getElementById('quiz-stem').innerText = item.stem;
+        document.getElementById('quiz-feedback').innerText = '';
+        document.getElementById('quiz-feedback').className = 'mt-4 min-h-[2rem] text-lg font-black text-center';
+        const isMulti = item.kind === 'multi';
+        document.getElementById('quiz-submit').classList.toggle('hidden', !isMulti);
+
+        quizLocked = false;
+        quizPicked = new Set();
+        quizOrder = shuffle(item.options.map((_, i) => i));
+        const box = document.getElementById('quiz-options');
+        box.innerHTML = '';
+        quizOrder.forEach((origIdx) => {
+            const btn = document.createElement('button');
+            btn.className = 'quiz-opt';
+            btn.dataset.idx = origIdx;
+            btn.innerText = item.options[origIdx];
+            btn.onclick = () => onQuizOption(origIdx);
+            box.appendChild(btn);
+        });
+        speak(item.stem.replace(/＿+/g, '空格').replace(/\n/g, '。'));
+    }
+
+    function onQuizOption(idx) {
+        if (quizLocked) return;
+        const item = studyQueue[currentCardIndex];
+        const btn = document.querySelector(`#quiz-options .quiz-opt[data-idx="${idx}"]`);
+        if (item.kind === 'multi') {
+            if (quizPicked.has(idx)) { quizPicked.delete(idx); btn.classList.remove('picked'); }
+            else { quizPicked.add(idx); btn.classList.add('picked'); }
+            return;
+        }
+        quizLocked = true;
+        finishQuizAnswer(idx === item.answer, new Set([idx]));
+    }
+
+    function submitQuizMulti() {
+        if (quizLocked) return;
+        const item = studyQueue[currentCardIndex];
+        if (quizPicked.size === 0) return;
+        quizLocked = true;
+        const want = new Set(item.answer);
+        const ok = want.size === quizPicked.size && [...want].every((i) => quizPicked.has(i));
+        finishQuizAnswer(ok, quizPicked);
+    }
+
+    function finishQuizAnswer(isCorrect, picked) {
+        const item = studyQueue[currentCardIndex];
+        const rightSet = new Set(item.kind === 'multi' ? item.answer : [item.answer]);
+        document.querySelectorAll('#quiz-options .quiz-opt').forEach((b) => {
+            const i = Number(b.dataset.idx);
+            b.classList.remove('picked');
+            if (rightSet.has(i)) b.classList.add('right');
+            else if (picked.has(i)) b.classList.add('wrong');
+        });
+        document.getElementById('quiz-submit').classList.add('hidden');
+        const fb = document.getElementById('quiz-feedback');
+        if (isCorrect) {
+            playSound('sfx-correct');
+            gameState.backyardTickets = (gameState.backyardTickets || 0) + 1;
+            recordMistakeCorrect(currentWord);
+            saveGame();
+            handleComboCorrect();
+            requestCatSpeech('answer-correct', { subject: 'quiz' });
+            fb.innerText = '✅ 答對了！' + (item.explain ? `\n${item.explain}` : '');
+            fb.classList.add('text-green-600');
+            currentCardIndex++;
+            setTimeout(loadCard, 1000);
+        } else {
+            playSound('sfx-wrong');
+            handleComboWrong();
+            requestCatSpeech('answer-wrong', { subject: 'quiz' });
+            const rightText = [...rightSet].map((i) => item.options[i]).join('、');
+            fb.innerText = `❌ 正確答案：${rightText}` + (item.explain && item.explain !== `答案:${rightText}` ? `\n${item.explain}` : '');
+            fb.classList.add('text-red-500');
+            studyQueue.push(item);
+            currentCardIndex++;
+            setTimeout(loadCard, 2200);
+        }
+    }
+
     function answer(isCorrect) {
         const controls = document.getElementById('study-controls');
         controls.style.pointerEvents = 'none';
@@ -6227,7 +6614,8 @@ Return JSON only:
             handleComboWrong();
             requestCatSpeech('answer-wrong', { subject: currentWord?.type || 'word' });
             const word = currentWord;
-            studyQueue.push(word);
+            recordMistake(word);
+            studyQueue.push({ ...word, _retry: true });
             
             setTimeout(() => {
                 document.getElementById('study-card').classList.remove('card-flipped');
